@@ -1,9 +1,15 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import Home from "./pages/Home/Home"
+import Login from "./pages/Login/Login"
 
 function App() {
   return (
-    <>
-        <h1>this is my website</h1>
-    </>
+    <Router>
+        <Routes>
+            <Route path="/" element={<Home />}/>
+            <Route path="/login" element={<Login />}/>
+        </Routes>
+    </Router>
   )
 }
 

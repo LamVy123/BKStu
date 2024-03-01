@@ -13,6 +13,13 @@ export default {
             'BKbg' : "url('/src/images/BKbg.jpeg')",
             'Loginbg' : "url('/src/images/Loginbg.jpg')",
             'usericon' : "url('/src/images/usericon.png')",
+        },
+        spacing: {
+            '112': '28rem',
+            '128': '32rem',
+            '144': '36rem',
+            '160': '40rem',
+            '176': '44rem',
           }
       },
     },

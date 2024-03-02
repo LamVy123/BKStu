@@ -10,9 +10,8 @@ export default {
             'primary' : '#1071e5',
         },
         backgroundImage: {
-            'BKbg' : "url('/src/images/BKbg.jpeg')",
-            'Loginbg' : "url('/src/images/Loginbg.jpg')",
-            'usericon' : "url('/src/images/usericon.png')",
+            'BKbg' : "url('/static/BKbg.jpeg')",
+            'Loginbg' : "url('/static/Loginbg.jpg')",
         },
         spacing: {
             '112': '28rem',

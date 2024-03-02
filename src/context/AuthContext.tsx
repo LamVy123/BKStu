@@ -21,7 +21,8 @@ interface AuthContextType {
     LogOutUser : () => Promise<void>,
     CreateUser : (email: string, password: string) => Promise<void>,
     isLogin : boolean | null,
-    role : string | null
+    role : string,
+    isLoading : boolean,
 }
 
 //define the type of children which are other React Component / ReactNode
@@ -44,8 +45,10 @@ export const useAuth = () => {
 
 const AuthProvider = ({children} : Props) => {
     const [ currentUser , setCurrentUser ] = useState<User | null>(null)
-    const [ role , setRole ] = useState<string | null>(null)
+    const localRole = localStorage.getItem('role');
+    const [ role , setRole ] = useState<string>(localRole ? localRole : 'guest')
     const [ isLogin , setLogin ] = useState<boolean | null>(null)
+    const [ isLoading , setLoading ] = useState<boolean>(false);
     const navigate = useNavigate()
 
     //Get current user and set login 
@@ -58,7 +61,7 @@ const AuthProvider = ({children} : Props) => {
             getDoc(docRef)
             .then((doc) => {
                 setRole(doc.data()?.['role'])
-                console.log(doc.data()?.['role'])
+                localStorage.setItem('role',doc.data()?.['role'])
             })
         }});
         return unsubscribe
@@ -69,18 +72,21 @@ const AuthProvider = ({children} : Props) => {
     const LogInUser = async ( email : string , password : string ) => {
         if (!email || !password) return;
         try {
+            setLoading(true);
             await signInWithEmailAndPassword(auth, email, password)
-            console.log('Login success!')
             navigate('/')
         } catch (err) {
             alert('Wrong Email or Password')
         }
+        setLoading(false)
     }
 
     //Sign out User
     const LogOutUser = async () => {
         await signOut(auth)
         navigate('/')
+        localStorage.setItem('role','guest')
+        window.location.reload();
     }
 
     //Create User
@@ -106,7 +112,8 @@ const AuthProvider = ({children} : Props) => {
         LogOutUser,
         CreateUser,
         isLogin,
-        role
+        role,
+        isLoading
     }
     
     //Return the Provider

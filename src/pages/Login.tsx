@@ -1,8 +1,7 @@
 import React from "react";
 import Container from "../component/Container";
-import { EmailIcon , EyeIcon , EyeOffIcon } from "../assets/Icon";
+import { EmailIcon , EyeIcon , EyeOffIcon , LoadingIcon} from "../assets/Icon";
 import { useAuth } from "../context/AuthContext";
-import Navigation from "../component/Navigation";
 
 
 
@@ -21,7 +20,7 @@ const Login : React.FC = () => {
         setShowPassword(showPassword => !showPassword);
     }
 
-    async function login (e : React.ChangeEvent<any>) {
+    function login (e : React.ChangeEvent<any>) {
         e.preventDefault();
         setEmail(emailRef.current?.value ? emailRef.current.value : '');
         setPassword(passwordRef.current?.value ? passwordRef.current.value : '');
@@ -74,7 +73,7 @@ const Login : React.FC = () => {
                     <button 
                         className="text-2xl text-white rounded py-2 w-full bg-primary font-bold hover:bg-blue-700 border-solid border-black border mt-4 shadow-md shadow-gray-700"
                     >
-                        Log in
+                        {auth.isLoading ? <LoadingIcon width={8} height={8} /> : 'Log in'}
                     </button>
                 </div>
             </form>
@@ -95,9 +94,8 @@ const Login : React.FC = () => {
 
     return(
         <Container>
-            <Navigation/>
             <div className="w-full h-full flex bg-Loginbg bg-no-repeat bg-cover">
-                <div className="w-3/5 p-8 flex flex-col justify-center relative gap-8 bg-zinc-100">
+                <div className="w-3/5 p-8 flex flex-col justify-start relative gap-8 bg-zinc-100">
                     <LoginForm />
                     <Contact />
                 </div>

@@ -1,12 +1,16 @@
 import React from "react";
 import Container from "../../component/Container";
 
-const TeacherDashBoard : React.FC = () => {
+const TeacherDashboard : React.FC = () => {
     return (
         <Container>
-            <h1>This is Teacher Dashboard</h1>
+            <div className="w-full h-full flex items-center justify-center p-4 bg-zinc-200">
+                <div className="w-full h-full border-solid border border-black rounded-md shadow-sm bg-white shadow-gray-700 flex items-center justify-center">
+                    <h1>Teacher Dashboard</h1>
+                </div>
+            </div>
         </Container>
     )
 }
 
-export default TeacherDashBoard
+export default TeacherDashboard

@@ -1,9 +1,8 @@
-import React from "react";
 import Container from "../../component/Container";
 import { useAuth } from "../../context/AuthContext";
 import { Navigate } from "react-router-dom";
 
-const StudenManagement : React.FC = () => {
+const StudentManagement : React.FC = () => {
     const auth = useAuth();
     if (auth.role != 'admin') return <Navigate to={'/'} />
     
@@ -18,4 +17,4 @@ const StudenManagement : React.FC = () => {
     )
 }
 
-export default StudenManagement
+export default StudentManagement

@@ -1,9 +1,10 @@
-import React from "react"
+import { lazy } from "react"
 import { useAuth } from "../context/AuthContext"
 import { Navigate } from "react-router-dom"
-import StudentDashboard from "./Student/StudentDashboard"
-import TeacherDashBoard from "./Teacher/TeacherDashboard"
-import AdminDashboard from "./Admin/AdminDashboard"
+
+const StudentDashboard = lazy(() => import('./Student/StudentDashboard'));
+const TeacherDashboard = lazy(() => import('./Teacher/TeacherDashboard'));
+const AdminDashboard = lazy(() => import('./Admin/AdminDashboard'));
 
 const Dashboard : React.FC = () => {
     const auth = useAuth()
@@ -11,7 +12,7 @@ const Dashboard : React.FC = () => {
         case 'student':
             return <StudentDashboard />
         case 'teacher':
-            return <TeacherDashBoard />
+            return <TeacherDashboard />
         case 'admin':
             return <AdminDashboard />
         default:

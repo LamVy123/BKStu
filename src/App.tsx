@@ -1,34 +1,38 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
-import AuthProvider from "./context/AuthContext"
-import Home from "./pages/Home"
-import Login from "./pages/Login"
-import Dashboard from "./pages/Dashboard"
-import Navigation from "./component/Navigation"
-import StudenManagement from "./pages/Admin/StudentManagement"
-import TeacherManagement from "./pages/Admin/TeacherManagement"
-import Information from "./pages/Information"
-import ClassManagement from "./pages/ClassManagement"
-import Schedule from "./pages/Schedule"
+import { Suspense, lazy } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+import AuthProvider from "./context/AuthContext";
+import Navigation from "./component/Navigation";
+
+const Home = lazy(() => import("./pages/Home"));
+const Login = lazy(() => import("./pages/Login"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const StudenManagement = lazy(() => import("./pages/Admin/StudentManagement"));
+const TeacherManagement = lazy(() => import("./pages/Admin/TeacherManagement"));
+const Information = lazy(() => import("./pages/Information"));
+const ClassManagement = lazy(() => import("./pages/ClassManagement"));
+const Schedule = lazy(() => import("./pages/Schedule"));
 
 function App() {
-
-    return (
-        <Router>
-            <AuthProvider>
-                <Navigation />
-                <Routes>
-                    <Route path="/" element={<Home />}/>
-                    <Route path="/login" element={<Login />}/>
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/student_management" element={<StudenManagement />}/>
-                    <Route path="/teacher_management" element={<TeacherManagement />}/>
-                    <Route path="/information" element={<Information />}/>
-                    <Route path="/class_management" element={<ClassManagement/>}/>
-                    <Route path="/schedule" element={<Schedule />}/>
-                </Routes>
-            </AuthProvider>
-        </Router>
-    )
+  return (
+    <Router>
+      <AuthProvider>
+        <Navigation />
+        <Suspense fallback={<div>Loading...</div>}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/student_management" element={<StudenManagement />} />
+            <Route path="/teacher_management" element={<TeacherManagement />} />
+            <Route path="/information" element={<Information />} />
+            <Route path="/class_management" element={<ClassManagement />} />
+            <Route path="/schedule" element={<Schedule />} />
+          </Routes>
+        </Suspense>
+      </AuthProvider>
+    </Router>
+  );
 }
 
-export default App
+export default App;

@@ -1,4 +1,4 @@
-import React from "react";
+import { useRef, useState } from "react";
 import Container from "../component/Container";
 import { EmailIcon , EyeIcon , EyeOffIcon , LoadingIcon} from "../assets/Icon";
 import { useAuth } from "../context/AuthContext";
@@ -6,13 +6,13 @@ import { useAuth } from "../context/AuthContext";
 
 
 const Login : React.FC = () => {
-    const emailRef = React.useRef<HTMLInputElement | null>(null)
-    const passwordRef = React.useRef<HTMLInputElement | null>(null)
+    const emailRef = useRef<HTMLInputElement | null>(null)
+    const passwordRef = useRef<HTMLInputElement | null>(null)
     const auth = useAuth()
 
-    const [ email , setEmail ] = React.useState<string>('')
-    const [ password , setPassword ] = React.useState<string>('')
-    const [ showPassword , setShowPassword ] = React.useState<boolean>(false)
+    const [ email , setEmail ] = useState<string>('')
+    const [ password , setPassword ] = useState<string>('')
+    const [ showPassword , setShowPassword ] = useState<boolean>(false)
 
     function toggleShowPassword() {
         setEmail(emailRef.current?.value ? emailRef.current.value : '');

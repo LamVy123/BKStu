@@ -1,7 +1,6 @@
-import React from "react"                         //import dependency
 import { Link } from "react-router-dom"
 
-import Footer from "../component/Footer"          //import component
+import Footer from "../component/Footer"        
 import Container from "../component/Container"
 
 const Home : React.FC = () => {

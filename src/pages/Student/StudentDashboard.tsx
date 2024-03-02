@@ -1,4 +1,3 @@
-import React from "react";
 import Container from "../../component/Container";
 
 const StudentDashboard : React.FC = () => {

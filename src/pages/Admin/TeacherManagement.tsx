@@ -1,4 +1,3 @@
-import React from "react";
 import Container from "../../component/Container";
 import { useAuth } from "../../context/AuthContext";
 import { Navigate } from "react-router-dom";

@@ -1,9 +1,10 @@
-import React from "react"
+import { lazy } from "react"
 import { useAuth } from "../context/AuthContext"
 import { Navigate } from "react-router-dom"
-import StudentInformation from "./Student/StudentInformaiton"
-import TeacherInformation from "./Teacher/TeacherInformation"
-import AdminInformation from "./Admin/AdminInfomation"
+
+const StudentInformation = lazy(() => import("./Student/StudentInformaiton"));
+const TeacherInformation = lazy(() => import("./Teacher/TeacherInformation"));
+const AdminInformation = lazy(() => import("./Admin/AdminInformation"));
 
 const Information : React.FC = () => {
     const auth = useAuth()

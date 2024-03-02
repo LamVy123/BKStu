@@ -1,8 +1,9 @@
-import React from "react"
+import { lazy } from "react"
 import { useAuth } from "../context/AuthContext"
 import { Navigate } from "react-router-dom"
-import StudentSchedule from "./Student/StudentSchedule"
-import TeacherSchedule from "./Teacher/TeacherSchedule"
+
+const StudentSchedule = lazy(() => import("./Student/StudentSchedule"))
+const TeacherSchedule = lazy(() => import("./Teacher/TeacherSchedule"))
 
 const Schedule : React.FC = () => {
     const auth = useAuth()

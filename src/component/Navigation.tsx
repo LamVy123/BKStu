@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { MenuIcon, LogoutIcon} from "../assets/Icon";
 import { 
@@ -10,6 +10,7 @@ import {
     InformationLink,
     ClassManagementLink,
     ScheduleLink,
+    AdminManagementdLink,
 } from "./NavLink";
 import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
@@ -29,7 +30,6 @@ const Navigation: React.FC = () => {
 
         const LogoutButton : React.FC = () => {
             return (
-                <div className="h-full flex items-end">
                     <div className="p-2 hover:bg-blue-700 w-full h-fit overflow-hidden">
                         <motion.div 
                         initial={{scale:1}}
@@ -39,7 +39,6 @@ const Navigation: React.FC = () => {
                             <div><h1 className="text-base text-white font-bold">Logout</h1></div>
                         </motion.div>
                     </div>
-                </div>
             )
         }
 
@@ -54,7 +53,9 @@ const Navigation: React.FC = () => {
                     <hr className="solid bg-black border-black"></hr>
                     <ScheduleLink />
                     <hr className="solid bg-black border-black"></hr>
-                    <LogoutButton />
+                    <div className="h-full flex flex-col justify-end">
+                        <LogoutButton />
+                    </div>
                 </>
             )
         }
@@ -70,7 +71,9 @@ const Navigation: React.FC = () => {
                     <hr className="solid bg-black border-black"></hr>
                     <ScheduleLink />
                     <hr className="solid bg-black border-black"></hr>
-                    <LogoutButton />
+                    <div className="h-full flex flex-col justify-end">
+                        <LogoutButton />
+                    </div>
                 </>
             )
         }
@@ -86,14 +89,17 @@ const Navigation: React.FC = () => {
                     <hr className="solid bg-black border-black"></hr>
                     <TeacherManagementdLink />
                     <hr className="solid bg-black border-black"></hr>
+                    <AdminManagementdLink />
+                    <hr className="solid bg-black border-black"></hr>
                     <ClassManagementLink />
                     <hr className="solid bg-black border-black"></hr>
-                    <LogoutButton />
+                    <div className="h-full flex flex-col justify-end">
+                        <LogoutButton />
+                    </div>
                 </>
             )
         } 
  
-
         const GuestNavigation : React.FC = () => {
             return (
                 <>
@@ -117,6 +123,7 @@ const Navigation: React.FC = () => {
                     return <GuestNavigation />
             }
         }
+
         const location = useLocation();
         let displayPath : string
         switch(location.pathname) {
@@ -132,6 +139,9 @@ const Navigation: React.FC = () => {
             case '/teacher_management':
                 displayPath = 'Teacher_Management'
                 break
+            case 'admin_management':
+                displayPath = 'Admin_Management'
+                break
             case '/information':
                 displayPath = 'Information'
                 break
@@ -145,24 +155,39 @@ const Navigation: React.FC = () => {
                 displayPath = 'Home'
         }
         
-        let closeWidth = '64px'
-        let openWidth = '180px'
+        const closeWidth = '0px'
+        const [ openWidth , setOpenWidth ] = useState<string>('0px')
+
+        const toggleSideBar = () => {
+            if(openWidth == '0px') {
+                setOpenWidth('180px')
+            } else {
+                setOpenWidth('0px')
+            }
+        }
+        
         return (
             <motion.div
-                className="h-screen fixed z-50 bg-primary py-2 hover:w-50 left-0 top-0"
+                className="h-screen fixed z-50 bg-primary py-1 top-0 hover:cursor-pointer"
                 initial={{width: closeWidth}}
-                whileHover={{width: openWidth}}
+                animate={{width: openWidth}}
+                whileHover={{width: '180px'}}
             >
-                <div className="h-full flex flex-col justify-start">
-                    <div className="px-2 flex gap-4 items-center" style={{paddingTop : '3px',paddingBottom: '3px'}}>
-                        <button><MenuIcon width={10} height={10} color="white" /></button>
+                <div className="h-screen flex flex-col">
+
+                    <div className="px-2 flex gap-4 items-center" style={{paddingTop : '5px',paddingBottom: '5px'}}>
+                        <button onClick={() => toggleSideBar()}><MenuIcon width={10} height={10} color="white" /></button>
                         <div className="flex gap-4">
                             <Link to="/" className="text-3xl text-white font-bold">BKStu</Link>
                             <h1 className="text-3xl text-white font-bold">/</h1>
                             <h1 className="text-3xl text-white font-bold">{displayPath}</h1>
                         </div>
                     </div>
-                    <UserNavigation />
+
+                    <div className="h-full flex flex-col overflow-hidden">
+                        <UserNavigation />
+                    </div>
+
                 </div>
             </motion.div>
     );

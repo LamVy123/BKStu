@@ -29,7 +29,7 @@ const Login : React.FC = () => {
 
     const LoginForm : React.FC = () => {
         return (
-            <form className="w-full h-fit p-8 border-solid border-black border rounded-md flex flex-col bg-white shadow-sm shadow-gray-700"
+            <form className="min-w-full h-fit p-8 border-solid border-black border rounded-md flex flex-col bg-white shadow-sm shadow-gray-700"
             onSubmit={(e) => login(e)}>
                 <h1 className="text-3xl font-bold">Welcome to BKStu</h1>
                 <div className="flex flex-col w-full">
@@ -61,7 +61,7 @@ const Login : React.FC = () => {
                             required
                         />
                         <div className="p-0 m-0" onClick={() => toggleShowPassword()}>
-                            {showPassword ? <EyeIcon height={8} width={8} color="black"/> : <EyeOffIcon height={8} width={8} color="black"/>}
+                            {!showPassword ? <EyeIcon height={8} width={8} color="black"/> : <EyeOffIcon height={8} width={8} color="black"/>}
                         </div>
                     </div>
                 </div>
@@ -94,12 +94,12 @@ const Login : React.FC = () => {
 
     return(
         <Container>
-            <div className="w-full h-full flex bg-Loginbg bg-no-repeat bg-cover">
-                <div className="w-3/5 p-8 flex flex-col justify-start relative gap-8 bg-zinc-100">
+            <div className="w-full h-screen flex bg-Loginbg bg-no-repeat bg-cover max-lg:justify-center">
+                <div className="w-2/5 h-full p-8 max-md:w-full max-lg:w-4/5 flex flex-col justify-start gap-8 bg-zinc-100">
                     <LoginForm />
                     <Contact />
                 </div>
-                <div className="w-full h-full p-8">
+                <div className="w-3/5 h-full p-8 max-lg:hidden">
                     <div className="w-full h-full bg-black bg-opacity-40 rounded-md ">
                         
                     </div>

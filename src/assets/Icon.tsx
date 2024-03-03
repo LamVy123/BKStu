@@ -1,4 +1,3 @@
-import React from "react"
 
 interface IconProps {
     height : number,
@@ -162,6 +161,17 @@ export const TeachersIcon : React.FC<IconProps> = (props) => {
     )
 }
 
+export const AdminsIcon : React.FC<IconProps> = (props) => {
+    const IconStyle = {
+        height : `${props.height * 4}px`,
+        width : `${props.width * 4}px`,
+        color : `${props.color}`
+    }
+    return (
+        <svg style={IconStyle}  width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <rect x="4" y="13" rx="2" width="4" height="6" />  <rect x="16" y="13" rx="2" width="4" height="6" />  <path d="M4 15v-3a8 8 0 0 1 16 0v3" />  <path d="M18 19a6 3 0 0 1 -6 3" /></svg>
+    )
+}
+
 export const InformationIcon : React.FC<IconProps> = (props) => {
     const IconStyle = {
         height : `${props.height * 4}px`,
@@ -192,6 +202,17 @@ export const ClassIcon : React.FC<IconProps> = (props) => {
     }
     return (
         <svg style={IconStyle}  width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <path d="M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0" />  <path d="M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0" />  <line x1="3" y1="6" x2="3" y2="19" />  <line x1="12" y1="6" x2="12" y2="19" />  <line x1="21" y1="6" x2="21" y2="19" /></svg>
+    )
+}
+
+export const AddStudentIcon : React.FC<IconProps> = (props) => {
+    const IconStyle = {
+        height : `${props.height * 4}px`,
+        width : `${props.width * 4}px`,
+        color : `${props.color}`
+    }
+    return (
+        <svg style={IconStyle}  width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <circle cx="9" cy="7" r="4" />  <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />  <path d="M16 11h6m-3 -3v6" /></svg>
     )
 }
 

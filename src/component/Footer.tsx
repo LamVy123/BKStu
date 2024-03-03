@@ -1,5 +1,5 @@
 
-function Footer () {
+const Footer : React.FC = () => {
     return (
         <footer>
             <div className="min-w-full h-28 bg-zinc-500 flex items-center justify-center text-white text-xs">

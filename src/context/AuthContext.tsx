@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useLayoutEffect } from "react";
+import { auth , db } from "../firebase-config";
 import { useNavigate } from "react-router-dom";
 import { 
     signInWithEmailAndPassword,
@@ -8,8 +9,7 @@ import {
     NextOrObserver,
     User
 } from "firebase/auth";
-import { auth , db } from "../firebase-config";
-import { getDoc, doc} from "firebase/firestore";
+import { getDoc, doc } from "firebase/firestore/lite";
 
 //AuthProvider using useContext from React to pass property through all components inside AuthProvider with out using nested props
 
@@ -25,24 +25,18 @@ interface AuthContextType {
     isLoading : boolean,
 }
 
-//define the type of children which are other React Component / ReactNode
-interface Props {
-    children? : React.ReactNode
-}
-
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
-
 //Export useAuth so other component can use AuthProvider's properties
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
+    const context = useContext(AuthContext);
+    if (!context) { throw new Error("useAuth must be used within an AuthProvider");}
+    return context;
 }
 
-//AuthProvider component
+//define the type of children which are other React Component / ReactNode
+interface Props { children? : React.ReactNode }
 
+//AuthProvider component
 const AuthProvider = ({children} : Props) => {
     const [ currentUser , setCurrentUser ] = useState<User | null>(null)
     const localRole = localStorage.getItem('role');
@@ -52,7 +46,7 @@ const AuthProvider = ({children} : Props) => {
     const navigate = useNavigate()
 
     //Get current user and set login 
-    useEffect(() => {
+    useLayoutEffect(() => {
         const unsubscribe = userStateListener((user) => {
         if (user) {
             setCurrentUser(user)
@@ -66,7 +60,8 @@ const AuthProvider = ({children} : Props) => {
         }});
         return unsubscribe
     }, [currentUser]);
-    //Auth function
+    
+//Auth function
 
     //Sign in User
     const LogInUser = async ( email : string , password : string ) => {

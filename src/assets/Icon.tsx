@@ -205,7 +205,7 @@ export const ClassIcon : React.FC<IconProps> = (props) => {
     )
 }
 
-export const AddStudentIcon : React.FC<IconProps> = (props) => {
+export const AddUserIcon : React.FC<IconProps> = (props) => {
     const IconStyle = {
         height : `${props.height * 4}px`,
         width : `${props.width * 4}px`,
@@ -215,4 +215,38 @@ export const AddStudentIcon : React.FC<IconProps> = (props) => {
         <svg style={IconStyle}  width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <circle cx="9" cy="7" r="4" />  <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />  <path d="M16 11h6m-3 -3v6" /></svg>
     )
 }
+
+export const DropDownIcon : React.FC<IconProps> = (props) => {
+    const IconStyle = {
+        height : `${props.height * 4}px`,
+        width : `${props.width * 4}px`,
+        color : `${props.color}`
+    }
+    return (
+        <svg style={IconStyle}  fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"/></svg>
+    )
+}
+
+export const SearchIcon : React.FC<IconProps> = (props) => {
+    const IconStyle = {
+        height : `${props.height * 4}px`,
+        width : `${props.width * 4}px`,
+        color : `${props.color}`
+    }
+    return (
+        <svg style={IconStyle}  width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <circle cx="10" cy="10" r="7" />  <line x1="21" y1="21" x2="15" y2="15" /></svg>
+    )
+}
+
+export const ExitIcon : React.FC<IconProps> = (props) => {
+    const IconStyle = {
+        height : `${props.height * 4}px`,
+        width : `${props.width * 4}px`,
+        color : `${props.color}`
+    }
+    return (
+        <svg style={IconStyle}  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  strokeWidth="2"  strokeLinecap="round"  strokeLinejoin="round">  <line x1="18" y1="6" x2="6" y2="18" />  <line x1="6" y1="6" x2="18" y2="18" /></svg>
+    )
+}
+
 

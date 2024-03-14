@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore/lite";
+import { getFirestore } from "firebase/firestore";
 
 //Firebase config
 const firebaseConfig = {
@@ -15,9 +15,11 @@ const firebaseConfig = {
 
 //Get Applicaiton
 export const app = initializeApp(firebaseConfig);
+export const secondary_app = initializeApp(firebaseConfig,'second_app')
 
 //Get Database
 export const db = getFirestore(app);
 
 //Get Authentication
 export const auth = getAuth(app);
+export const secondary_auth = getAuth(secondary_app);

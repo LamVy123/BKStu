@@ -139,7 +139,7 @@ const Navigation: React.FC = () => {
             case '/teacher_management':
                 displayPath = 'Teacher_Management'
                 break
-            case 'admin_management':
+            case '/admin_management':
                 displayPath = 'Admin_Management'
                 break
             case '/information':

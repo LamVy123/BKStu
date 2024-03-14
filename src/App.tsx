@@ -7,7 +7,7 @@ import Navigation from "./component/Navigation";
 const Home = lazy(() => import("./pages/Home"));
 const Login = lazy(() => import("./pages/Login"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
-const StudenManagement = lazy(() => import("./pages/Admin/StudentManagement"));
+const StudenManagement = lazy(() => import("./pages/Admin/StudentManagement/StudentManagement"));
 const TeacherManagement = lazy(() => import("./pages/Admin/TeacherManagement"));
 const AdminManagement = lazy(() => import("./pages/Admin/AdminManagement"))
 const Information = lazy(() => import("./pages/Information"));

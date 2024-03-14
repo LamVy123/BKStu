@@ -6,28 +6,29 @@ import { useAuth } from "../context/AuthContext";
 
 
 const Login : React.FC = () => {
-    const emailRef = useRef<HTMLInputElement | null>(null)
-    const passwordRef = useRef<HTMLInputElement | null>(null)
     const auth = useAuth()
-
-    const [ email , setEmail ] = useState<string>('')
-    const [ password , setPassword ] = useState<string>('')
-    const [ showPassword , setShowPassword ] = useState<boolean>(false)
-
-    function toggleShowPassword() {
-        setEmail(emailRef.current?.value ? emailRef.current.value : '');
-        setPassword(passwordRef.current?.value ? passwordRef.current.value : '');
-        setShowPassword(showPassword => !showPassword);
-    }
-
-    function login (e : React.ChangeEvent<any>) {
-        e.preventDefault();
-        setEmail(emailRef.current?.value ? emailRef.current.value : '');
-        setPassword(passwordRef.current?.value ? passwordRef.current.value : '');
-        auth.LogInUser(email,password);
-    }
-
+    
+    
+    
     const LoginForm : React.FC = () => {
+        const emailRef = useRef<HTMLInputElement | null>(null)
+        const passwordRef = useRef<HTMLInputElement | null>(null)
+        const [ email , setEmail ] = useState<string>('')
+        const [ password , setPassword ] = useState<string>('')
+        const [ showPassword , setShowPassword ] = useState<boolean>(false)
+        
+        function toggleShowPassword() {
+            setEmail(emailRef.current?.value ? emailRef.current.value : '');
+            setPassword(passwordRef.current?.value ? passwordRef.current.value : '');
+            setShowPassword(showPassword => !showPassword);
+        }
+    
+        function login (e : React.ChangeEvent<any>) {
+            e.preventDefault();
+            setEmail(emailRef.current?.value ? emailRef.current.value : '');
+            setPassword(passwordRef.current?.value ? passwordRef.current.value : '');
+            auth.LogInUser(email,password);
+        }
         return (
             <form className="min-w-full h-fit p-8 border-solid border-black border rounded-md flex flex-col bg-white shadow-sm shadow-gray-700"
             onSubmit={(e) => login(e)}>

@@ -1,14 +1,14 @@
-import Container from "../../../component/Container";
-import { AddUserIcon, InformationIcon, RefreashIcon, SearchIcon, UserIcon, ExitIcon, LoadingIcon } from "../../../assets/Icon";
-import { Student, StudentDetail, UserDetailFactory, UserFactory } from "../../../class&interface/User";
-import StudentForm from "./StudentForm";
+import Container from "../../../../component/Container";
+import { AddUserIcon, InformationIcon, RefreashIcon, SearchIcon, UserIcon, ExitIcon, LoadingIcon } from "../../../../assets/Icon";
+import { Admin, AdminDetail, UserDetailFactory, UserFactory } from "../../../../class&interface/User";
+import AdminForm from "./AdminForm";
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import Input from "../../../component/Input";
+import Input from "../../../../component/Input";
 import { getDocs, query, where, doc, getDoc, setDoc, or } from "firebase/firestore";
-import { userColRef, userDetaiColRef } from "../../../config/firebase";
-import Select, { OptionInterface } from "../../../component/Select";
-import Model from "../../../component/Model";
+import { userColRef, userDetaiColRef } from "../../../../config/firebase";
+import Select, { OptionInterface } from "../../../../component/Select";
+import Model from "../../../../component/Model";
 import { FormEvent } from "react";
 
 
@@ -17,14 +17,14 @@ import { FormEvent } from "react";
 
 
 
-const StudentManagement: React.FC = () => {
-    const [openStudentForm, setOpenStudentForm] = useState<boolean>(false)
+const AdminManagement: React.FC = () => {
+    const [openAdminForm, setOpenAdminForm] = useState<boolean>(false)
 
-    const [openStudentInfor, setOpenStudentInfor] = useState<boolean>(false)
+    const [openAdminInfor, setOpenAdminInfor] = useState<boolean>(false)
 
-    const [currentStudentID, setCurrentStudentID] = useState<string>('')
+    const [currentAdminID, setCurrentAdminID] = useState<string>('')
 
-    const [studentList, setStudentlist] = useState<Student[]>([])
+    const [adminList, setAdminlist] = useState<Admin[]>([])
 
     const [reset, setReset] = useState<boolean>(false)
 
@@ -32,7 +32,7 @@ const StudentManagement: React.FC = () => {
 
     const [searchValue, setSearchValue] = useState<string>('')
 
-    const [studentCount, setStudentCount] = useState<number>(0);
+    const [adminCount, setAdminCount] = useState<number>(0);
 
 
     function delay(time: number) {
@@ -41,9 +41,9 @@ const StudentManagement: React.FC = () => {
 
     useEffect(() => {
         const fetchCount = async () => {
-            const studentCountRef = doc(userColRef, 'student_count');
-            const studentCountDoc = await getDoc(studentCountRef);
-            setStudentCount(studentCountDoc.data()?.count)
+            const adminCountRef = doc(userColRef, 'admin_count');
+            const adminCountDoc = await getDoc(adminCountRef);
+            setAdminCount(adminCountDoc.data()?.count)
             setLoading(false);
         }
 
@@ -51,30 +51,30 @@ const StudentManagement: React.FC = () => {
     }, [])
 
     useEffect(() => {
-        const fetchStudentList = async () => {
-            let studentQuerryRef = query(userColRef, where('role', '==', 'student'))
+        const fetchAdminList = async () => {
+            let adminQuerryRef = query(userColRef, where('role', '==', 'admin'))
 
             if (searchValue != '') {
-                studentQuerryRef = query(studentQuerryRef, or(
+                adminQuerryRef = query(adminQuerryRef, or(
                     where('last_name', '==', searchValue),
                     where('first_name', '==', searchValue),
                     where('display_id', '==', searchValue),
                     where('email', '==', searchValue),
-                    where('majors', '==', searchValue)
+                    where('specialized', '==', searchValue)
                 ))
             }
 
-            const studentQuerry = await getDocs(studentQuerryRef)
+            const adminQuerry = await getDocs(adminQuerryRef)
             const userFactory = new UserFactory()
-            let list: Student[] = []
-            studentQuerry.forEach((doc) => {
-                list = [...list, userFactory.CreateUserWithDocumentData('student', doc.data()) as Student]
+            let list: Admin[] = []
+            adminQuerry.forEach((doc) => {
+                list = [...list, userFactory.CreateUserWithDocumentData('admin', doc.data()) as Admin]
             })
-            setStudentlist(list);
+            setAdminlist(list);
             setLoading(false);
         }
 
-        fetchStudentList()
+        fetchAdminList()
     }, [reset, searchValue])
 
 
@@ -93,8 +93,8 @@ const StudentManagement: React.FC = () => {
         return (
             <div className="w-full h-fit flex flex-row max-md:flex-col justify-start items-center gap-4 bg-white">
                 <div className="w-full h-12 flex flex-col justify-start items-start">
-                    <p className="text-4xl max-md:text-2xl font-bold">Sinh viên</p>
-                    <p className="text-lg max-md:text-sm text-gray-default">{studentCount} Sinh viên</p>
+                    <p className="text-4xl max-md:text-2xl font-bold">Quản trị viên</p>
+                    <p className="text-lg max-md:text-sm text-gray-default">{adminCount} Quản trị viên</p>
                 </div>
 
                 <div className="w-full h-12 flex flex-row max-md:flex-col ml-auto">
@@ -105,16 +105,16 @@ const StudentManagement: React.FC = () => {
                                 <SearchIcon width={8} height={8} color="black" />
                             </motion.button>
                         </div>
-                        <Input type="search" name="search" id="search" defaultValue={searchValue} className="w-112 max-md:w-full h-10" placeholder="Tìm kiếm bằng Họ, Tên, MSSV, email hoặc ngành" />
+                        <Input type="search" name="search" id="search" defaultValue={searchValue} className="w-112 max-md:w-full h-10" placeholder="Tìm kiếm bằng Họ, Tên, ID hoặc email" />
                     </form>
 
                     <div className="w-fit h-12 flex flex-row justify-center items-center text-base max-md:text-xs">
                         <motion.button
-                            onClick={() => { delay(100).then(() => setOpenStudentForm(true)) }}
+                            onClick={() => { delay(100).then(() => setOpenAdminForm(true)) }}
                             whileTap={{ scale: 0.95 }}
-                            className="w-48 h-10 bg-gray-200 hover:bg-gray-300 rounded flex flex-row justify-center items-center p-2 gap-2 font-bold">
+                            className="w-52 h-10 bg-gray-200 hover:bg-gray-300 rounded flex flex-row justify-center items-center p-2 gap-2 font-bold">
                             <AddUserIcon width={7} height={7} color="black" />
-                            Thêm sinh viên
+                            Thêm quản trị viên
                         </motion.button>
                     </div>
                 </div>
@@ -122,14 +122,16 @@ const StudentManagement: React.FC = () => {
         )
     }
 
-    const StudentInfor: React.FC = () => {
+    const AdminInfor: React.FC = () => {
+
+
 
         const Header: React.FC = () => {
             return (
                 <div className="w-full h-20 flex flex-row justify-start items-center p-4 bg-primary rounded-t-2xl">
-                    <h1 className="text-4xl max-md:text-2xl font-bold">Thông tin Sinh viên</h1>
+                    <h1 className="text-4xl max-md:text-2xl font-bold">Thông tin Quản trị viên</h1>
 
-                    <button className="w-fit h-full ml-auto" onClick={() => setOpenStudentInfor(false)}>
+                    <button className="w-fit h-full ml-auto" onClick={() => setOpenAdminInfor(false)}>
                         <ExitIcon width={10} height={10} color="black" />
                     </button>
                 </div>
@@ -139,27 +141,27 @@ const StudentManagement: React.FC = () => {
         const Form: React.FC = () => {
             const [loading, setLoading] = useState<boolean>(true);
             const [edit, setEdit] = useState<boolean>(false)
-            const [student, setStudent] = useState<Student>()
-            const [studentDetail, setStudentDetail] = useState<StudentDetail>()
+            const [admin, setAdmin] = useState<Admin>()
+            const [adminDetail, setAdminDetail] = useState<AdminDetail>()
 
             useEffect(() => {
-                const fetchStudent = async () => {
-                    const studentRef = doc(userColRef, currentStudentID)
+                const fetchAdmin = async () => {
+                    const adminRef = doc(userColRef, currentAdminID)
 
-                    const studentDetailRef = doc(userDetaiColRef, currentStudentID)
+                    const adminDetailRef = doc(userDetaiColRef, currentAdminID)
 
-                    const studentDoc = await getDoc(studentRef)
+                    const adminDoc = await getDoc(adminRef)
                     const userFactory = new UserFactory()
-                    setStudent(userFactory.CreateUserWithDocumentData('student', studentDoc.data()) as Student)
+                    setAdmin(userFactory.CreateUserWithDocumentData('admin', adminDoc.data()) as Admin)
 
-                    const studentDetailDoc = await getDoc(studentDetailRef)
+                    const adminDetailDoc = await getDoc(adminDetailRef)
                     const userDetailFactory = new UserDetailFactory()
-                    setStudentDetail(userDetailFactory.CreateUserDetailWithDocumentData('student', studentDetailDoc.data()) as StudentDetail)
+                    setAdminDetail(userDetailFactory.CreateUserDetailWithDocumentData('admin', adminDetailDoc.data()) as AdminDetail)
 
                     setLoading(false);
                 }
 
-                fetchStudent()
+                fetchAdmin()
             }, [])
 
 
@@ -168,33 +170,30 @@ const StudentManagement: React.FC = () => {
 
                 const data = new FormData(e.currentTarget as HTMLFormElement)
 
-                const uid = student?.uid as string;
+                const uid = admin?.uid as string;
 
-                const user = new Student(
+                const user = new Admin(
                     data.get('last_name')?.toString() as string,
                     data.get('middle_name')?.toString() as string,
                     data.get('first_name')?.toString() as string,
                     uid,
-                    student?.display_id as string,
-                    student?.email as string,
-                    'student',
-                    student?.majors as string,
+                    admin?.display_id as string,
+                    admin?.email as string,
+                    'admin',
                 )
 
-                const userDetail = new StudentDetail(
+                const userDetail = new AdminDetail(
                     data.get('gender')?.toString() as string,
                     data.get('date_of_birth')?.toString() as string,
                     data.get('identification_number')?.toString() as string,
                     data.get('ethnic_group')?.toString() as string,
                     data.get('religion')?.toString() as string,
-                    studentDetail?.academic_year as string,
-                    studentDetail?.faculty as string,
+                    adminDetail?.academic_year as string,
+                    adminDetail?.faculty as string,
                     data.get('nationality')?.toString() as string,
                     data.get('province')?.toString() as string,
                     data.get('city')?.toString() as string,
                     data.get('address')?.toString() as string,
-                    studentDetail?.classes_name as string,
-                    studentDetail?.classes_id as string,
                 )
 
                 const userRef = doc(userColRef, uid);
@@ -203,12 +202,12 @@ const StudentManagement: React.FC = () => {
                 setDoc(userRef, user.getInterface())
                 setDoc(userDetailRef, userDetail.getInterface())
 
-                setStudent(user)
-                setStudentDetail(userDetail)
+                setAdmin(user)
+                setAdminDetail(userDetail)
 
                 //clear()
                 setEdit(false);
-                alert('Add student success!')
+                alert('Add admin success!')
             }
 
 
@@ -231,22 +230,22 @@ const StudentManagement: React.FC = () => {
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
                             <label htmlFor="last_name" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Họ <h1 className="text-red-500">*</h1></label>
-                            <Input type="text" id="last_name" name="last_name" defaultValue={student?.last_name} placeholder="Vui lòng điền" className="w-full col-span-5" required disable={!edit} />
+                            <Input type="text" id="last_name" name="last_name" defaultValue={admin?.last_name} placeholder="Vui lòng điền" className="w-full col-span-5" required disable={!edit} />
                         </div>
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
                             <label htmlFor="middle_name" className="py-2 font-bold flex flex-row gap-2 w-fit col-span-2 max-md:col-span-full">Tên lót <h1 className="text-red-500">*</h1></label>
-                            <Input type="text" id="middle_name" name="middle_name" defaultValue={student?.middle_name} placeholder="Vui lòng điền" className="w-full col-span-5" required disable={!edit} />
+                            <Input type="text" id="middle_name" name="middle_name" defaultValue={admin?.middle_name} placeholder="Vui lòng điền" className="w-full col-span-5" required disable={!edit} />
                         </div>
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
                             <label htmlFor="first_name" className="py-2 font-bold flex flex-row gap-2 w-fit col-span-2 max-md:col-span-full">Tên <h1 className="text-red-500">*</h1></label>
-                            <Input type="text" id="first_name" name="first_name" defaultValue={student?.first_name} placeholder="Vui lòng điền" className="w-full col-span-5" required disable={!edit} />
+                            <Input type="text" id="first_name" name="first_name" defaultValue={admin?.first_name} placeholder="Vui lòng điền" className="w-full col-span-5" required disable={!edit} />
                         </div>
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
                             <label htmlFor="gender" className="py-2 font-bold flex flex-row gap-2 w-fit col-span-2 max-md:col-span-full">Giới tính<h1 className="text-red-500">*</h1></label>
-                            <Select id="gender" name="gender" option={studentDetail?.gender == 'nam' ? genderOption1 : genderOption2} height={10} className="w-full col-span-5" required disable={!edit} />
+                            <Select id="gender" name="gender" option={adminDetail?.gender == 'nam' ? genderOption1 : genderOption2} height={10} className="w-full col-span-5" required disable={!edit} />
                         </div>
 
                     </div>
@@ -259,20 +258,20 @@ const StudentManagement: React.FC = () => {
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
                             <label htmlFor="date_of_birth" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Ngày sinh<h1 className="text-red-500">*</h1></label>
-                            <Input type="date" id="date_of_birth" name="date_of_birth" defaultValue={studentDetail?.date_of_birth} placeholder="Vui lòng điền" className="w-full col-span-5" required disable={!edit} />
+                            <Input type="date" id="date_of_birth" name="date_of_birth" defaultValue={adminDetail?.date_of_birth} placeholder="Vui lòng điền" className="w-full col-span-5" required disable={!edit} />
                         </div>
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
                             <label htmlFor="identification_number" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Số CCCD <h1 className="text-red-500">*</h1></label>
-                            <Input type="text" id="identification_number" name="identification_number" defaultValue={studentDetail?.identification_number} placeholder="Vui lòng điền" className="w-full col-span-5" required disable={!edit} />
+                            <Input type="text" id="identification_number" name="identification_number" defaultValue={adminDetail?.identification_number} placeholder="Vui lòng điền" className="w-full col-span-5" required disable={!edit} />
                         </div>
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
                             <label htmlFor="ethnic_group" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Dân tộc <h1 className="text-red-500">*</h1></label>
-                            <Input type="text" id="ethnic_group" name="ethnic_group" defaultValue={studentDetail?.ethnic_group} placeholder="Vui lòng điền" className="w-full col-span-5" required disable={!edit} />
+                            <Input type="text" id="ethnic_group" name="ethnic_group" defaultValue={adminDetail?.ethnic_group} placeholder="Vui lòng điền" className="w-full col-span-5" required disable={!edit} />
                         </div>
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
                             <label htmlFor="religion" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Tôn giáo</label>
-                            <Input type="text" id="religion" name="religion" defaultValue={studentDetail?.religion} placeholder="Bỏ trống nếu không có" className="w-full col-span-5" required disable={!edit} />
+                            <Input type="text" id="religion" name="religion" defaultValue={adminDetail?.religion} placeholder="Bỏ trống nếu không có" className="w-full col-span-5" required disable={!edit} />
                         </div>
 
                     </div>
@@ -284,27 +283,12 @@ const StudentManagement: React.FC = () => {
                     <div className="w-full h-fit col-span-6 flex justify-center items-center flex-col gap-8">
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
                             <label htmlFor="academic_year" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Niên khóa<h1 className="text-red-500">*</h1></label>
-                            <Input type="text" id="academic_year" name="academic_year" defaultValue={studentDetail?.academic_year} placeholder="VD: 2024" className="w-full col-span-5" required disable />
+                            <Input type="text" id="academic_year" name="academic_year" defaultValue={adminDetail?.academic_year} placeholder="VD: 2024" className="w-full col-span-5" required disable />
                         </div>
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                            <label htmlFor="faculty" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Khoa<h1 className="text-red-500">*</h1></label>
-                            <Input type="text" id="faculty" name="faculty" defaultValue={studentDetail?.faculty} className="w-full col-span-5" disable />
-                        </div>
-
-                        <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                            <label htmlFor="specialized" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Ngành<h1 className="text-red-500">*</h1></label>
-                            <Input type="text" id="specialized" name="specialized" defaultValue={student?.majors} className="w-full col-span-5" disable />
-                        </div>
-
-                        <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                            <label htmlFor="class_name" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Lớp<h1 className="text-red-500">*</h1></label>
-                            <Input type="text" id="class_name" name="class_name" defaultValue={studentDetail?.classes_name} className="w-full col-span-5" disable />
-                        </div>
-
-                        <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                            <label htmlFor="display_id" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">MSSV<h1 className="text-red-500">*</h1></label>
-                            <Input type="text" id="display_id" name="display_id" defaultValue={student?.display_id} placeholder={''} className="w-full col-span-5" disable />
+                            <label htmlFor="display_id" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">ID<h1 className="text-red-500">*</h1></label>
+                            <Input type="text" id="display_id" name="display_id" defaultValue={admin?.display_id} placeholder={''} className="w-full col-span-5" disable />
                         </div>
                     </div>
                 )
@@ -316,22 +300,22 @@ const StudentManagement: React.FC = () => {
                     <div className="w-full h-fit col-span-6 flex justify-center items-center flex-col gap-8">
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
                             <label htmlFor="nationality" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Quốc tịch</label>
-                            <Input type="text" id="nationality" name="nationality" defaultValue={studentDetail?.nationality} placeholder="Vui lòng điền" className="w-full col-span-5" disable={!edit} />
+                            <Input type="text" id="nationality" name="nationality" defaultValue={adminDetail?.nationality} placeholder="Vui lòng điền" className="w-full col-span-5" disable={!edit} />
                         </div>
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
                             <label htmlFor="province" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Tỉnh</label>
-                            <Input type="text" id="province" name="province" defaultValue={studentDetail?.province} placeholder="Vui lòng điền" className="w-full col-span-5" disable={!edit} />
+                            <Input type="text" id="province" name="province" defaultValue={adminDetail?.province} placeholder="Vui lòng điền" className="w-full col-span-5" disable={!edit} />
                         </div>
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
                             <label htmlFor="city" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Thành Phố</label>
-                            <Input type="text" id="city" name="city" defaultValue={studentDetail?.city} placeholder="Vui lòng điền" className="w-full col-span-5" disable={!edit} />
+                            <Input type="text" id="city" name="city" defaultValue={adminDetail?.city} placeholder="Vui lòng điền" className="w-full col-span-5" disable={!edit} />
                         </div>
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
                             <label htmlFor="address" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Địa chỉ cụ thể</label>
-                            <Input type="text" id="address" name="address" defaultValue={studentDetail?.address} placeholder="Vui lòng điền" className="w-full col-span-5" disable={!edit} />
+                            <Input type="text" id="address" name="address" defaultValue={adminDetail?.address} placeholder="Vui lòng điền" className="w-full col-span-5" disable={!edit} />
                         </div>
 
                     </div>
@@ -344,7 +328,7 @@ const StudentManagement: React.FC = () => {
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
                             <label htmlFor="email" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Email trường<h1 className="text-red-500">*</h1></label>
-                            <Input type="email" id="email" name="email" defaultValue={student?.email} placeholder="abc@bkstu.edu.vn" className="w-full col-span-5" required disable />
+                            <Input type="email" id="email" name="email" defaultValue={admin?.email} placeholder="abc@bkstu.edu.vn" className="w-full col-span-5" required disable />
                         </div>
                     </div>
                 )
@@ -411,7 +395,7 @@ const StudentManagement: React.FC = () => {
 
                             <div className="w-1/2 max-md:w-full h-fit flex flex-col gap-4">
 
-                                <h1 className="text-3xl max-md:text-xl font-bold">Thông tin Sinh viên</h1>
+                                <h1 className="text-3xl max-md:text-xl font-bold">Thông tin Quản trị viên</h1>
 
                                 <Section3 />
 
@@ -465,11 +449,12 @@ const StudentManagement: React.FC = () => {
 
     //Main Component
     return (
-        <Container>
-            {openStudentForm && <StudentForm setOpenStudentForm={setOpenStudentForm} />}
-            {openStudentInfor && <StudentInfor />}
-            <div className="w-full h-full flex justify-center items-center p-4 bg-slate-200 overflow-hidden">
-                <div className="w-full h-full bg-white border border-solid border-black rounded-md shadow-md shadow-gray-default flex flex-col justify-start items-center p-4 gap-8">
+        <>
+
+            {openAdminForm && <AdminForm setOpenAdminForm={setOpenAdminForm} />}
+            {openAdminInfor && <AdminInfor />}
+            <div className="w-full h-full flex items-center justify-center">
+                <div className="w-full h-full bg-white flex flex-col justify-start items-center p-4 gap-8">
                     <Header />
 
                     <div className="w-full h-full flex-col p-4 gap-4">
@@ -479,19 +464,14 @@ const StudentManagement: React.FC = () => {
 
                             <div className="col-span-3 max-md:col-span-4 flex items-center justify-start text-xl max-md:text-sm text-gray-default font-bold">Họ và tên</div>
 
-                            <div className="col-span-2 max-md:hidden flex items-center text-xl max-md:text-sm text-gray-default font-bold">MSSV</div>
+                            <div className="col-span-3 max-md:hidden flex items-center text-xl max-md:text-sm text-gray-default font-bold">ID</div>
 
                             <div className="col-span-3 max-md:hidden flex items-center text-xl text-gray-default font-bold">Email</div>
 
-                            <div className="col-span-2 max-md:hidden flex items-center text-xl text-gray-default font-bold">Ngành</div>
+                            <div className="col-span-1 max-md:hidden flex items-center text-xl text-gray-default font-bold"></div>
 
                             <div className="w-full h-full flex items-center text-xl max-md:text-sm text-gray-default font-bold">
-                                <motion.div onClick={() => {
-                                    setLoading(true);
-                                    setStudentlist([]);
-                                    setReset(reset => !reset)
-                                }}
-                                    whileTap={{ scale: 0.9 }} className="p-2 w-fit h-fit hover:bg-gray-300 rounded-md">
+                                <motion.div onClick={() => { setLoading(true); setAdminlist([]); setReset(reset => !reset) }} whileTap={{ scale: 0.9 }} className="p-2 w-fit h-fit hover:bg-gray-300 rounded-md">
                                     <RefreashIcon width={7} height={7} color="gray" />
                                 </motion.div>
                             </div>
@@ -503,39 +483,39 @@ const StudentManagement: React.FC = () => {
                         {(() => {
                             if (isLoading) {
                                 return <div className="w-full h-full flex items-center justify-center"><LoadingIcon width={10} height={10} /></div>
-                            } else if (studentList.length == 0 && searchValue != '') {
+                            } else if (adminList.length == 0 && searchValue != '') {
                                 return <div className="w-full h-full col-span-6 text-base font-bold text-black flex justify-center items-center">
-                                    Không có sinh viên nào ứng với tìm kiếm của bạn!
+                                    Không có quản trị viên nào phù hợp với tìm kiếm của bạn!
                                 </div>
-                            } else if (studentList.length == 0) {
+                            } else if (adminList.length == 0) {
                                 return <div className="w-full h-full col-span-6 text-base font-bold text-black flex justify-center items-center">
-                                    Hãy thêm sinh viên mới!
+                                    Hãy thêm quản trị viên mới!
                                 </div>
                             }
-                            return studentList.map((student, index) => {
+                            return adminList.map((admin, index) => {
                                 const class1 = "w-full h-fit grid grid-cols-12 grid-rows-1 p-2 bg-white hover:bg-gray-200 cursor-pointer"
                                 const class2 = "w-full h-fit grid grid-cols-12 grid-rows-1 p-2 bg-gray-100 hover:bg-gray-200 cursor-pointer"
 
                                 return (
-                                    <React.Fragment key={student.uid}>
+                                    <React.Fragment key={admin.uid}>
                                         <div className={(index % 2 != 0) ? class1 : class2}>
                                             <div className="w-full h-full flex items-center justify-center"><UserIcon width={12} height={12} color="gray" /></div>
 
-                                            <div className="col-span-3 flex items-center text-base font-bold ">{student.last_name + " " + student.middle_name + " " + student.first_name}</div>
+                                            <div className="col-span-3 flex items-center text-base font-bold ">{admin.last_name + " " + admin.middle_name + " " + admin.first_name}</div>
 
-                                            <div className="col-span-2 flex items-center text-base font-bold">{student.display_id}</div>
+                                            <div className="col-span-3 flex items-center text-base font-bold">{admin.display_id}</div>
 
-                                            <div className="col-span-3 flex items-center text-base font-bold">{student.email}</div>
+                                            <div className="col-span-3 flex items-center text-base font-bold">{admin.email}</div>
 
-                                            <div className="col-span-2 flex items-center text-base font-bold">{student.majors}</div>
+                                            <div className="col-span-1 max-md:hidden flex items-center text-xl text-gray-default font-bold"></div>
 
                                             <div className="col-span-1 flex items-center">
                                                 <motion.button
                                                     onClick={(e) => {
-                                                        setCurrentStudentID(e.currentTarget.getAttribute('data-key') as string);
-                                                        setOpenStudentInfor(true)
+                                                        setCurrentAdminID(e.currentTarget.getAttribute('data-key') as string);
+                                                        setOpenAdminInfor(true)
                                                     }}
-                                                    data-key={student.uid}
+                                                    data-key={admin.uid}
                                                     whileTap={{ scale: 0.9 }} className="">
                                                     <InformationIcon width={8} height={8} color="gray" />
                                                 </motion.button>
@@ -551,8 +531,8 @@ const StudentManagement: React.FC = () => {
                     </div>
                 </div>
             </div>
-        </Container>
+        </>
     );
 };
 
-export default StudentManagement;
+export default AdminManagement;

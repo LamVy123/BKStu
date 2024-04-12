@@ -1,10 +1,10 @@
 import { Link } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
 
-import Footer from "../component/Footer"        
+import Footer from "../component/Footer"
 import Container from "../component/Container"
 
-const Home : React.FC = () => {
+const Home: React.FC = () => {
     const auth = useAuth()
     return (
         <>
@@ -19,7 +19,7 @@ const Home : React.FC = () => {
                     </div>
                 </div>
             </Container>
-            <Footer/>
+            <Footer />
         </>
     )
 }

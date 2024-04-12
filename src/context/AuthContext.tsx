@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useLayoutEffect } from "react";
-import { auth, secondary_auth, db } from "../config/firebase";
+import { auth, secondary_auth, userColRef } from "../config/firebase";
 import { useNavigate } from "react-router-dom";
 import {
     signInWithEmailAndPassword,
@@ -57,7 +57,7 @@ const AuthProvider = ({ children }: Props) => {
             if (user) {
                 setCurrentUser(user);
                 setLogin(true);
-                const docRef = doc(db, "user_infor", user.uid);
+                const docRef = doc(userColRef, user.uid);
                 getDoc(docRef).then((doc) => {
                     setRole(doc.data()?.["role"]);
                     localStorage.setItem("role", doc.data()?.["role"]);
@@ -79,7 +79,7 @@ const AuthProvider = ({ children }: Props) => {
                 (user) => {
                     setCurrentUser(user.user);
                     setLogin(true);
-                    const docRef = doc(db, "users_ref", user.user.uid);
+                    const docRef = doc(userColRef, user.user.uid);
                     getDoc(docRef).then((doc) => {
                         setRole(doc.data()?.["role"]);
                         localStorage.setItem("role", doc.data()?.["role"]);

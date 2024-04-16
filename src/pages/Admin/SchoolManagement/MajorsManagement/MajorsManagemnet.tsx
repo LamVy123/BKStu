@@ -3,8 +3,8 @@ import { SearchIcon, PlusIcon, RefreashIcon, InformationIcon, TrashIcon, Loading
 import { motion } from "framer-motion"
 import MajorsForm from "./MajorsForm"
 import React, { useEffect, useState, FormEvent } from "react"
-import { Majors, MajorsDetail, MajorsFactory } from "../../../../class&interface/Majors"
-import { getDocs, query, getDoc, doc, setDoc, deleteDoc, where, getCountFromServer } from "firebase/firestore"
+import { Majors, MajorsDetail, MajorsDetailFactory, MajorsFactory } from "../../../../class&interface/Majors"
+import { getDocs, query, getDoc, doc, setDoc, deleteDoc, where, getCountFromServer, or } from "firebase/firestore"
 import { majorsColRef, majorsDetailColRef } from "../../../../config/firebase"
 import TextArea from "../../../../component/TextArea"
 import Model from "../../../../component/Model"
@@ -32,8 +32,10 @@ const MajorsManagement: React.FC = () => {
             setCount((await getCountFromServer(majorsColRef)).data().count);
             let majorsQuerry = query(majorsColRef);
 
-            if (searchValue != '') {
-                majorsQuerry = query(majorsQuerry, where('code', '>=', searchValue), where('code', '<=', searchValue + '~'));
+            if (searchValue.toUpperCase() == '@ALL') {
+                //Do nothing
+            } else if (searchValue != '') {
+                majorsQuerry = query(majorsQuerry, or(where('code', '==', searchValue), where('faculty_code', '==', searchValue)));
             }
 
             let list: Majors[] = [];
@@ -57,7 +59,7 @@ const MajorsManagement: React.FC = () => {
 
             const value = data.get("search")?.toString() as string
 
-            setSearchValue(value.toUpperCase())
+            setSearchValue(value)
 
             setOpenMajorsInfor(false);
         }
@@ -65,10 +67,10 @@ const MajorsManagement: React.FC = () => {
         return (
             <div className="w-full h-fit flex flex-row max-md:flex-col p-2 gap-4 items-center max-md:items-end ml-auto">
 
-                <div className="w-full h-fit flex flex-row items-center gap-20 max-md:gap-8">
+                <div className="w-full h-fit flex flex-row items-center gap-4 max-md:gap-8">
 
                     <div className="h-fit w-fit flex flex-col">
-                        <h1 className="text-4xl max-md:text-3xl font-bold">Ngành</h1>
+                        <h1 className="text-4xl font-bold">Ngành</h1>
                         <h1 className="text-base max-md:text-xs text-gray-default">{count} Ngành</h1>
                     </div>
 
@@ -78,7 +80,7 @@ const MajorsManagement: React.FC = () => {
                                 <SearchIcon width={8} height={8} color="black" />
                             </motion.button>
                         </div>
-                        <Input type="search" name="search" id="search" className="w-full h-10 text-sm" defaultValue={searchValue} placeholder="Tìm kiếm bằng mã ngành"></Input>
+                        <Input type="search" name="search" id="search" className="w-full h-10 text-sm" defaultValue={searchValue} placeholder="Tìm kiếm bằng mã ngành, mã khoa"></Input>
                     </form>
 
                 </div>
@@ -103,23 +105,15 @@ const MajorsManagement: React.FC = () => {
         useEffect(() => {
             const fetchMajors = async () => {
                 const majorsDoc = doc(majorsColRef, currentMajorsID)
+                const majorsFactory = new MajorsFactory()
                 await getDoc(majorsDoc).then((doc) => {
-                    setcurrentMajors(new Majors(
-                        doc.data()?.name,
-                        doc.data()?.code,
-                        doc.data()?.id,
-                        doc.data()?.faculty,
-                    ))
+                    setcurrentMajors(majorsFactory.CreateMajorsWithDocumentData(doc.data()))
                 })
 
                 const majorsDetailDoc = doc(majorsDetailColRef, currentMajorsID)
+                const majorsDetailFactory = new MajorsDetailFactory()
                 await getDoc(majorsDetailDoc).then((doc) => {
-                    setcurrentMajorsDetail(new MajorsDetail(
-                        doc.data()?.degree_type,
-                        doc.data()?.required_credits,
-                        doc.data()?.duration,
-                        doc.data()?.description,
-                    ))
+                    setcurrentMajorsDetail(majorsDetailFactory.CreateMajorsDetailWithDocumentData(doc.data()))
                 })
 
             }
@@ -137,13 +131,14 @@ const MajorsManagement: React.FC = () => {
                 data.get('name')?.toString() as string,
                 data.get('code')?.toString() as string,
                 id,
-                currentMajors?.faculty.toString() as string,
+                currentMajors?.faculty_code.toString() as string,
             )
             setDoc(majorsDocRef, majors.getInterface());
             setcurrentMajors(majors);
 
 
             const majorsDetail = new MajorsDetail(
+                currentMajorsDetail?.faculty.toString() as string,
                 currentMajorsDetail?.degree_type.toString() as string,
                 parseInt(data.get('required_credits')?.toString() as string),
                 data.get('duration')?.toString() as string,
@@ -186,6 +181,7 @@ const MajorsManagement: React.FC = () => {
                 await deleteDoc(delMajors).then(() => {
                     setMajorsList(majorsList.filter(item => item.id != currentMajorsID));
                 })
+                setOpenMajorsForm(false)
             }
             const [open, setOpen] = useState<boolean>(false);
             return (
@@ -207,7 +203,7 @@ const MajorsManagement: React.FC = () => {
         }
 
         return (
-            <form className="w-full h-full max-md:hidden flex flex-col gap-2 overflow-hidden" onSubmit={submit}>
+            <form className="w-full h-full max-md:hidden flex flex-col gap-2 p-2 overflow-scroll" onSubmit={submit}>
 
                 <div className="w-full h-fit bg-primary rounded-t-2xl flex items-center justify-start text-white font-bold p-4 text-4xl">
                     Thông tin Ngành
@@ -216,31 +212,35 @@ const MajorsManagement: React.FC = () => {
                 {(currentMajors && currentMajorsDetail) ? <div className="w-full h-full flex flex-col p-4 gap-8 text-xl overflow-scroll">
                     <div className="w-full h-fit flex flex-row items-center justify-between text-black font-bold gap-4">
                         <label htmlFor="name" className="min-w-52">Tên Ngành:</label>
-                        <Input id="name" name="name" defaultValue={currentMajors?.name} type="text" className="w-full text-base font-normal" disable={!edit} />
+                        <Input id="name" name="name" defaultValue={currentMajors?.name} type="text" className="w-full font-normal" disable={!edit} />
                     </div>
                     <div className="w-full h-fit flex flex-row items-center justify-start text-black font-bold gap-4">
                         <label htmlFor="code" className="min-w-52">Mã Ngành:</label>
-                        <Input id="code" name="code" defaultValue={currentMajors?.code} type="text" className="w-full text-base font-normal" disable={!edit} />
+                        <Input id="code" name="code" defaultValue={currentMajors?.code} type="text" className="w-full font-normal" disable={!edit} />
                     </div>
                     <div className="w-full h-fit flex flex-row items-center justify-start text-black font-bold gap-4">
                         <label htmlFor="faculty" className="min-w-52">Khoa:</label>
-                        <Input id="faculty" name="faculty" defaultValue={currentMajors?.faculty} type="text" className="w-full text-base font-normal" disable />
+                        <Input id="faculty" name="faculty" defaultValue={currentMajorsDetail?.faculty} type="text" className="w-full font-normal" disable />
+                    </div>
+                    <div className="w-full h-fit flex flex-row items-center justify-start text-black font-bold gap-4">
+                        <label htmlFor="faculty_code" className="min-w-52">Mã Khoa:</label>
+                        <Input id="faculty_code" name="faculty_code" defaultValue={currentMajors?.faculty_code} type="text" className="w-full font-normal" disable />
                     </div>
                     <div className="w-full h-fit flex flex-row items-center justify-start text-black font-bold gap-4">
                         <label htmlFor="degree_type" className="min-w-52">Học vị cao nhất:</label>
-                        <Input id="degree_type" name="degree_type" defaultValue={currentMajorsDetail?.degree_type} type="text" className="w-full text-base font-normal" disable />
+                        <Input id="degree_type" name="degree_type" defaultValue={currentMajorsDetail?.degree_type} type="text" className="w-full font-normal" disable />
                     </div>
                     <div className="w-full h-fit flex flex-row items-center justify-start text-black font-bold gap-4">
                         <label htmlFor="required_credits" className="min-w-52">Số tín chỉ yêu cầu:</label>
-                        <Input id="required_credits" name="required_credits" defaultValue={currentMajorsDetail?.required_credits.toString()} type="number" className="w-full text-base font-normal" disable={!edit} />
+                        <Input id="required_credits" name="required_credits" defaultValue={currentMajorsDetail?.required_credits ? parseInt(currentMajorsDetail?.required_credits.toString()) : 0} type="number" className="w-full font-normal" disable={!edit} />
                     </div>
                     <div className="w-full h-fit flex flex-row items-center justify-start text-black font-bold gap-4">
                         <label htmlFor="duration" className="min-w-52">Thời gian hoàn thành:</label>
-                        <Input id="duration" name="duration" defaultValue={currentMajorsDetail?.duration} type="text" className="w-full text-base font-normal" disable={!edit} />
+                        <Input id="duration" name="duration" defaultValue={currentMajorsDetail?.duration} type="text" className="w-full font-normal" disable={!edit} />
                     </div>
                     <div className="w-full h-fit flex flex-col items-start justify-start text-black font-bold gap-4">
                         <label htmlFor="description" className="min-w-52">Mô tả:</label>
-                        <TextArea id="description" name="description" className="w-full h-auto font-normal text-lg" defaultValue={currentMajorsDetail?.description} disable={!edit} />
+                        <TextArea id="description" name="description" className="w-full h-auto font-normal text-xl" defaultValue={currentMajorsDetail?.description} disable={!edit} />
                     </div>
                     <div className="w-full h-fit mt-auto flex items-center justify-start">
                         {edit ?
@@ -257,38 +257,38 @@ const MajorsManagement: React.FC = () => {
 
     const PlaceHolder: React.FC = () => {
         return (
-            <div className="w-full h-full max-md:hidden flex flex-col gap-2 ">
+            <div className="w-full h-full max-md:hidden flex flex-col gap-2 p-2">
                 <div className="w-full h-fit bg-primary rounded-t-2xl flex items-center justify-start text-white font-bold p-4 text-4xl">
                     Thông tin Ngành
                 </div>
                 <div className="w-full h-full flex flex-col p-4 gap-8 text-xl overflow-scroll">
                     <div className="w-full h-fit flex flex-row items-center justify-between text-black font-bold gap-4">
                         <label htmlFor="name" className="min-w-52">Tên Ngành:</label>
-                        <Input id="name" name="name" type="text" className="w-full text-base font-normal" disable />
+                        <Input id="name" name="name" type="text" className="w-full font-normal" disable />
                     </div>
                     <div className="w-full h-fit flex flex-row items-center justify-start text-black font-bold gap-4">
                         <label htmlFor="code" className="min-w-52">Mã Ngành:</label>
-                        <Input id="code" name="code" type="text" className="w-full text-base font-normal" disable />
+                        <Input id="code" name="code" type="text" className="w-full font-normal" disable />
                     </div>
                     <div className="w-full h-fit flex flex-row items-center justify-start text-black font-bold gap-4">
                         <label htmlFor="faculty" className="min-w-52">Khoa:</label>
-                        <Input id="faculty" name="faculty" type="text" className="w-full text-base font-normal" disable />
+                        <Input id="faculty" name="faculty" type="text" className="w-full font-normal" disable />
                     </div>
                     <div className="w-full h-fit flex flex-row items-center justify-start text-black font-bold gap-4">
                         <label htmlFor="degree_type" className="min-w-52">Học vị cao nhất:</label>
-                        <Input id="degree_type" name="degree_type" type="text" className="w-full text-base font-normal" disable />
+                        <Input id="degree_type" name="degree_type" type="text" className="w-full font-normal" disable />
                     </div>
                     <div className="w-full h-fit flex flex-row items-center justify-start text-black font-bold gap-4">
                         <label htmlFor="required_credits" className="min-w-52">Số tín chỉ yêu cầu:</label>
-                        <Input id="required_credits" name="required_credits" type="text" className="w-full text-base font-normal" disable />
+                        <Input id="required_credits" name="required_credits" type="text" className="w-full font-normal" disable />
                     </div>
                     <div className="w-full h-fit flex flex-row items-center justify-start text-black font-bold gap-4">
                         <label htmlFor="duration" className="min-w-52">Thời gian hoàn thành:</label>
-                        <Input id="duration" name="duration" type="text" className="w-full text-base font-normal" disable />
+                        <Input id="duration" name="duration" type="text" className="w-full font-normal" disable />
                     </div>
                     <div className="w-full h-fit flex flex-col items-start justify-start text-black font-bold gap-4">
                         <label htmlFor="description" className="min-w-52">Mô tả:</label>
-                        <TextArea id="description" name="description" className="w-full h-auto font-normal text-lg" disable />
+                        <TextArea id="description" name="description" className="w-full h-auto font-normal text-xl" disable />
                     </div>
                 </div>
             </div>
@@ -309,9 +309,9 @@ const MajorsManagement: React.FC = () => {
                         <div className="w-full h-full flex flex-col p-4 gap-0 overflow-hidden">
                             <div className="w-full h-16 grid grid-cols-10 p-4">
 
-                                <div className="w-full h-full col-span-6 text-xl font-bold text-gray-default flex items-center">Ngành</div>
+                                <div className="w-full h-full col-span-5 text-xl font-bold text-gray-default flex items-center">Ngành</div>
 
-                                <div className="w-full h-full col-span-3 text-xl font-bold text-gray-default flex items-center">Mã ngành</div>
+                                <div className="w-full h-full col-span-4 text-xl font-bold text-gray-default flex items-center">Mã ngành</div>
 
                                 <div className="w-full h-full flex justify-center items-center">
                                     <motion.button whileTap={{ scale: .9 }} onClick={() => { setMajorsList([]); setReset(reset => !reset) }} className="hover:bg-gray-300 p-2 rounded-md">
@@ -328,11 +328,11 @@ const MajorsManagement: React.FC = () => {
                                         return <div className="w-full h-full flex items-center justify-center"><LoadingIcon width={10} height={10} /></div>
                                     } else if (majorsList.length == 0 && searchValue != '') {
                                         return <div className="w-full h-full col-span-6 text-base font-bold text-black flex justify-center items-center">
-                                            Không có ngành nào với code là {searchValue}!
+                                            Không có ngành nào với mã là {searchValue}!
                                         </div>
-                                    } else if (majorsList.length == 0) {
+                                    } else if (count == 0) {
                                         return <div className="w-full h-full col-span-6 text-base font-bold text-black flex justify-center items-center">
-                                            Hãy thêm gì đó {searchValue}!
+                                            Hãy thêm gì đó!
                                         </div>
                                     }
                                     return majorsList.map((faculty, index) => {
@@ -342,9 +342,9 @@ const MajorsManagement: React.FC = () => {
                                             <React.Fragment key={faculty.id}>
                                                 <div className={(index % 2 != 0) ? class1 : class2}>
 
-                                                    <div className="w-full h-full col-span-6 text-base font-bold text-black">{faculty.name}</div>
+                                                    <div className="w-full h-full col-span-5 text-base font-bold text-black">{faculty.name}</div>
 
-                                                    <div className="w-full h-full col-span-3 text-base font-bold text-black">{faculty.code}</div>
+                                                    <div className="w-full h-full col-span-4 text-base font-bold text-black">{faculty.code}</div>
 
                                                     <motion.button
                                                         onClick={(e) => {

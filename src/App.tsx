@@ -15,6 +15,7 @@ const ClassManagement = lazy(() => import("./pages/ClassManagement"));
 const Schedule = lazy(() => import("./pages/Schedule"));
 const LoadingScreen = lazy(() => import("./component/LoadingScreen"))
 const SchoolManagement = lazy(() => import("./pages/Admin/SchoolManagement/SchoolManagement"))
+const CourseRegistration = lazy(() => import("./pages/Student/StudentCourseRegistration"))
 
 function App() {
     return (
@@ -26,11 +27,19 @@ function App() {
                         <Route path="/" element={<Home />} />
                         <Route path="/login" element={<Login />} />
                         <Route path="/dashboard" element={<Dashboard />} />
+                        <Route path="/information" element={<Information />} />
+
                         <Route path="/student_management" element={<StudenManagement />} />
                         <Route path="/teacher_management" element={<TeacherManagement />} />
-                        <Route path="/information" element={<Information />} />
-                        <Route path="/class_management" element={<ClassManagement />} />
                         <Route path="/school_management" element={<SchoolManagement />} />
+
+                        <Route path="/class_management" element={<ClassManagement />} />
+                        <Route path="/course_management" element={<ClassManagement />} />
+
+                        <Route path="/my_class" element={<ClassManagement />} />
+                        <Route path="/my_course" element={<ClassManagement />} />
+                        <Route path="/course_registration" element={<CourseRegistration />} />
+
                         <Route path="/schedule" element={<Schedule />} />
                         <Route path="/test" element={<Test />} />
                     </Routes>

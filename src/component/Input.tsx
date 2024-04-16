@@ -8,11 +8,11 @@ interface InputProps {
     placeholder?: string,
     disable?: boolean
     required?: boolean
-    defaultValue?: string
+    defaultValue?: string | number
 }
 
 const Input: React.FC<InputProps> = ({ className, type, id, name, placeholder, disable, required, defaultValue }: InputProps) => {
-    const [value, setValue] = useState<string>('')
+    const [value, setValue] = useState<string | number>('')
 
     useEffect(() => {
         setValue(defaultValue ? defaultValue : '');

@@ -5,7 +5,7 @@ import StudentForm from "./StudentForm";
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Input from "../../../component/Input";
-import { getDocs, query, where, doc, getDoc, setDoc, or } from "firebase/firestore";
+import { getDocs, query, where, doc, getDoc, setDoc, or, getCountFromServer } from "firebase/firestore";
 import { userColRef, userDetaiColRef } from "../../../config/firebase";
 import Select, { OptionInterface } from "../../../component/Select";
 import Model from "../../../component/Model";
@@ -32,7 +32,7 @@ const StudentManagement: React.FC = () => {
 
     const [searchValue, setSearchValue] = useState<string>('')
 
-    const [studentCount, setStudentCount] = useState<number>(0);
+    const [studentCount, setStudentCount] = useState<number>(0)
 
 
     function delay(time: number) {
@@ -41,10 +41,8 @@ const StudentManagement: React.FC = () => {
 
     useEffect(() => {
         const fetchCount = async () => {
-            const studentCountRef = doc(userColRef, 'student_count');
-            const studentCountDoc = await getDoc(studentCountRef);
-            setStudentCount(studentCountDoc.data()?.count)
-            setLoading(false);
+            const studentCount = query(userColRef, where('role', '==', 'student'))
+            setStudentCount((await getCountFromServer(studentCount)).data().count)
         }
 
         fetchCount()
@@ -171,9 +169,9 @@ const StudentManagement: React.FC = () => {
                 const uid = student?.uid as string;
 
                 const user = new Student(
-                    data.get('last_name')?.toString() as string,
-                    data.get('middle_name')?.toString() as string,
-                    data.get('first_name')?.toString() as string,
+                    student?.last_name as string,
+                    student?.middle_name as string,
+                    student?.first_name as string,
                     uid,
                     student?.display_id as string,
                     student?.email as string,
@@ -231,17 +229,17 @@ const StudentManagement: React.FC = () => {
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
                             <label htmlFor="last_name" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Họ <h1 className="text-red-500">*</h1></label>
-                            <Input type="text" id="last_name" name="last_name" defaultValue={student?.last_name} placeholder="Vui lòng điền" className="w-full col-span-5" required disable={!edit} />
+                            <Input type="text" id="last_name" name="last_name" defaultValue={student?.last_name} placeholder="Vui lòng điền" className="w-full col-span-5" required disable />
                         </div>
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
                             <label htmlFor="middle_name" className="py-2 font-bold flex flex-row gap-2 w-fit col-span-2 max-md:col-span-full">Tên lót <h1 className="text-red-500">*</h1></label>
-                            <Input type="text" id="middle_name" name="middle_name" defaultValue={student?.middle_name} placeholder="Vui lòng điền" className="w-full col-span-5" required disable={!edit} />
+                            <Input type="text" id="middle_name" name="middle_name" defaultValue={student?.middle_name} placeholder="Vui lòng điền" className="w-full col-span-5" required disable />
                         </div>
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
                             <label htmlFor="first_name" className="py-2 font-bold flex flex-row gap-2 w-fit col-span-2 max-md:col-span-full">Tên <h1 className="text-red-500">*</h1></label>
-                            <Input type="text" id="first_name" name="first_name" defaultValue={student?.first_name} placeholder="Vui lòng điền" className="w-full col-span-5" required disable={!edit} />
+                            <Input type="text" id="first_name" name="first_name" defaultValue={student?.first_name} placeholder="Vui lòng điền" className="w-full col-span-5" required disable />
                         </div>
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">

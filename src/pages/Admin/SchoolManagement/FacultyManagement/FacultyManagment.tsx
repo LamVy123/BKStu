@@ -3,37 +3,37 @@ import { SearchIcon, PlusIcon, RefreashIcon, InformationIcon, TrashIcon, Loading
 import { motion } from "framer-motion"
 import FacultyForm from "./FacultyForm"
 import React, { useEffect, useState, FormEvent } from "react"
-import { Faculty, FacultyDetail, FacultyFactory } from "../../../../class&interface/Faculty"
+import { Faculty, FacultyDetail, FacultyDetailFactory, FacultyFactory } from "../../../../class&interface/Faculty"
 import { getDocs, query, getDoc, doc, setDoc, deleteDoc, where, getCountFromServer } from "firebase/firestore"
 import { facultyColRef, facultyDetailColRef } from "../../../../config/firebase"
 import TextArea from "../../../../component/TextArea"
 import Model from "../../../../component/Model"
 
 const FacultyManagement: React.FC = () => {
-    const [openFacultyForm, setOpenFacultyForm] = useState<boolean>(false);
-
-    const [openFacultyInfor, setOpenFacultyInfor] = useState<boolean>(false);
-
-    const [reset, setReset] = useState<boolean>(false);
-
-    const [facultyList, setFacultyList] = useState<Faculty[]>([])
-
-    const [currentFacultyID, setcurrentFacultyID] = useState<string>('');
-
     const [searchValue, setSearchValue] = useState<string>('')
 
-    const [isLoading, setLoading] = useState<boolean>(true);
+    const [openFacultyForm, setOpenFacultyForm] = useState<boolean>(false);
+    const [openFacultyInfor, setOpenFacultyInfor] = useState<boolean>(false);
 
+
+    const [facultyList, setFacultyList] = useState<Faculty[]>([])
+    const [currentFaculty, setcurrentFaculty] = useState<Faculty>();
+
+
+
+    const [reset, setReset] = useState<boolean>(false);
+    const [isLoading, setLoading] = useState<boolean>(true);
     const [count, setCount] = useState<number>(0);
 
     useEffect(() => {
         const fetchFacultyList = async () => {
-            setLoading(true);
             setCount((await getCountFromServer(facultyColRef)).data().count);
             let facultyQuerry = query(facultyColRef);
 
-            if (searchValue != '') {
-                facultyQuerry = query(facultyQuerry, where('code', '>=', searchValue), where('code', '<=', searchValue + '~'));
+            if (searchValue.toUpperCase() == '@ALL') {
+                //Do nothing
+            } else if (searchValue != '') {
+                facultyQuerry = query(facultyQuerry, where('code', '==', searchValue));
             }
 
             let list: Faculty[] = [];
@@ -57,7 +57,7 @@ const FacultyManagement: React.FC = () => {
 
             const value = data.get("search")?.toString() as string
 
-            setSearchValue(value.toUpperCase())
+            setSearchValue(value)
 
             setOpenFacultyInfor(false);
         }
@@ -78,7 +78,7 @@ const FacultyManagement: React.FC = () => {
                                 <SearchIcon width={8} height={8} color="black" />
                             </motion.button>
                         </div>
-                        <Input type="search" name="search" id="search" className="w-full h-10 text-sm" defaultValue={searchValue} placeholder="Tìm kiếm bằng code của khoa"></Input>
+                        <Input type="search" name="search" id="search" className="w-full h-10 text-sm" defaultValue={searchValue} placeholder="Tìm kiếm bằng mã khoa"></Input>
                     </form>
 
                 </div>
@@ -96,40 +96,33 @@ const FacultyManagement: React.FC = () => {
     }
 
     const FacultyInfor: React.FC = () => {
-        const [currentFaculty, setcurrentFaculty] = useState<Faculty>();
         const [currentFacultyDetail, setcurrentFacultyDetail] = useState<FacultyDetail>();
         const [edit, setEdit] = useState<boolean>(false);
 
         useEffect(() => {
-            const fetchFaculty = async () => {
-                const facultyDoc = doc(facultyColRef, currentFacultyID)
-                await getDoc(facultyDoc).then((doc) => {
-                    setcurrentFaculty(new Faculty(
-                        doc.data()?.name,
-                        doc.data()?.code,
-                        doc.data()?.id,
-                    ))
-                })
+            if (currentFaculty) {
+                const fetchFaculty = async () => {
+                    const facultyDetailDoc = doc(facultyDetailColRef, currentFaculty.id)
+                    const facultyDetailFactory = new FacultyDetailFactory()
+                    await getDoc(facultyDetailDoc).then((doc) => {
+                        setcurrentFacultyDetail(facultyDetailFactory.CreateFacultyDetailWithDocumentData(doc.data()))
+                    })
 
-                const facultyDetailDoc = doc(facultyDetailColRef, currentFacultyID)
-                await getDoc(facultyDetailDoc).then((doc) => {
-                    setcurrentFacultyDetail(new FacultyDetail(
-                        doc.data()?.email,
-                        doc.data()?.phone_number,
-                        doc.data()?.description,
-                    ))
-                })
-
+                }
+                fetchFaculty();
             }
-            fetchFaculty();
 
-        }, [currentFacultyID])
+        }, [currentFaculty])
 
         const submit = async (e: FormEvent) => {
             e.preventDefault();
             const data = new FormData(e.currentTarget as HTMLFormElement)
 
-            const id = currentFacultyID;
+            let id = '';
+            if (currentFaculty?.id) {
+                id = currentFaculty.id
+            }
+
             const facultyDocRef = doc(facultyColRef, id);
             const faculty = new Faculty(
                 data.get('name')?.toString() as string,
@@ -138,7 +131,6 @@ const FacultyManagement: React.FC = () => {
             )
             setDoc(facultyDocRef, faculty.getInterface());
             setcurrentFaculty(faculty);
-
 
             const facultyDetail = new FacultyDetail(
                 data.get('email')?.toString() as string,
@@ -174,13 +166,25 @@ const FacultyManagement: React.FC = () => {
 
         const DeleteButton: React.FC = () => {
             const delDoc = async () => {
-                const delFaculty = doc(facultyColRef, currentFacultyID);
-                const delFacultyDetail = doc(facultyDetailColRef, currentFacultyID);
 
-                await deleteDoc(delFacultyDetail)
-                await deleteDoc(delFaculty).then(() => {
-                    setFacultyList(facultyList.filter(item => item.id != currentFacultyID));
-                })
+                let id = '';
+                if (currentFaculty?.id) {
+                    id = currentFaculty.id
+                }
+
+                try {
+                    const delFaculty = doc(facultyColRef, id);
+                    const delFacultyDetail = doc(facultyDetailColRef, id);
+
+                    await deleteDoc(delFacultyDetail)
+                    await deleteDoc(delFaculty).then(() => {
+                        setFacultyList(facultyList.filter(item => item.id != id));
+                    })
+                    alert('Đã xóa khoa thành công!')
+                    setOpenFacultyInfor(false)
+                } catch {
+                    alert('Đã có lỗi xảy ra, Vui lòng thử lại!')
+                }
             }
             const [open, setOpen] = useState<boolean>(false);
             return (
@@ -202,7 +206,7 @@ const FacultyManagement: React.FC = () => {
         }
 
         return (
-            <form className="w-full h-full max-md:hidden flex flex-col gap-2 overflow-hidden" onSubmit={submit}>
+            <form className="w-full h-full max-md:hidden flex flex-col gap-2 p-2 overflow-scroll" onSubmit={submit}>
 
                 <div className="w-full h-fit bg-primary rounded-t-2xl flex items-center justify-start text-white font-bold p-4 text-4xl">
                     Thông tin Khoa
@@ -211,23 +215,23 @@ const FacultyManagement: React.FC = () => {
                 {(currentFaculty && currentFacultyDetail) ? <div className="w-full h-full flex flex-col p-4 gap-8 text-xl overflow-scroll">
                     <div className="w-full h-fit flex flex-row items-center justify-between text-black font-bold gap-4">
                         <label htmlFor="name" className="min-w-52">Tên Khoa:</label>
-                        <Input id="name" name="name" defaultValue={currentFaculty?.name} type="text" className="w-full text-base font-normal" disable={!edit} />
+                        <Input id="name" name="name" defaultValue={currentFaculty?.name} type="text" className="w-full font-normal" disable={!edit} />
                     </div>
                     <div className="w-full h-fit flex flex-row items-center justify-start text-black font-bold gap-4">
                         <label htmlFor="code" className="min-w-52">Mã khoa:</label>
-                        <Input id="code" name="code" defaultValue={currentFaculty?.code} type="text" className="w-full text-base font-normal" disable={!edit} />
+                        <Input id="code" name="code" defaultValue={currentFaculty?.code} type="text" className="w-full font-normal" disable={!edit} />
                     </div>
                     <div className="w-full h-fit flex flex-row items-center justify-start text-black font-bold gap-4">
                         <label htmlFor="email" className="min-w-52">Email Khoa:</label>
-                        <Input id="email" name="email" defaultValue={currentFacultyDetail?.email} type="text" className="w-full text-base font-normal" disable={!edit} />
+                        <Input id="email" name="email" defaultValue={currentFacultyDetail?.email} type="text" className="w-full font-normal" disable={!edit} />
                     </div>
                     <div className="w-full h-fit flex flex-row items-center justify-start text-black font-bold gap-4">
                         <label htmlFor="phone_number" className="min-w-52">SDT:</label>
-                        <Input id="phone_number" name="phone_number" defaultValue={currentFacultyDetail?.phone_number} type="text" className="w-full text-base font-normal" disable={!edit} />
+                        <Input id="phone_number" name="phone_number" defaultValue={currentFacultyDetail?.phone_number} type="text" className="w-full font-normal" disable={!edit} />
                     </div>
                     <div className="w-full h-fit flex flex-col items-start justify-start text-black font-bold gap-4">
                         <label htmlFor="description" className="min-w-52">Mô tả:</label>
-                        <TextArea id="description" name="description" className="w-full h-auto font-normal text-lg" defaultValue={currentFacultyDetail?.description} disable={!edit} />
+                        <TextArea id="description" name="description" className="w-full h-auto font-normal text-xl" defaultValue={currentFacultyDetail?.description} disable={!edit} />
                     </div>
                     <div className="w-full h-fit mt-auto flex items-center justify-start">
                         {edit ?
@@ -244,30 +248,30 @@ const FacultyManagement: React.FC = () => {
 
     const PlaceHolder: React.FC = () => {
         return (
-            <div className="w-full h-full max-md:hidden flex flex-col gap-2 ">
+            <div className="w-full h-full max-md:hidden flex flex-col gap-2 p-2">
                 <div className="w-full h-fit bg-primary rounded-t-2xl flex items-center justify-start text-white font-bold p-4 text-4xl">
                     Thông tin Khoa
                 </div>
                 <div className="w-full h-full flex flex-col p-4 gap-8 text-xl overflow-scroll">
                     <div className="w-full h-fit flex flex-row items-center justify-between text-black font-bold gap-4">
                         <label htmlFor="name" className="min-w-52">Tên Khoa:</label>
-                        <Input id="name" name="name" type="text" className="w-full text-base font-normal" disable />
+                        <Input id="name" name="name" type="text" className="w-full font-normal" disable />
                     </div>
                     <div className="w-full h-fit flex flex-row items-center justify-start text-black font-bold gap-4">
                         <label htmlFor="code" className="min-w-52">Mã khoa:</label>
-                        <Input id="code" name="code" type="text" className="w-full text-base font-normal" disable />
+                        <Input id="code" name="code" type="text" className="w-full font-normal" disable />
                     </div>
                     <div className="w-full h-fit flex flex-row items-center justify-start text-black font-bold gap-4">
                         <label htmlFor="email" className="min-w-52">Email Khoa:</label>
-                        <Input id="email" name="email" type="text" className="w-full text-base font-normal" disable />
+                        <Input id="email" name="email" type="text" className="w-full font-normal" disable />
                     </div>
                     <div className="w-full h-fit flex flex-row items-center justify-start text-black font-bold gap-4">
                         <label htmlFor="phone_number" className="min-w-52">SDT:</label>
-                        <Input id="phone_number" name="phone_number" type="text" className="w-full text-base font-normal" disable />
+                        <Input id="phone_number" name="phone_number" type="text" className="w-full font-normal" disable />
                     </div>
                     <div className="w-full h-fit flex flex-col items-start justify-start text-black font-bold gap-4">
                         <label htmlFor="description" className="min-w-52">Mô tả:</label>
-                        <TextArea id="description" name="description" className="w-full h-auto font-normal text-lg" disable />
+                        <TextArea id="description" name="description" className="w-full h-auto font-normal text-xl" disable />
                     </div>
                 </div>
             </div>
@@ -288,12 +292,12 @@ const FacultyManagement: React.FC = () => {
                         <div className="w-full h-full flex flex-col p-4 gap-0 overflow-hidden">
                             <div className="w-full h-16 grid grid-cols-10 p-4">
 
-                                <div className="w-full h-full col-span-6 text-xl font-bold text-gray-default flex items-center">Khoa</div>
+                                <div className="w-full h-full col-span-5 text-xl font-bold text-gray-default flex items-center">Khoa</div>
 
-                                <div className="w-full h-full col-span-3 text-xl font-bold text-gray-default flex items-center">Mã khoa</div>
+                                <div className="w-full h-full col-span-4 text-xl font-bold text-gray-default flex items-center">Mã khoa</div>
 
                                 <div className="w-full h-full flex justify-center items-center">
-                                    <motion.button whileTap={{ scale: .9 }} onClick={() => { setFacultyList([]); setReset(reset => !reset) }} className="hover:bg-gray-300 p-2 rounded-md">
+                                    <motion.button whileTap={{ scale: .9 }} onClick={() => { setLoading(true); setReset(reset => !reset) }} className="hover:bg-gray-300 p-2 rounded-md">
                                         <RefreashIcon width={7} height={7} color="gray" />
                                     </motion.button>
                                 </div>
@@ -307,9 +311,9 @@ const FacultyManagement: React.FC = () => {
                                         return <div className="w-full h-full flex items-center justify-center"><LoadingIcon width={10} height={10} /></div>
                                     } else if (facultyList.length == 0 && searchValue != '') {
                                         return <div className="w-full h-full col-span-6 text-base font-bold text-black flex justify-center items-center">
-                                            Không có khoa nào với code là {searchValue}!
+                                            Không có khoa nào với mã là {searchValue}!
                                         </div>
-                                    } else if (facultyList.length == 0) {
+                                    } else if (count == 0) {
                                         return <div className="w-full h-full col-span-6 text-base font-bold text-black flex justify-center items-center">
                                             Hãy thêm gì đó!
                                         </div>
@@ -321,13 +325,13 @@ const FacultyManagement: React.FC = () => {
                                             <React.Fragment key={faculty.id}>
                                                 <div className={(index % 2 != 0) ? class1 : class2}>
 
-                                                    <div className="w-full h-full col-span-6 text-base font-bold text-black">{faculty.name}</div>
+                                                    <div className="w-full h-full col-span-5 text-base font-bold text-black">{faculty.name}</div>
 
-                                                    <div className="w-full h-full col-span-3 text-base font-bold text-black">{faculty.code}</div>
+                                                    <div className="w-full h-full col-span-4 text-base font-bold text-black">{faculty.code}</div>
 
                                                     <motion.button
-                                                        onClick={(e) => {
-                                                            setcurrentFacultyID(e.currentTarget.getAttribute('data-key') as string);
+                                                        onClick={() => {
+                                                            setcurrentFaculty(faculty);
                                                             setOpenFacultyInfor(true)
                                                         }}
                                                         data-key={faculty.id} whileTap={{ scale: .9 }} className="w-fit h-fit rounded-md flex justify-center items-center">

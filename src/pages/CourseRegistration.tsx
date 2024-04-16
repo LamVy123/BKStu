@@ -2,13 +2,13 @@ import { lazy } from "react"
 import { useAuth } from "../context/AuthContext"
 import { Navigate } from "react-router-dom"
 
-const TeacherClassManagement = lazy(() => import('./Teacher/TeacherClassManagemnt'));
+const StudentCourseRegistration = lazy(() => import('./Student/StudentCourseRegistration'));
 
 const ClassManagement: React.FC = () => {
     const auth = useAuth()
     switch (auth.role) {
-        case 'teacher':
-            return <TeacherClassManagement />
+        case 'student':
+            return <StudentCourseRegistration />
         default:
             return <Navigate to={'/'} />
     }

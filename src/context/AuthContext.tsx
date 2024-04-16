@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useLayoutEffect } from "react";
-import { auth, secondary_auth, userColRef } from "../config/firebase";
+import { auth, secondary_auth, userColRef, userDetaiColRef } from "../config/firebase";
 import { useNavigate } from "react-router-dom";
 import {
     signInWithEmailAndPassword,
@@ -11,6 +11,7 @@ import {
     UserCredential,
 } from "firebase/auth";
 import { getDoc, doc } from "firebase/firestore";
+import { User as UserInfor, UserDetail, UserFactory, UserDetailFactory } from "../class&interface/User";
 
 //AuthProvider using useContext from React to pass property through all components inside AuthProvider with out using nested props
 
@@ -24,6 +25,8 @@ interface AuthContextType {
     isLogin: boolean | null;
     role: string;
     isLoading: boolean;
+    userInfor: UserInfor
+    userDetail: UserDetail
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -49,6 +52,9 @@ const AuthProvider = ({ children }: Props) => {
     const [role, setRole] = useState<string>(localRole ? localRole : "guest");
     const [isLogin, setLogin] = useState<boolean | null>(localIsLogin);
     const [isLoading, setLoading] = useState<boolean>(false);
+    const [userInfor, setUserInfor] = useState<UserInfor>(new UserInfor())
+    const [userDetail, setUserDetail] = useState<UserDetail>(new UserDetail())
+
     const navigate = useNavigate();
 
     //Get current user and set login
@@ -57,12 +63,22 @@ const AuthProvider = ({ children }: Props) => {
             if (user) {
                 setCurrentUser(user);
                 setLogin(true);
-                const docRef = doc(userColRef, user.uid);
-                getDoc(docRef).then((doc) => {
-                    setRole(doc.data()?.["role"]);
+                const userRef = doc(userColRef, user.uid);
+                let role = ''
+                getDoc(userRef).then((doc) => {
+                    const userFactory = new UserFactory()
+                    role = doc.data()?.["role"] as string
+                    setUserInfor(userFactory.CreateUserWithDocumentData(role, doc.data()))
+                    setRole(role);
                     localStorage.setItem("role", doc.data()?.["role"]);
                 });
                 localStorage.setItem("isLogin", "true");
+
+                const userDetailRef = doc(userDetaiColRef, user.uid)
+                getDoc(userDetailRef).then((doc) => {
+                    const userDetailFactory = new UserDetailFactory()
+                    setUserDetail(userDetailFactory.CreateUserDetailWithDocumentData(role, doc.data()))
+                })
             }
         });
         return unsubscribe;
@@ -124,6 +140,8 @@ const AuthProvider = ({ children }: Props) => {
         isLogin,
         role,
         isLoading,
+        userInfor,
+        userDetail,
     };
 
     //Return the Provider

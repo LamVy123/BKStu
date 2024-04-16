@@ -9,6 +9,7 @@ import {
     InformationIcon,
     ScheduleIcon,
     BookIcon,
+    PenIcon,
 } from "../assets/Icon";
 
 
@@ -90,12 +91,56 @@ export const SchoolManagementLink: React.FC = () => {
     )
 }
 
+export const ClassManagementLink: React.FC = () => {
+    return (
+        <Link to={'/class_management'} className="p-2 hover:bg-blue-700">
+            <div className="flex items-center justify-start gap-4 w-full h-12">
+                <button><BookIcon width={10} height={10} color="white" /></button>
+                <div><h1 className="text-base text-white font-bold">Quản lý lớp học</h1></div>
+            </div>
+        </Link>
+    )
+}
+
 export const CourseManagementLink: React.FC = () => {
     return (
         <Link to={'/course_management'} className="p-2 hover:bg-blue-700">
-            <div className="flex items-center justify-start gap-4 w-full h-12">z``
+            <div className="flex items-center justify-start gap-4 w-full h-12">
                 <button><BookIcon width={10} height={10} color="white" /></button>
                 <div><h1 className="text-base text-white font-bold">Quản lý khóa học</h1></div>
+            </div>
+        </Link>
+    )
+}
+
+export const MyClass: React.FC = () => {
+    return (
+        <Link to={'/my_class'} className="p-2 hover:bg-blue-700">
+            <div className="flex items-center justify-start gap-4 w-full h-12">
+                <button><DashboardIcon width={10} height={10} color="white" /></button>
+                <div><h1 className="text-base text-white font-bold">Lớp học của tôi</h1></div>
+            </div>
+        </Link>
+    )
+}
+
+export const MyCourse: React.FC = () => {
+    return (
+        <Link to={'/my_course'} className="p-2 hover:bg-blue-700">
+            <div className="flex items-center justify-start gap-4 w-full h-12">
+                <button><BookIcon width={10} height={10} color="white" /></button>
+                <div><h1 className="text-base text-white font-bold">Khóa học của tôi</h1></div>
+            </div>
+        </Link>
+    )
+}
+
+export const CourseRegistration: React.FC = () => {
+    return (
+        <Link to={'/course_registration'} className="p-2 hover:bg-blue-700">
+            <div className="flex items-center justify-start gap-4 w-full h-12">
+                <button><PenIcon width={10} height={10} color="white" /></button>
+                <div><h1 className="text-base text-white font-bold">Đăng kí khóa học</h1></div>
             </div>
         </Link>
     )

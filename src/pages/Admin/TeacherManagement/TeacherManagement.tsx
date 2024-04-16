@@ -1,11 +1,11 @@
 import Container from "../../../component/Container";
-import { AddUserIcon, FilterIcon, InformationIcon, RefreashIcon, SearchIcon, UserIcon, ExitIcon, LoadingIcon } from "../../../assets/Icon";
+import { AddUserIcon, InformationIcon, RefreashIcon, SearchIcon, UserIcon, ExitIcon, LoadingIcon } from "../../../assets/Icon";
 import { Teacher, TeacherDetail, UserDetailFactory, UserFactory } from "../../../class&interface/User";
 import TeacherForm from "./TeacherForm";
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Input from "../../../component/Input";
-import { getDocs, query, where, doc, getDoc, setDoc, or } from "firebase/firestore";
+import { getDocs, query, where, doc, getDoc, setDoc, or, getCountFromServer } from "firebase/firestore";
 import { userColRef, userDetaiColRef } from "../../../config/firebase";
 import Select, { OptionInterface } from "../../../component/Select";
 import Model from "../../../component/Model";
@@ -32,7 +32,7 @@ const TeacherManagement: React.FC = () => {
 
     const [searchValue, setSearchValue] = useState<string>('')
 
-    const [teacherCount, setTeacherCount] = useState<number>(0);
+    const [teacherCount, setTeacherCount] = useState<number>(0)
 
 
     function delay(time: number) {
@@ -40,11 +40,10 @@ const TeacherManagement: React.FC = () => {
     }
 
     useEffect(() => {
+
         const fetchCount = async () => {
-            const teacherCountRef = doc(userColRef, 'teacher_count');
-            const teacherCountDoc = await getDoc(teacherCountRef);
-            setTeacherCount(teacherCountDoc.data()?.count)
-            setLoading(false);
+            const studentCount = query(userColRef, where('role', '==', 'teacher'))
+            setTeacherCount((await getCountFromServer(studentCount)).data().count)
         }
 
         fetchCount()
@@ -124,8 +123,6 @@ const TeacherManagement: React.FC = () => {
 
     const TeacherInfor: React.FC = () => {
 
-
-
         const Header: React.FC = () => {
             return (
                 <div className="w-full h-20 flex flex-row justify-start items-center p-4 bg-primary rounded-t-2xl">
@@ -173,9 +170,9 @@ const TeacherManagement: React.FC = () => {
                 const uid = teacher?.uid as string;
 
                 const user = new Teacher(
-                    data.get('last_name')?.toString() as string,
-                    data.get('middle_name')?.toString() as string,
-                    data.get('first_name')?.toString() as string,
+                    teacher?.last_name as string,
+                    teacher?.middle_name as string,
+                    teacher?.first_name as string,
                     uid,
                     teacher?.display_id as string,
                     teacher?.email as string,
@@ -232,17 +229,17 @@ const TeacherManagement: React.FC = () => {
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
                             <label htmlFor="last_name" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Họ <h1 className="text-red-500">*</h1></label>
-                            <Input type="text" id="last_name" name="last_name" defaultValue={teacher?.last_name} placeholder="Vui lòng điền" className="w-full col-span-5" required disable={!edit} />
+                            <Input type="text" id="last_name" name="last_name" defaultValue={teacher?.last_name} placeholder="Vui lòng điền" className="w-full col-span-5" required disable />
                         </div>
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
                             <label htmlFor="middle_name" className="py-2 font-bold flex flex-row gap-2 w-fit col-span-2 max-md:col-span-full">Tên lót <h1 className="text-red-500">*</h1></label>
-                            <Input type="text" id="middle_name" name="middle_name" defaultValue={teacher?.middle_name} placeholder="Vui lòng điền" className="w-full col-span-5" required disable={!edit} />
+                            <Input type="text" id="middle_name" name="middle_name" defaultValue={teacher?.middle_name} placeholder="Vui lòng điền" className="w-full col-span-5" required disable />
                         </div>
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
                             <label htmlFor="first_name" className="py-2 font-bold flex flex-row gap-2 w-fit col-span-2 max-md:col-span-full">Tên <h1 className="text-red-500">*</h1></label>
-                            <Input type="text" id="first_name" name="first_name" defaultValue={teacher?.first_name} placeholder="Vui lòng điền" className="w-full col-span-5" required disable={!edit} />
+                            <Input type="text" id="first_name" name="first_name" defaultValue={teacher?.first_name} placeholder="Vui lòng điền" className="w-full col-span-5" required disable />
                         </div>
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">

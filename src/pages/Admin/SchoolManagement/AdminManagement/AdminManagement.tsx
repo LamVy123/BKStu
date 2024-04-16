@@ -1,11 +1,10 @@
-import Container from "../../../../component/Container";
 import { AddUserIcon, InformationIcon, RefreashIcon, SearchIcon, UserIcon, ExitIcon, LoadingIcon } from "../../../../assets/Icon";
 import { Admin, AdminDetail, UserDetailFactory, UserFactory } from "../../../../class&interface/User";
 import AdminForm from "./AdminForm";
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Input from "../../../../component/Input";
-import { getDocs, query, where, doc, getDoc, setDoc, or } from "firebase/firestore";
+import { getDocs, query, where, doc, getDoc, setDoc, or, getCountFromServer } from "firebase/firestore";
 import { userColRef, userDetaiColRef } from "../../../../config/firebase";
 import Select, { OptionInterface } from "../../../../component/Select";
 import Model from "../../../../component/Model";
@@ -41,10 +40,8 @@ const AdminManagement: React.FC = () => {
 
     useEffect(() => {
         const fetchCount = async () => {
-            const adminCountRef = doc(userColRef, 'admin_count');
-            const adminCountDoc = await getDoc(adminCountRef);
-            setAdminCount(adminCountDoc.data()?.count)
-            setLoading(false);
+            const adminCount = query(userColRef, where('role', '==', 'admin'));
+            setAdminCount((await getCountFromServer(adminCount)).data().count)
         }
 
         fetchCount()
@@ -123,8 +120,6 @@ const AdminManagement: React.FC = () => {
     }
 
     const AdminInfor: React.FC = () => {
-
-
 
         const Header: React.FC = () => {
             return (

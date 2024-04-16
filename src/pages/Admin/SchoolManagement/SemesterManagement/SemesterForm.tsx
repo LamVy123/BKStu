@@ -4,24 +4,24 @@ import { motion } from "framer-motion"
 import Input from "../../../../component/Input"
 import TextArea from "../../../../component/TextArea"
 import { FormEvent, useState } from "react"
-import { Faculty, FacultyDetail } from "../../../../class&interface/Faculty"
+import { Semester, SemesterDetail } from "../../../../class&interface/Semester"
 import { addDoc, setDoc, doc } from "firebase/firestore"
-import { facultyColRef, facultyDetailColRef } from "../../../../config/firebase"
+import { semesterColRef, semesterDetailColRef } from "../../../../config/firebase"
 
-interface FacultyFormProps {
-    setOpenFacultyForm: React.Dispatch<React.SetStateAction<boolean>>
+interface SemesterFormProps {
+    setOpenSemesterForm: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const FacultyForm: React.FC<FacultyFormProps> = ({ setOpenFacultyForm }: FacultyFormProps) => {
+const SemesterForm: React.FC<SemesterFormProps> = ({ setOpenSemesterForm }: SemesterFormProps) => {
 
     const [reset, setReset] = useState<boolean>(false);
 
     const Header: React.FC = () => {
         return (
             <div className="w-full h-20 flex flex-row justify-start items-center p-4 bg-primary rounded-t-2xl">
-                <h1 className="text-4xl max-md:text-2xl font-bold">Thêm Khoa mới</h1>
+                <h1 className="text-4xl max-md:text-2xl font-bold">Thêm Học kì mới</h1>
 
-                <button className="w-fit h-full ml-auto" onClick={() => setOpenFacultyForm(false)}>
+                <button className="w-fit h-full ml-auto" onClick={() => setOpenSemesterForm(false)}>
                     <ExitIcon width={10} height={10} color="black" />
                 </button>
             </div>
@@ -35,31 +35,32 @@ const FacultyForm: React.FC<FacultyFormProps> = ({ setOpenFacultyForm }: Faculty
             e.preventDefault();
             setIsSubmit(true)
             const data = new FormData(e.currentTarget as HTMLFormElement)
+            const number_of_weeks = isNaN(parseInt(data.get('number_of_weeks')?.toString() as string)) ? 0 : parseInt(data.get('number_of_weeks')?.toString() as string)
             try {
-                await addDoc(facultyColRef, {})
+                await addDoc(semesterColRef, {})
                     .then((target) => {
                         const id = target.id;
-                        const facultyDocRef = doc(facultyColRef, id);
-                        const faculty = new Faculty(
-                            data.get('name')?.toString() as string,
+                        const semesterDocRef = doc(semesterColRef, id);
+                        const semester = new Semester(
                             data.get('code')?.toString() as string,
-                            id
+                            id,
+                            data.get('academic_year')?.toString() as string,
+                            'not_open'
                         )
-                        setDoc(facultyDocRef, faculty.getInterface());
+                        setDoc(semesterDocRef, semester.getInterface());
 
-                        const facultyDetail = new FacultyDetail(
-                            data.get('email')?.toString() as string,
-                            data.get('phone_number')?.toString() as string,
-                            data.get('description')?.toString() as string,
+                        const semesterDetail = new SemesterDetail(
+                            data.get('day_start')?.toString() as string,
+                            number_of_weeks,
                         )
-                        const facultyDetailDocRef = doc(facultyDetailColRef, id);
-                        setDoc(facultyDetailDocRef, facultyDetail.getInterface());
+                        const semesterDetailDocRef = doc(semesterDetailColRef, id);
+                        setDoc(semesterDetailDocRef, semesterDetail.getInterface());
                     })
             } catch {
                 alert("Đã xảy ra lỗi xin thử lại")
                 return;
             }
-            alert("Thêm Khoa mới thành công!")
+            alert("Thêm Học kì mới thành công!")
             setReset(reset => !reset)
         }
 
@@ -68,36 +69,27 @@ const FacultyForm: React.FC<FacultyFormProps> = ({ setOpenFacultyForm }: Faculty
                 <div className="w-full h-fit flex flex-col gap-8">
 
                     <div className="w-12/12 max-md:w-full h-fit flex flex-col gap-8">
-                        <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                            <label htmlFor="name" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Tên Khoa<h1 className="text-red-500">*</h1></label>
-                            <Input type="text" id="name" name="name" placeholder="Vui lòng điền" className="w-full col-span-5" required />
-                        </div>
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                            <label htmlFor="code" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Mã Khoa<h1 className="text-red-500">*</h1></label>
+                            <label htmlFor="code" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Mã Học kì<h1 className="text-red-500">*</h1></label>
                             <Input type="text" id="code" name="code" placeholder="Vui lòng điền" className="w-full col-span-5" />
                         </div>
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                            <label htmlFor="faculty_header" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Trưởng Khoa<h1 className="text-red-500">*</h1></label>
-                            <Input type="text" id="faculty_header" name="faculty_header" placeholder="Vui lòng điền" className="w-full col-span-5" />
+                            <label htmlFor="academic_year" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Niên khóa<h1 className="text-red-500">*</h1></label>
+                            <Input type="text" id="academic_year" name="academic_year" placeholder="Vui lòng điền" className="w-full col-span-5" />
                         </div>
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                            <label htmlFor="email" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Email Khoa<h1 className="text-red-500">*</h1></label>
-                            <Input type="text" id="email" name="email" placeholder="Vui lòng điền" className="w-full col-span-5" />
+                            <label htmlFor="day_start" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Ngày bắt đầu<h1 className="text-red-500">*</h1></label>
+                            <Input type="date" id="day_start" name="day_start" placeholder="Vui lòng điền" className="w-full col-span-5" />
                         </div>
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                            <label htmlFor="phone_number" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Fax<h1 className="text-red-500">*</h1></label>
-                            <Input type="text" id="phone_number" name="phone_number" placeholder="Vui lòng điền" className="w-full col-span-5" />
+                            <label htmlFor="number_of_weeks" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Số tuần kéo dài<h1 className="text-red-500">*</h1></label>
+                            <Input type="number" id="number_of_weeks" name="number_of_weeks" placeholder="Vui lòng điền" className="w-full col-span-5" />
                         </div>
 
-                    </div>
-
-                    <div className="ư-full h-fit flex flex-col items-start justify-center">
-                        <label htmlFor="description" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Mô tả Khoa<h1 className="text-red-500">*</h1></label>
-                        <TextArea id="description" name="description" className="w-full min-h-32" required />
                     </div>
 
                 </div>
@@ -111,7 +103,7 @@ const FacultyForm: React.FC<FacultyFormProps> = ({ setOpenFacultyForm }: Faculty
                     {open && <Model>
                         <div className="w-full h-full flex justify-center items-center">
                             <div className="w-fit h-fit p-8 gap-8 rounded-2xl bg-white border border-black border-solid flex flex-col justify-end items-end">
-                                <h1 className="text-xl font-bold">Bạn có chắc muốn thêm Khoa mới không ?</h1>
+                                <h1 className="text-xl font-bold">Bạn có chắc muốn thêm Học kì mới không ?</h1>
                                 <div className="w-fit h-fit flex flex-row gap-8">
                                     <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-700 text-white p-4">Cancel</button>
                                     <button type="submit" disabled={isSubmit} className="w-28 h-12 bg-green-400 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">Confirm</button>
@@ -164,4 +156,4 @@ const FacultyForm: React.FC<FacultyFormProps> = ({ setOpenFacultyForm }: Faculty
     )
 }
 
-export default FacultyForm
+export default SemesterForm

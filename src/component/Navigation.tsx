@@ -1,16 +1,18 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { MenuIcon, LogoutIcon } from "../assets/Icon";
+import { MenuIcon, LogoutIcon, UserIcon } from "../assets/Icon";
 import {
     HomeLink,
     LoginLink,
-    DashboardLink,
     StudentManagementLink,
     TeacherManagementdLink,
     InformationLink,
     SchoolManagementLink,
-    ScheduleLink,
     CourseManagementLink,
+    ClassManagementLink,
+    CourseRegistration,
+    MyClass,
+    MyCourse,
 } from "./NavLink";
 import { useAuth } from "../context/AuthContext";
 
@@ -19,8 +21,19 @@ const Navigation: React.FC = () => {
 
     const Navbar: React.FC = () => {
         return (
-            <div className="min-w-full h-14 flex items-center justify-between z-40 bg-primary p-4 fixed top-0 left-0">
-
+            <div className="min-w-full h-14 flex items-center justify-end z-40 bg-primary p-4 fixed top-0 left-0">
+                {(() => {
+                    if (auth.role == 'guest') {
+                        return null
+                    }
+                    const user = auth.userInfor
+                    return (
+                        <div className="h-full w-fit flex justify-center items-center text-xl text-white font-bold mr-3">
+                            {user.last_name + " " + user.middle_name + " " + user.first_name}
+                        </div>
+                    )
+                })()}
+                <UserIcon width={10} height={10} color="white" />
             </div>
         )
     }
@@ -42,10 +55,10 @@ const Navigation: React.FC = () => {
         const StudentNavigation: React.FC = () => {
             return (
                 <>
-                    <DashboardLink />
                     <InformationLink />
-                    <CourseManagementLink />
-                    <ScheduleLink />
+                    <MyClass />
+                    <MyCourse />
+                    <CourseRegistration />
                     <div className="h-full flex flex-col justify-end">
                         <LogoutButton />
                     </div>
@@ -56,10 +69,9 @@ const Navigation: React.FC = () => {
         const TeacherNavigation: React.FC = () => {
             return (
                 <>
-                    <DashboardLink />
                     <InformationLink />
+                    <ClassManagementLink />
                     <CourseManagementLink />
-                    <ScheduleLink />
                     <div className="h-full flex flex-col justify-end">
                         <LogoutButton />
                     </div>
@@ -70,7 +82,6 @@ const Navigation: React.FC = () => {
         const AdminNavigation: React.FC = () => {
             return (
                 <>
-                    <DashboardLink />
                     <InformationLink />
                     <StudentManagementLink />
                     <TeacherManagementdLink />
@@ -127,6 +138,18 @@ const Navigation: React.FC = () => {
                 break
             case '/class_management':
                 displayPath = 'Class_Management'
+                break
+            case '/course_management':
+                displayPath = 'Course_Management'
+                break
+            case '/my_class':
+                displayPath = 'My_Class'
+                break
+            case '/my_course':
+                displayPath = 'My_Course'
+                break
+            case '/course_registration':
+                displayPath = 'Course_Registration'
                 break
             case '/schedule':
                 displayPath = 'Schedule'

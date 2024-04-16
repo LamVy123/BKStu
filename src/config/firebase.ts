@@ -34,11 +34,14 @@ export const userDetaiColRef = collection(db,'user_detail')
 export const facultyColRef = collection(db, 'faculty');
 export const facultyDetailColRef = collection(db, 'faculty_detail');
 
+export const semesterColRef = collection(db, 'semester')
+export const semesterDetailColRef = collection(db, 'semester_detail')
+
 export const majorsColRef = collection(db, 'majors');
 export const majorsDetailColRef = collection(db, 'majors_detail');
 
-export const classColRef = collection(db, 'classes');
-export const classDetailColRef = collection(db, 'classes_detail');
+export const classColRef = collection(db, 'class');
+export const classDetailColRef = collection(db, 'class_detail');
 
 export const subjectColRef = collection(db, 'subject');
 export const subjectDetailColRef = collection(db, 'subject_detail');

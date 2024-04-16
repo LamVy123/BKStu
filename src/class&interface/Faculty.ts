@@ -66,7 +66,7 @@ export class FacultyDetail implements FacultyDetailInterface {
     //setter
     protected set email (email : string) { this._email = email }
     protected set phone_number (phone_number : string) { this._phone_number = phone_number }
-    protected set description (decription : string) { this._description = decription }
+    protected set description (description : string) { this._description = description }
     //method
     public getInterface = () : FacultyDetailInterface => {
         return {
@@ -79,12 +79,22 @@ export class FacultyDetail implements FacultyDetailInterface {
 
 export class FacultyFactory {
     constructor () {}
-
     public CreateFacultyWithDocumentData = (data : DocumentData | undefined) => {
         return new Faculty (
             data?.name,
             data?.code,
             data?.id,
+        )
+    }
+}
+
+export class FacultyDetailFactory {
+    constructor () {}
+    public CreateFacultyDetailWithDocumentData = (data : DocumentData | undefined) => {
+        return new FacultyDetail (
+            data?.email,
+            data?.phone_number,
+            data?.description
         )
     }
 }

@@ -61,63 +61,6 @@ const StudentForm: React.FC<StudentFormProps> = ({ setOpenStudentForm }: Student
         setReset(reset => !reset);
     }
 
-    const submit = (e: FormEvent) => {
-        e.preventDefault();
-
-        const data = new FormData(e.currentTarget as HTMLFormElement)
-
-        const email = data.get('email')?.toString() as string;
-        const password = data.get('password')?.toString() as string;
-
-        auth.CreateUser(email, password)
-            .then((userCredential) => {
-                const uid = userCredential.user.uid;
-
-                const user = new Student(
-                    data.get('last_name')?.toString() as string,
-                    data.get('middle_name')?.toString() as string,
-                    data.get('first_name')?.toString() as string,
-                    uid,
-                    generateID(),
-                    data.get('email')?.toString() as string,
-                    'student',
-                    data.get('majors')?.toString() as string,
-                )
-
-                const userDetail = new StudentDetail(
-                    data.get('gender')?.toString() as string,
-                    data.get('date_of_birth')?.toString() as string,
-                    data.get('identification_number')?.toString() as string,
-                    data.get('ethnic_group')?.toString() as string,
-                    data.get('religion')?.toString() as string,
-                    data.get('academic_year')?.toString() as string,
-                    data.get('faculty')?.toString() as string,
-                    data.get('nationality')?.toString() as string,
-                    data.get('province')?.toString() as string,
-                    data.get('city')?.toString() as string,
-                    data.get('address')?.toString() as string,
-                    getname(data.get('class')?.toString() as string),
-                    getID(data.get('class')?.toString() as string),
-                )
-
-                const userRef = doc(userColRef, uid);
-                const userDetailRef = doc(userDetaiColRef, uid);
-                const studentCountRef = doc(userColRef, 'student_count');
-
-                setDoc(userRef, user.getInterface())
-                setDoc(userDetailRef, userDetail.getInterface())
-                setDoc(studentCountRef, { count: (studentCount + 1) });
-
-                const classRef = doc(classDetailColRef, getID(data.get('class')?.toString() as string))
-                const classStudentListCol = collection(classRef, 'student_list');
-                const student = doc(classStudentListCol, uid);
-                setDoc(student, user.getInterface());
-            })
-
-        clear()
-        alert('Add student success!')
-    }
-
     const Header: React.FC = () => {
         return (
             <div className="w-full h-20 flex flex-row justify-start items-center p-4 bg-primary rounded-t-2xl">
@@ -131,7 +74,68 @@ const StudentForm: React.FC<StudentFormProps> = ({ setOpenStudentForm }: Student
     }
 
     const Form: React.FC = () => {
+        const [isSubmit, setIsSubmit] = useState<boolean>(false)
+        const submit = (e: FormEvent) => {
+            e.preventDefault();
+            setIsSubmit(true)
+            const data = new FormData(e.currentTarget as HTMLFormElement)
 
+            const email = data.get('email')?.toString() as string;
+            const password = data.get('password')?.toString() as string;
+
+            try {
+                auth.CreateUser(email, password)
+                    .then((userCredential) => {
+                        const uid = userCredential.user.uid;
+
+                        const user = new Student(
+                            data.get('last_name')?.toString() as string,
+                            data.get('middle_name')?.toString() as string,
+                            data.get('first_name')?.toString() as string,
+                            uid,
+                            generateID(),
+                            data.get('email')?.toString() as string,
+                            'student',
+                            data.get('majors')?.toString() as string,
+                        )
+
+                        const userDetail = new StudentDetail(
+                            data.get('gender')?.toString() as string,
+                            data.get('date_of_birth')?.toString() as string,
+                            data.get('identification_number')?.toString() as string,
+                            data.get('ethnic_group')?.toString() as string,
+                            data.get('religion')?.toString() as string,
+                            data.get('academic_year')?.toString() as string,
+                            (data.get('faculty')?.toString() as string).split('-')[0],
+                            data.get('nationality')?.toString() as string,
+                            data.get('province')?.toString() as string,
+                            data.get('city')?.toString() as string,
+                            data.get('address')?.toString() as string,
+                            getname(data.get('class')?.toString() as string),
+                            getID(data.get('class')?.toString() as string),
+                        )
+
+                        const userRef = doc(userColRef, uid);
+                        const userDetailRef = doc(userDetaiColRef, uid);
+                        const studentCountRef = doc(userColRef, 'student_count');
+
+                        setDoc(userRef, user.getInterface())
+                        setDoc(userDetailRef, userDetail.getInterface())
+                        setDoc(studentCountRef, { count: (studentCount + 1) });
+
+                        const classRef = doc(classDetailColRef, getID(data.get('class')?.toString() as string))
+                        const classStudentListCol = collection(classRef, 'student_list');
+                        const student = doc(classStudentListCol, uid);
+                        setDoc(student, user.getInterface());
+                    })
+            } catch {
+                alert("Đã xảy ra lỗi xin thử lại")
+                return
+            }
+
+            alert('Thêm sinh viên thành công!')
+            clear()
+        }
         const Avatar: React.FC = () => {
             return (
                 <div className="w-full h-full col-span-3 max-md:col-span-6 flex justify-center items-center">
@@ -219,7 +223,7 @@ const StudentForm: React.FC<StudentFormProps> = ({ setOpenStudentForm }: Student
                         const facultyFactory = new FacultyFactory();
                         facultyQuerrySnapshot.forEach((doc) => {
                             const faculty = facultyFactory.CreateFacultyWithDocumentData(doc.data())
-                            list = [...list, { lable: faculty.name, value: faculty.name }]
+                            list = [...list, { lable: faculty.name, value: faculty.name + '-' + faculty.code }]
                         })
                         setFacultyOptionList(list);
                     }
@@ -229,7 +233,7 @@ const StudentForm: React.FC<StudentFormProps> = ({ setOpenStudentForm }: Student
 
                 useEffect(() => {
                     const fetchMajorsList = async () => {
-                        let majorsQuerry = query(majorsColRef, where('faculty', '==', currnetFaculty));
+                        let majorsQuerry = query(majorsColRef, where('faculty_code', '==', currnetFaculty.split('-')[1]));
                         let list: OptionInterface[] = [{ lable: 'Vui lòng chọn', value: '' }];
                         const majorsQuerrySnapshot = await getDocs(majorsQuerry)
                         const majorsFactory = new MajorsFactory();
@@ -369,7 +373,7 @@ const StudentForm: React.FC<StudentFormProps> = ({ setOpenStudentForm }: Student
                                 <h1 className="text-xl font-bold">Bạn có chắc muốn thêm sinh viên mới hay không ?</h1>
                                 <div className="w-fit h-fit flex flex-row gap-8">
                                     <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-700 text-white p-4">No</button>
-                                    <button type="submit" className="w-28 h-12 bg-green-400 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">Yes</button>
+                                    <button type="submit" disabled={isSubmit} className="w-28 h-12 bg-green-400 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">Yes</button>
                                 </div>
                             </div>
                         </div>

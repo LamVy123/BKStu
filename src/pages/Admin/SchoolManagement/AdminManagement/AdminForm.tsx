@@ -45,55 +45,6 @@ const AdminForm: React.FC<AdminFormProps> = ({ setOpenAdminForm }: AdminFormProp
         setReset(reset => !reset);
     }
 
-    const submit = (e: FormEvent) => {
-        e.preventDefault();
-
-        const data = new FormData(e.currentTarget as HTMLFormElement)
-
-        const email = data.get('email')?.toString() as string;
-        const password = data.get('password')?.toString() as string;
-
-        auth.CreateUser(email, password)
-            .then((userCredential) => {
-                const uid = userCredential.user.uid;
-
-                const user = new Admin(
-                    data.get('last_name')?.toString() as string,
-                    data.get('middle_name')?.toString() as string,
-                    data.get('first_name')?.toString() as string,
-                    uid,
-                    generateID(),
-                    data.get('email')?.toString() as string,
-                    'admin',
-                )
-
-                const userDetail = new AdminDetail(
-                    data.get('gender')?.toString() as string,
-                    data.get('date_of_birth')?.toString() as string,
-                    data.get('identification_number')?.toString() as string,
-                    data.get('ethnic_group')?.toString() as string,
-                    data.get('religion')?.toString() as string,
-                    data.get('academic_year')?.toString() as string,
-                    '',
-                    data.get('nationality')?.toString() as string,
-                    data.get('province')?.toString() as string,
-                    data.get('city')?.toString() as string,
-                    data.get('address')?.toString() as string,
-                )
-
-                const userRef = doc(userColRef, uid);
-                const userDetailRef = doc(userDetaiColRef, uid);
-                const adminCountRef = doc(userColRef, 'admin_count');
-
-                setDoc(userRef, user.getInterface())
-                setDoc(userDetailRef, userDetail.getInterface())
-                setDoc(adminCountRef, { count: (adminCount + 1) });
-            })
-
-        clear()
-        alert('Add admin success!')
-    }
-
     const Header: React.FC = () => {
         return (
             <div className="w-full h-20 flex flex-row justify-start items-center p-4 bg-primary rounded-t-2xl">
@@ -107,7 +58,60 @@ const AdminForm: React.FC<AdminFormProps> = ({ setOpenAdminForm }: AdminFormProp
     }
 
     const Form: React.FC = () => {
+        const [isSubmit, setIsSubmit] = useState<boolean>(false)
+        const submit = (e: FormEvent) => {
+            e.preventDefault();
+            setIsSubmit(true)
+            const data = new FormData(e.currentTarget as HTMLFormElement)
 
+            const email = data.get('email')?.toString() as string;
+            const password = data.get('password')?.toString() as string;
+
+            try {
+
+                auth.CreateUser(email, password)
+                    .then((userCredential) => {
+                        const uid = userCredential.user.uid;
+
+                        const user = new Admin(
+                            data.get('last_name')?.toString() as string,
+                            data.get('middle_name')?.toString() as string,
+                            data.get('first_name')?.toString() as string,
+                            uid,
+                            generateID(),
+                            data.get('email')?.toString() as string,
+                            'admin',
+                        )
+
+                        const userDetail = new AdminDetail(
+                            data.get('gender')?.toString() as string,
+                            data.get('date_of_birth')?.toString() as string,
+                            data.get('identification_number')?.toString() as string,
+                            data.get('ethnic_group')?.toString() as string,
+                            data.get('religion')?.toString() as string,
+                            data.get('academic_year')?.toString() as string,
+                            '',
+                            data.get('nationality')?.toString() as string,
+                            data.get('province')?.toString() as string,
+                            data.get('city')?.toString() as string,
+                            data.get('address')?.toString() as string,
+                        )
+
+                        const userRef = doc(userColRef, uid);
+                        const userDetailRef = doc(userDetaiColRef, uid);
+                        const adminCountRef = doc(userColRef, 'admin_count');
+
+                        setDoc(userRef, user.getInterface())
+                        setDoc(userDetailRef, userDetail.getInterface())
+                        setDoc(adminCountRef, { count: (adminCount + 1) });
+                    })
+            } catch {
+                alert("Đã xảy ra lỗi xin thử lại")
+                return
+            }
+            alert('Thêm quản trị viên thành công!')
+            clear()
+        }
         const Avatar: React.FC = () => {
             return (
                 <div className="w-full h-full col-span-3 max-md:col-span-6 flex justify-center items-center">
@@ -250,7 +254,7 @@ const AdminForm: React.FC<AdminFormProps> = ({ setOpenAdminForm }: AdminFormProp
                                 <h1 className="text-xl font-bold">Bạn có chắc muốn thêm quản trị viên mới hay không ?</h1>
                                 <div className="w-fit h-fit flex flex-row gap-8">
                                     <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-700 text-white p-4">No</button>
-                                    <button type="submit" className="w-28 h-12 bg-green-400 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">Yes</button>
+                                    <button type="submit" disabled={isSubmit} className="w-28 h-12 bg-green-400 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">Yes</button>
                                 </div>
                             </div>
                         </div>

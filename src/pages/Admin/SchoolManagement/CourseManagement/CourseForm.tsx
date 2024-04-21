@@ -7,13 +7,13 @@ import { Course, CourseDetail } from "../../../../class&interface/Course"
 import { addDoc, setDoc, doc, getDocs, query, where, getDoc, collection } from "firebase/firestore"
 import { courseColRef, courseDetailColRef, semesterColRef, semesterDetailColRef, subjectColRef, subjectDetailColRef, userDetaiColRef } from "../../../../config/firebase"
 import Select, { OptionInterface } from "../../../../component/Select"
-import { FacultyFactory } from "../../../../class&interface/Faculty"
-import { MajorsFactory } from "../../../../class&interface/Majors"
-import { UserFactory, Teacher } from "../../../../class&interface/User"
+import { Faculty, FacultyFactory, FacultyInterface } from "../../../../class&interface/Faculty"
+import { Majors, MajorsFactory, MajorsInterface } from "../../../../class&interface/Majors"
+import { UserFactory, Teacher, TeacherInterface } from "../../../../class&interface/User"
 import { facultyColRef, majorsColRef } from "../../../../config/firebase"
 import { userColRef } from "../../../../config/firebase"
-import { Subject, SubjectDetail, SubjectDetailFactory, SubjectFactory } from "../../../../class&interface/Subject"
-import { Semester, SemesterDetail, SemesterDetailFactory, SemesterFactory } from "../../../../class&interface/Semester"
+import { Subject, SubjectDetail, SubjectDetailFactory, SubjectDetailInterface, SubjectFactory, SubjectInterface } from "../../../../class&interface/Subject"
+import { Semester, SemesterDetail, SemesterDetailFactory, SemesterDetailInterface, SemesterFactory, SemesterInterface } from "../../../../class&interface/Semester"
 
 interface CourseFormProps {
     setOpenCourseForm: React.Dispatch<React.SetStateAction<boolean>>
@@ -26,7 +26,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ setOpenCourseForm }: CourseForm
     const Header: React.FC = () => {
         return (
             <div className="w-full h-20 flex flex-row justify-start items-center p-4 bg-primary rounded-t-2xl">
-                <h1 className="text-4xl max-md:text-2xl font-bold">Thêm Khóa học mới</h1>
+                <h1 className="text-4xl max-md:text-2xl font-bold text-white">Thêm khóa học mới</h1>
 
                 <button className="w-fit h-full ml-auto" onClick={() => setOpenCourseForm(false)}>
                     <ExitIcon width={10} height={10} color="black" />
@@ -103,40 +103,16 @@ const CourseForm: React.FC<CourseFormProps> = ({ setOpenCourseForm }: CourseForm
             setIsSubmit(true)
             const data = new FormData(e.currentTarget as HTMLFormElement)
 
-            const teacherRef = doc(userColRef, data.get('teacher_uid')?.toString() as string)
-            let teacher: Teacher
-            const userFactory = new UserFactory()
-            await getDoc(teacherRef).then((doc) => {
-                teacher = userFactory.CreateUserWithDocumentData('teacher', doc.data()) as Teacher
-            })
 
-            const subjectRef = doc(subjectColRef, data.get('subject_id')?.toString() as string)
-            let subject: Subject = new Subject('', '', '', '', '', '')
-            const subjectFactory = new SubjectFactory()
-            await getDoc(subjectRef).then((doc) => {
-                subject = subjectFactory.CreateSubjectWithDocumentData(doc.data())
-            })
+            let teacher: TeacherInterface = JSON.parse(data.get('teacher')?.toString() as string) as TeacherInterface
 
-            const subjectDetailRef = doc(subjectDetailColRef, data.get('subject_id')?.toString() as string)
-            let subjectDetail: SubjectDetail = new SubjectDetail(0, 0, 0, 0, 0, 0, 0, 0, '')
-            const subjectDetailFactory = new SubjectDetailFactory()
-            await getDoc(subjectDetailRef).then((doc) => {
-                subjectDetail = subjectDetailFactory.CreateSubjectDetailWithDocumentData(doc.data())
-            })
+            let subject: SubjectInterface = JSON.parse(data.get('subject')?.toString() as string) as SubjectInterface
 
-            const semesterDetailRef = doc(semesterDetailColRef, data.get('semester')?.toString() as string)
-            let semesterDetail: SemesterDetail = new SemesterDetail('', 0)
-            const semesterDetailFactory = new SemesterDetailFactory()
-            await getDoc(semesterDetailRef).then((doc) => {
-                semesterDetail = semesterDetailFactory.CreateSemesterDetailWithDocumentData(doc.data())
-            })
+            let subjectDetail: SubjectDetailInterface = JSON.parse(data.get('subjectDetail')?.toString() as string) as SubjectDetailInterface
 
-            const semesterRef = doc(semesterColRef, data.get('semester')?.toString() as string)
-            let semester: Semester = new Semester('', '', '', '')
-            const semesterFactory = new SemesterFactory()
-            await getDoc(semesterRef).then((doc) => {
-                semester = semesterFactory.CreateSemesterWithDocumentData(doc.data())
-            })
+            let semester: SemesterInterface = JSON.parse(data.get('semester')?.toString() as string) as SemesterInterface
+
+            let semesterDetail: SemesterDetailInterface = JSON.parse(data.get('semesterDetail')?.toString() as string) as SemesterDetailInterface
 
             const study_schedule_day = data.get('study_schedule_day')?.toString() as string
             const study_scheule_time_start = parseInt((data.get('study_scheule_time_start')?.toString() as string))
@@ -192,6 +168,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ setOpenCourseForm }: CourseForm
                                 subjectDetail.midterm_exam_percent,
                                 subjectDetail.final_exam_percent,
                             )
+
                             const courseDetailDocRef = doc(courseDetailColRef, id);
                             setDoc(courseDocRef, course.getInterface());
                             setDoc(courseDetailDocRef, courseDetail.getInterface());
@@ -213,17 +190,19 @@ const CourseForm: React.FC<CourseFormProps> = ({ setOpenCourseForm }: CourseForm
 
         const Section1: React.FC = () => {
 
-            const [facultyOptionList, setFacultyOptionList] = useState<OptionInterface[]>([])
+            const [facultyList, setFacultyList] = useState<Faculty[]>([])
+
+            const [currnetFacultyCode, setCurrentFacultyCode] = useState<string>('');
 
             const [currnetFaculty, setCurrentFaculty] = useState<string>('');
 
-            const [majorsOptionList, setMajorsOptionList] = useState<OptionInterface[]>([])
+            const [majorsList, setMajorsList] = useState<Majors[]>([])
 
             const [currentMajors, setCurrentMajors] = useState<string>('');
 
-            const [teacherOptionList, setTeacherOptionList] = useState<OptionInterface[]>([])
+            const [teacherList, setTeacherList] = useState<Teacher[]>([])
 
-            const [semesterOptionList, setSemesterOptionList] = useState<OptionInterface[]>([])
+            const [semesterList, setSemesterList] = useState<Semester[]>([])
 
             const [currentSemsterID, setCurrentSemesterID] = useState<string>('')
 
@@ -231,89 +210,85 @@ const CourseForm: React.FC<CourseFormProps> = ({ setOpenCourseForm }: CourseForm
 
             const [currentSubjectType, setCurrentSubjectType] = useState<string>('')
 
-            const [currentSubjectID, setCurrentSubjectID] = useState<string>();
+            const [subjectList, setSubjectList] = useState<Subject[]>([])
 
-            const [currentSubjectDetail, setCurrentSubjectDetail] = useState<SubjectDetail>();
+            const [currentSubject, setCurrentSubject] = useState<SubjectInterface>()
 
-            const SubjectTypeOptionList: OptionInterface[] = [
-                { lable: 'Vui lòng chọn', value: '' },
-                { lable: 'Đại cương', value: 'Đại cương' },
-                { lable: 'Cơ sở ngành', value: 'Cơ sở ngành' },
-                { lable: 'Chuyên ngành', value: 'Chuyên ngành' }]
+            const [currentSubjectDetail, setCurrentSubjectDetail] = useState<SubjectDetail>()
 
+
+
+            //Fetch Faculty list and Semester list
             useEffect(() => {
                 const fetchFacultyList = async () => {
                     let facultyQuerry = query(facultyColRef);
 
-                    let list: OptionInterface[] = [{ lable: 'Vui lòng chọn', value: '' }];
+                    let list: Faculty[] = [];
                     const facultyQuerrySnapshot = await getDocs(facultyQuerry)
                     const facultyFactory = new FacultyFactory();
                     facultyQuerrySnapshot.forEach((doc) => {
                         const faculty = facultyFactory.CreateFacultyWithDocumentData(doc.data())
-                        list = [...list, { lable: faculty.name, value: faculty.name + '-' + faculty.code }]
+                        list = [...list, faculty]
                     })
-                    setFacultyOptionList(list);
+                    setFacultyList(list);
                 }
 
 
                 const fetchSemesterList = async () => {
                     let semsterQuerry = query(semesterColRef);
 
-                    let list: OptionInterface[] = [{ lable: 'Vui lòng chọn', value: '' }];
+                    let list: Semester[] = [];
                     const semesterQuerrySnapshot = await getDocs(semsterQuerry)
                     const semesterFactory = new SemesterFactory();
                     semesterQuerrySnapshot.forEach((doc) => {
                         const semester = semesterFactory.CreateSemesterWithDocumentData(doc.data())
-                        list = [...list, { lable: semester.code, value: semester.id }]
+                        list = [...list, semester]
                     })
-                    setSemesterOptionList(list);
+                    setSemesterList(list);
                 }
 
                 fetchFacultyList()
                 fetchSemesterList()
             }, [])
 
+            //Fetch Majors list
             useEffect(() => {
                 const fetchMajorsList = async () => {
-                    let majorsQuerry = query(majorsColRef, where('faculty_code', '==', currnetFaculty.split('-')[1]));
-                    let list: OptionInterface[] = [{ lable: 'Vui lòng chọn', value: '' }];
+                    let majorsQuerry = query(majorsColRef, where('faculty_code', '==', currnetFacultyCode));
+                    let list: Majors[] = [];
                     const majorsQuerrySnapshot = await getDocs(majorsQuerry)
                     const majorsFactory = new MajorsFactory();
                     majorsQuerrySnapshot.forEach((doc) => {
                         const majors = majorsFactory.CreateMajorsWithDocumentData(doc.data())
-                        list = [...list, { lable: majors.name, value: majors.name }]
+                        list = [...list, majors]
                     })
-                    setMajorsOptionList(list);
+                    setMajorsList(list);
                 }
-                if (currnetFaculty != '') {
+                if (currnetFacultyCode != '') {
                     fetchMajorsList();
                 }
-            }, [currnetFaculty])
+            }, [currnetFacultyCode])
 
-
+            //Fetch Teacher list
             useEffect(() => {
                 const fetchTeacherList = async () => {
                     let teacherQuerry = query(userColRef, where('role', '==', 'teacher'), where('specialized', '==', currentMajors))
 
-                    let list: OptionInterface[] = [{ lable: 'Vui lòng chọn', value: '' }];
+                    let list: Teacher[] = [];
                     const teacherQuerrySnapshot = await getDocs(teacherQuerry)
                     const teacherFactory = new UserFactory();
                     teacherQuerrySnapshot.forEach((doc) => {
                         const teacher = teacherFactory.CreateUserWithDocumentData('teacher', doc.data()) as Teacher
-                        list = [...list, {
-                            lable: teacher.last_name + " " + teacher.middle_name + " " + teacher.first_name,
-                            value: teacher.uid
-                        }]
+                        list = [...list, teacher]
                     })
-                    setTeacherOptionList(list);
+                    setTeacherList(list);
                 }
-                if (currnetFaculty != '') {
+                if (currnetFacultyCode != '' && currentMajors != '') {
                     fetchTeacherList()
                 }
             }, [currentMajors])
 
-
-
+            //Fetch SemesterDetail
             useEffect(() => {
                 const fetchSemesterDetail = async () => {
                     const semesterDetailRef = doc(semesterDetailColRef, currentSemsterID)
@@ -322,7 +297,6 @@ const CourseForm: React.FC<CourseFormProps> = ({ setOpenCourseForm }: CourseForm
                     await getDoc(semesterDetailRef).then((doc) => {
                         semesterDetail = semesterDetailFactory.CreateSemesterDetailWithDocumentData(doc.data())
                     })
-
                     setCurrentSemesterDetail(semesterDetail)
                 }
 
@@ -331,6 +305,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ setOpenCourseForm }: CourseForm
                 }
             }, [currentSemsterID])
 
+            //Fetch Subject
             useEffect(() => {
                 const fetchSubject = async () => {
                     let subjectRef = query(subjectColRef)
@@ -338,19 +313,19 @@ const CourseForm: React.FC<CourseFormProps> = ({ setOpenCourseForm }: CourseForm
                     if (currentSubjectType == 'Đại cương') {
                         subjectRef = query(subjectRef, where('subject_type', '==', 'Đại cương'))
                     } else if (currentSubjectType == 'Cơ sở ngành') {
-                        subjectRef = query(subjectRef, where('subject_type', '==', 'Cơ sở ngành'), where('faculty', '==', currnetFaculty.split('-')[0]))
+                        subjectRef = query(subjectRef, where('subject_type', '==', 'Cơ sở ngành'), where('faculty', '==', currnetFaculty))
                     } else if (currentSubjectType == 'Chuyên ngành') {
                         subjectRef = query(subjectRef, where('subject_type', '==', 'Chuyên ngành'), where('majors', '==', currentMajors))
                     }
 
-                    let list: OptionInterface[] = [{ lable: 'Vui lòng chọn', value: '' }];
+                    let list: Subject[] = [];
                     const subjectQuerySnapshot = await getDocs(subjectRef)
                     const subjectFactory = new SubjectFactory()
                     subjectQuerySnapshot.forEach((doc) => {
                         const subject = subjectFactory.CreateSubjectWithDocumentData(doc.data())
-                        list = [...list, { lable: subject.name, value: subject.id }]
+                        list = [...list, subject]
                     })
-                    setSubjectOptionList(list)
+                    setSubjectList(list)
                 }
 
                 if (currentMajors != '' && currnetFaculty != '' && currentSubjectType != '') {
@@ -358,11 +333,11 @@ const CourseForm: React.FC<CourseFormProps> = ({ setOpenCourseForm }: CourseForm
                 }
             }, [currentMajors, currnetFaculty, currentSubjectType])
 
-
+            //Fetch SubjectDetail
             useEffect(() => {
                 const fetchSubjectDetail = async () => {
-                    if (currentSubjectID != undefined) {
-                        const subjectDetailRef = doc(subjectDetailColRef, currentSubjectID)
+                    if (currentSubject != undefined) {
+                        const subjectDetailRef = doc(subjectDetailColRef, currentSubject.id)
                         let subjectDetail: SubjectDetail = new SubjectDetail(0, 0, 0, 0, 0, 0, 0, 0, '')
                         const subjectDetailFactory = new SubjectDetailFactory()
                         await getDoc(subjectDetailRef).then((doc) => {
@@ -373,37 +348,60 @@ const CourseForm: React.FC<CourseFormProps> = ({ setOpenCourseForm }: CourseForm
                     }
                 }
 
-                if (currentSubjectID != '') {
-                    fetchSubjectDetail()
-                }
-            }, [currentSubjectID])
-
-            const [SubjectOptionList, setSubjectOptionList] = useState<OptionInterface[]>([])
+                fetchSubjectDetail()
+            }, [currentSubject])
 
 
             const onChangeSemester = (e: React.ChangeEvent<HTMLSelectElement>) => {
                 e.preventDefault();
-                setCurrentSemesterID(e.target.value);
+                if (e.target.value) {
+                    const semester = JSON.parse(e.target.value) as SemesterInterface
+                    setCurrentSemesterID(semester.id)
+                } else {
+                    setCurrentSemesterID('')
+                }
             }
 
             const onChangeFaculty = (e: React.ChangeEvent<HTMLSelectElement>) => {
                 e.preventDefault();
-                setCurrentFaculty(e.target.value);
+                if (e.target.value) {
+                    const faculty = JSON.parse(e.target.value) as FacultyInterface
+                    setCurrentFacultyCode(faculty.code);
+                    setCurrentFaculty(faculty.name)
+                } else {
+                    setCurrentFacultyCode('');
+                    setCurrentFaculty('')
+                }
             }
 
             const onChangeMajors = (e: React.ChangeEvent<HTMLSelectElement>) => {
                 e.preventDefault();
-                setCurrentMajors(e.target.value);
+                if (e.target.value) {
+                    const majors = JSON.parse(e.target.value) as MajorsInterface
+                    setCurrentMajors(majors.name)
+                } else {
+                    setCurrentMajors('')
+                }
             }
 
             const onChangeSubjectType = (e: React.ChangeEvent<HTMLSelectElement>) => {
                 e.preventDefault();
-                setCurrentSubjectType(e.target.value);
+                if (e.target.value) {
+                    const subjectType = e.target.value as string
+                    setCurrentSubjectType(subjectType)
+                } else {
+                    setCurrentSubjectType('')
+                }
             }
 
             const onChangeSubject = (e: React.ChangeEvent<HTMLSelectElement>) => {
                 e.preventDefault();
-                setCurrentSubjectID(e.target.value);
+                if (e.target.value) {
+                    const subject = JSON.parse(e.target.value) as SubjectInterface
+                    setCurrentSubject(subject)
+                } else {
+
+                }
             }
 
 
@@ -519,18 +517,56 @@ const CourseForm: React.FC<CourseFormProps> = ({ setOpenCourseForm }: CourseForm
                     </div>
                 )
             }
+
+
+            const subjectTypeOptionList: OptionInterface[] = [
+                { lable: 'Vui lòng chọn', value: '' },
+                { lable: 'Đại cương', value: 'Đại cương' },
+                { lable: 'Cơ sở ngành', value: 'Cơ sở ngành' },
+                { lable: 'Chuyên ngành', value: 'Chuyên ngành' }
+            ]
+
+            let semesterOptionList: OptionInterface[] = [{ lable: 'Vui lòng chọn', value: '' }]
+            let facultyOptionList: OptionInterface[] = [{ lable: 'Vui lòng chọn', value: '' }]
+            let majorsOptionList: OptionInterface[] = [{ lable: 'Vui lòng chọn', value: '' }]
+            let teacherOptionList: OptionInterface[] = [{ lable: 'Vui lòng chọn', value: '' }]
+            let subjectOptionList: OptionInterface[] = [{ lable: 'Vui lòng chọn', value: '' }]
+
+            semesterList.forEach((semester) => {
+                semesterOptionList = [...semesterOptionList, { lable: semester.code, value: JSON.stringify(semester.getInterface()) }]
+            })
+
+            facultyList.forEach((faculty) => {
+                facultyOptionList = [...facultyOptionList, { lable: faculty.name, value: JSON.stringify(faculty.getInterface()) }]
+            })
+
+            majorsList.forEach((majors) => {
+                majorsOptionList = [...majorsOptionList, { lable: majors.name, value: JSON.stringify(majors.getInterface()) }]
+            })
+
+            teacherList.forEach((teacher) => {
+                teacherOptionList = [...teacherOptionList, { lable: teacher.last_name + " " + teacher.middle_name + " " + teacher.first_name, value: JSON.stringify(teacher.getInterface()) }]
+            })
+
+            subjectList.forEach((subject) => {
+                subjectOptionList = [...subjectOptionList, { lable: subject.name, value: JSON.stringify(subject.getInterface()) }]
+            })
+
+
             return (
                 <div className="w-full h-fit flex flex-col gap-8">
 
                     <div className="w-12/12 max-md:w-full h-fit flex flex-col gap-8">
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                            <label htmlFor="code" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Mã Khóa học<h1 className="text-red-500">*</h1></label>
+                            <label htmlFor="code" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Mã khóa học<h1 className="text-red-500">*</h1></label>
                             <Input type="text" id="code" name="code" placeholder="Vui lòng điền" className="w-full col-span-5" required />
                         </div>
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
                             <label htmlFor="semester" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Học kì<h1 className="text-red-500">*</h1></label>
                             <Select id="semester" name="semester" height={10} option={semesterOptionList} onChange={onChangeSemester} className="w-full col-span-5" required />
+
+                            <Input type="text" name="semesterDetail" id="semesterDetail" defaultValue={JSON.stringify(currentSemsterDetail?.getInterface())} className="hidden" />
                         </div>
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
@@ -544,19 +580,21 @@ const CourseForm: React.FC<CourseFormProps> = ({ setOpenCourseForm }: CourseForm
                         </div>
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                            <label htmlFor="teacher_uid" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Giảng viên<h1 className="text-red-500">*</h1></label>
-                            <Select id="teacher_uid" name="teacher_uid" height={10} option={teacherOptionList} className="w-full col-span-5" disable={currentMajors == ''} required />
+                            <label htmlFor="teacher" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Giảng viên<h1 className="text-red-500">*</h1></label>
+                            <Select id="teacher" name="teacher" height={10} option={teacherOptionList} className="w-full col-span-5" disable={currentMajors == ''} required />
                         </div>
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
                             <label htmlFor="subject_type" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Loại môn<h1 className="text-red-500">*</h1></label>
-                            <Select id="subject_type" name="subject_type" height={10} option={SubjectTypeOptionList} onChange={onChangeSubjectType} className="w-full col-span-5" required />
+                            <Select id="subject_type" name="subject_type" height={10} option={subjectTypeOptionList} onChange={onChangeSubjectType} className="w-full col-span-5" required />
                         </div>
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                            <label htmlFor="subject_id" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Môn<h1 className="text-red-500">*</h1></label>
-                            <Select id="subject_id" name="subject_id" height={10} option={SubjectOptionList} onChange={onChangeSubject} className="w-full col-span-5" required
+                            <label htmlFor="subject" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Môn<h1 className="text-red-500">*</h1></label>
+                            <Select id="subject" name="subject" height={10} option={subjectOptionList} onChange={onChangeSubject} className="w-full col-span-5" required
                                 disable={currentSubjectType == '' || currnetFaculty == '' || currentMajors == ''} />
+
+                            <Input type="text" name="subjectDetail" id="subjectDetail" defaultValue={JSON.stringify(currentSubjectDetail?.getInterface())} className="hidden" />
                         </div>
 
                     </div>
@@ -573,10 +611,10 @@ const CourseForm: React.FC<CourseFormProps> = ({ setOpenCourseForm }: CourseForm
                     {open && <Model>
                         <div className="w-full h-full flex justify-center items-center">
                             <div className="w-fit h-fit p-8 gap-8 rounded-2xl bg-white border border-black border-solid flex flex-col justify-end items-end">
-                                <h1 className="text-xl font-bold">Bạn có chắc muốn thêm Khóa học mới không ?</h1>
+                                <h1 className="text-xl font-bold">Bạn có chắc muốn thêm khóa học mới không ?</h1>
                                 <div className="w-fit h-fit flex flex-row gap-8">
-                                    <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-700 text-white p-4">Cancel</button>
-                                    <button type="submit" disabled={isSubmit} className="w-28 h-12 bg-green-400 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">Confirm</button>
+                                    <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-600 text-white p-4">Cancel</button>
+                                    <button type="submit" disabled={isSubmit} className="w-28 h-12 bg-green-500 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">Confirm</button>
                                 </div>
                             </div>
                         </div>
@@ -589,7 +627,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ setOpenCourseForm }: CourseForm
         const ButtonSection: React.FC = () => {
             return (
                 <div className="w-full h-fit col-span-full flex flex-row justify-between text-lg">
-                    <button type="button" onClick={() => setReset(reset => !reset)} className="w-28 h-12 bg-gray-default flex justify-center items-center font-bold rounded-md hover:bg-gray-500 text-white p-4">Clear</button>
+                    <button type="button" onClick={() => setReset(reset => !reset)} className="w-28 h-12 bg-gray-200 flex justify-center items-center font-bold rounded-md hover:bg-gray-300 text-black p-4">Clear</button>
                     <ConfirmButton />
                 </div>
             )
@@ -617,7 +655,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ setOpenCourseForm }: CourseForm
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.2 }}
                 className="w-full h-full flex items-center justify-center p-6">
-                <div className="w-6/12 max-md:w-full max-md:h-5/6 max-h-full h-fit bg-white rounded-2xl flex flex-col border border-black border-solid overflow-hidden">
+                <div className="w-6/12 max-md:w-full max-md:h-5/6 max-h-full h-fit bg-snow rounded-2xl flex flex-col border border-black border-solid overflow-hidden">
                     <Header />
                     <Form />
                 </div>

@@ -28,7 +28,6 @@ const MajorsManagement: React.FC = () => {
 
     useEffect(() => {
         const fetchMajorsList = async () => {
-            setLoading(true);
             setCount((await getCountFromServer(majorsColRef)).data().count);
             let majorsQuerry = query(majorsColRef);
 
@@ -67,14 +66,14 @@ const MajorsManagement: React.FC = () => {
         return (
             <div className="w-full h-fit flex flex-row max-md:flex-col p-2 gap-4 items-center max-md:items-end ml-auto">
 
-                <div className="w-full h-fit flex flex-row items-center gap-4 max-md:gap-8">
+                <div className="w-full h-fit flex flex-row items-center gap-16 max-md:gap-8">
 
                     <div className="h-fit w-fit flex flex-col">
                         <h1 className="text-4xl font-bold">Ngành</h1>
                         <h1 className="text-base max-md:text-xs text-gray-default">{count} Ngành</h1>
                     </div>
 
-                    <form onSubmit={search} className="w-full h-fit flex flex-row justify-center items-center gap-2">
+                    <form onSubmit={search} className="w-full h-fit flex flex-row justify-center items-end gap-2">
                         <div className="h-10 flex justify-center items-center">
                             <motion.button whileTap={{ scale: 0.9 }} type="submit">
                                 <SearchIcon width={8} height={8} color="black" />
@@ -86,12 +85,16 @@ const MajorsManagement: React.FC = () => {
                 </div>
 
                 <motion.button
-                    className="min-w-fit h-10 bg-gray-200 hover:bg-gray-300 rounded flex flex-row justify-center items-center p-2 gap-2 font-bold max-md:text-xs"
+                    className="min-w-fit h-10 bg-primary rounded flex justify-center items-center font-bold text-base"
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setOpenMajorsForm(true)}
                 >
-                    <PlusIcon width={5} height={5} color="black" />
-                    Thêm Ngành mới
+                    <div className="w-full h-full bg-blue-500 rounded-l hover:bg-primary flex items-center justify-center p-2 text-white">
+                        Thêm ngành mới
+                    </div>
+                    <div className=" flex justify-center items-center p-2">
+                        <PlusIcon width={7} height={7} color="white" />
+                    </div>
                 </motion.button>
             </div>
         )
@@ -161,8 +164,8 @@ const MajorsManagement: React.FC = () => {
                             <div className="w-fit h-fit p-8 gap-8 rounded-2xl bg-white border border-black border-solid flex flex-col justify-end items-end">
                                 <h1 className="text-xl font-bold">Bạn có chắc muốn lưu thay đổi không ?</h1>
                                 <div className="w-fit h-fit flex flex-row gap-8">
-                                    <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-700 text-white p-4">No</button>
-                                    <button type="submit" className="w-28 h-12 bg-green-400 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">Yes</button>
+                                    <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-600 text-white p-4">Cancel</button>
+                                    <button type="submit" className="w-28 h-12 bg-green-500 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">Confirm</button>
                                 </div>
                             </div>
                         </div>
@@ -190,9 +193,9 @@ const MajorsManagement: React.FC = () => {
                         <div className="w-full h-full flex justify-center items-center">
                             <div className="w-fit h-fit p-8 gap-8 rounded-2xl bg-white border border-black border-solid flex flex-col justify-end items-end">
                                 <h1 className="text-xl text-black font-bold">Bạn có chắc muốn xóa ngành này không ?</h1>
-                                <div className="w-fit h-fit flex flex-row gap-8">
-                                    <button type="button" onClick={() => delDoc()} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-700 text-white p-4">Yes</button>
-                                    <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-green-400 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">No</button>
+                                <div className="w-fit h-fit flex flex-row gap-8 text-xl">
+                                    <button type="button" onClick={() => delDoc()} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-600 text-white p-4">Confirm</button>
+                                    <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-green-500 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">Cancel</button>
                                 </div>
                             </div>
                         </div>
@@ -206,16 +209,16 @@ const MajorsManagement: React.FC = () => {
             <form className="w-full h-full max-md:hidden flex flex-col gap-2 p-2 overflow-scroll" onSubmit={submit}>
 
                 <div className="w-full h-fit bg-primary rounded-t-2xl flex items-center justify-start text-white font-bold p-4 text-4xl">
-                    Thông tin Ngành
+                    Thông tin ngành
                     {edit && <DeleteButton />}
                 </div>
                 {(currentMajors && currentMajorsDetail) ? <div className="w-full h-full flex flex-col p-4 gap-8 text-xl overflow-scroll">
                     <div className="w-full h-fit flex flex-row items-center justify-between text-black font-bold gap-4">
-                        <label htmlFor="name" className="min-w-52">Tên Ngành:</label>
+                        <label htmlFor="name" className="min-w-52">Tên ngành:</label>
                         <Input id="name" name="name" defaultValue={currentMajors?.name} type="text" className="w-full font-normal" disable={!edit} />
                     </div>
                     <div className="w-full h-fit flex flex-row items-center justify-start text-black font-bold gap-4">
-                        <label htmlFor="code" className="min-w-52">Mã Ngành:</label>
+                        <label htmlFor="code" className="min-w-52">Mã ngành:</label>
                         <Input id="code" name="code" defaultValue={currentMajors?.code} type="text" className="w-full font-normal" disable={!edit} />
                     </div>
                     <div className="w-full h-fit flex flex-row items-center justify-start text-black font-bold gap-4">
@@ -223,7 +226,7 @@ const MajorsManagement: React.FC = () => {
                         <Input id="faculty" name="faculty" defaultValue={currentMajorsDetail?.faculty} type="text" className="w-full font-normal" disable />
                     </div>
                     <div className="w-full h-fit flex flex-row items-center justify-start text-black font-bold gap-4">
-                        <label htmlFor="faculty_code" className="min-w-52">Mã Khoa:</label>
+                        <label htmlFor="faculty_code" className="min-w-52">Mã khoa:</label>
                         <Input id="faculty_code" name="faculty_code" defaultValue={currentMajors?.faculty_code} type="text" className="w-full font-normal" disable />
                     </div>
                     <div className="w-full h-fit flex flex-row items-center justify-start text-black font-bold gap-4">
@@ -244,7 +247,7 @@ const MajorsManagement: React.FC = () => {
                     </div>
                     <div className="w-full h-fit mt-auto flex items-center justify-start">
                         {edit ?
-                            <motion.button type="button" whileTap={{ scale: 0.9 }} onClick={() => setEdit(false)} className="w-fit h-fit bg-gray-400 hover:bg-gray-500 rounded-md text-white text-xl font-bold flex items-center justify-center px-4 py-2">Cancel</motion.button> :
+                            <motion.button type="button" whileTap={{ scale: 0.9 }} onClick={() => setEdit(false)} className="w-fit h-fit bg-gray-200 hover:bg-gray-300 rounded-md text-black text-xl font-bold flex items-center justify-center px-4 py-2">Cancel</motion.button> :
                             <motion.button type="button" whileTap={{ scale: 0.9 }} onClick={() => setEdit(true)} className="w-fit h-fit bg-primary hover:bg-blue-700 rounded-md text-white text-xl font-bold flex items-center justify-center px-4 py-2">Edit</motion.button>}
 
                         {edit && <ConfirmButton />}
@@ -259,15 +262,15 @@ const MajorsManagement: React.FC = () => {
         return (
             <div className="w-full h-full max-md:hidden flex flex-col gap-2 p-2">
                 <div className="w-full h-fit bg-primary rounded-t-2xl flex items-center justify-start text-white font-bold p-4 text-4xl">
-                    Thông tin Ngành
+                    Thông tin ngành
                 </div>
                 <div className="w-full h-full flex flex-col p-4 gap-8 text-xl overflow-scroll">
                     <div className="w-full h-fit flex flex-row items-center justify-between text-black font-bold gap-4">
-                        <label htmlFor="name" className="min-w-52">Tên Ngành:</label>
+                        <label htmlFor="name" className="min-w-52">Tên ngành:</label>
                         <Input id="name" name="name" type="text" className="w-full font-normal" disable />
                     </div>
                     <div className="w-full h-fit flex flex-row items-center justify-start text-black font-bold gap-4">
-                        <label htmlFor="code" className="min-w-52">Mã Ngành:</label>
+                        <label htmlFor="code" className="min-w-52">Mã ngành:</label>
                         <Input id="code" name="code" type="text" className="w-full font-normal" disable />
                     </div>
                     <div className="w-full h-fit flex flex-row items-center justify-start text-black font-bold gap-4">
@@ -298,7 +301,7 @@ const MajorsManagement: React.FC = () => {
     return (
         <>
             {openMajorsForm && <MajorsForm setOpenMajorsForm={setOpenMajorsForm} />}
-            <div className="w-full h-full flex items-center justify-center p-4">
+            <div className="w-full h-full flex items-center justify-center p-4 bg-snow">
 
                 <div className="w-full h-full flex flex-row items-center justify-center gap-2">
 
@@ -314,7 +317,7 @@ const MajorsManagement: React.FC = () => {
                                 <div className="w-full h-full col-span-4 text-xl font-bold text-gray-default flex items-center">Mã ngành</div>
 
                                 <div className="w-full h-full flex justify-center items-center">
-                                    <motion.button whileTap={{ scale: .9 }} onClick={() => { setMajorsList([]); setReset(reset => !reset) }} className="hover:bg-gray-300 p-2 rounded-md">
+                                    <motion.button whileTap={{ scale: .9 }} onClick={() => { setLoading(true); setReset(reset => !reset) }} className="hover:bg-gray-200 p-2 rounded-md">
                                         <RefreashIcon width={7} height={7} color="gray" />
                                     </motion.button>
                                 </div>
@@ -352,7 +355,7 @@ const MajorsManagement: React.FC = () => {
                                                             setOpenMajorsInfor(true)
                                                         }}
                                                         data-key={faculty.id} whileTap={{ scale: .9 }} className="w-fit h-fit rounded-md flex justify-center items-center">
-                                                        <InformationIcon width={6} height={6} color="gray" />
+                                                        <InformationIcon width={6} height={6} color="#1071e5" />
                                                     </motion.button>
                                                 </div>
                                                 <hr className="solid bg-gray-200 border-gray-200 border rounded-full"></hr>

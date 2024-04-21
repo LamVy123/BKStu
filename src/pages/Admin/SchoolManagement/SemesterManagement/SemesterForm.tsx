@@ -19,7 +19,7 @@ const SemesterForm: React.FC<SemesterFormProps> = ({ setOpenSemesterForm }: Seme
     const Header: React.FC = () => {
         return (
             <div className="w-full h-20 flex flex-row justify-start items-center p-4 bg-primary rounded-t-2xl">
-                <h1 className="text-4xl max-md:text-2xl font-bold">Thêm Học kì mới</h1>
+                <h1 className="text-4xl max-md:text-2xl font-bold text-white">Thêm học kì mới</h1>
 
                 <button className="w-fit h-full ml-auto" onClick={() => setOpenSemesterForm(false)}>
                     <ExitIcon width={10} height={10} color="black" />
@@ -71,7 +71,7 @@ const SemesterForm: React.FC<SemesterFormProps> = ({ setOpenSemesterForm }: Seme
                     <div className="w-12/12 max-md:w-full h-fit flex flex-col gap-8">
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                            <label htmlFor="code" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Mã Học kì<h1 className="text-red-500">*</h1></label>
+                            <label htmlFor="code" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Mã học kì<h1 className="text-red-500">*</h1></label>
                             <Input type="text" id="code" name="code" placeholder="Vui lòng điền" className="w-full col-span-5" />
                         </div>
 
@@ -103,10 +103,10 @@ const SemesterForm: React.FC<SemesterFormProps> = ({ setOpenSemesterForm }: Seme
                     {open && <Model>
                         <div className="w-full h-full flex justify-center items-center">
                             <div className="w-fit h-fit p-8 gap-8 rounded-2xl bg-white border border-black border-solid flex flex-col justify-end items-end">
-                                <h1 className="text-xl font-bold">Bạn có chắc muốn thêm Học kì mới không ?</h1>
+                                <h1 className="text-xl font-bold">Bạn có chắc muốn thêm huọc kì mới không ?</h1>
                                 <div className="w-fit h-fit flex flex-row gap-8">
-                                    <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-700 text-white p-4">Cancel</button>
-                                    <button type="submit" disabled={isSubmit} className="w-28 h-12 bg-green-400 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">Confirm</button>
+                                    <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-600 text-white p-4">Cancel</button>
+                                    <button type="submit" disabled={isSubmit} className="w-28 h-12 bg-green-500 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">Confirm</button>
                                 </div>
                             </div>
                         </div>
@@ -119,7 +119,7 @@ const SemesterForm: React.FC<SemesterFormProps> = ({ setOpenSemesterForm }: Seme
         const ButtonSection: React.FC = () => {
             return (
                 <div className="w-full h-fit col-span-full flex flex-row justify-between text-lg">
-                    <button type="button" onClick={() => setReset(reset => !reset)} className="w-28 h-12 bg-gray-default flex justify-center items-center font-bold rounded-md hover:bg-gray-500 text-white p-4">Clear</button>
+                    <button type="button" onClick={() => setReset(reset => !reset)} className="w-28 h-12 bg-gray-200 flex justify-center items-center font-bold rounded-md hover:bg-gray-300 text-black p-4">Clear</button>
                     <ConfirmButton />
                 </div>
             )
@@ -147,7 +147,7 @@ const SemesterForm: React.FC<SemesterFormProps> = ({ setOpenSemesterForm }: Seme
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.2 }}
                 className="w-full h-full flex items-center justify-center p-6">
-                <div className="w-6/12 max-md:w-full max-md:h-5/6 max-h-full h-fit bg-white rounded-2xl flex flex-col border border-black border-solid overflow-hidden">
+                <div className="w-6/12 max-md:w-full max-md:h-5/6 max-h-full h-fit bg-snow rounded-2xl flex flex-col border border-black border-solid overflow-hidden">
                     <Header />
                     <Form />
                 </div>

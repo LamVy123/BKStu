@@ -31,6 +31,7 @@ const Input: React.FC<InputProps> = ({ className, type, id, name, placeholder, d
             value={value}
             onChange={(e) => { setValue(e.target.value) }}
             spellCheck={false}
+            onWheel={event => event.currentTarget.blur()}
         />
     )
 }

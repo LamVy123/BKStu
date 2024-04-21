@@ -10,6 +10,8 @@ export default {
         colors: {
             'primary' : '#1071e5',
             'gray-default': '#808080',
+            'verdigris': '#64B6AC',
+            'snow': '#FFFBFE',
         },
         backgroundImage: {
             'BKbg' : "url('/static/BKbg.jpeg')",

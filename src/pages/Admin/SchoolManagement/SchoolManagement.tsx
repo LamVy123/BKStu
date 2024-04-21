@@ -36,19 +36,22 @@ function SchoolManagement({ }: SchoolManagementProps) {
 
         return (
             <div className="w-full min-h-10 overflow-scroll no-scrollbar" >
-                <div className="w-full min-h-10 bg-gray-200 flex flex-row relative z-10 gap-2">
-                    {pageList.map((page) => {
+                <div className="w-full min-h-10 flex flex-row relative z-10 gap-2">
+                    {pageList.map((page, index) => {
                         return (
-                            <motion.button key={page.pageNumber} onClick={() => { setCurrentPage(page.pageNumber) }}
-                                className="p-4 max-md:p-2 relative w-fit h-10 font-bold cursor-pointer flex items-center justify-center text-xl max-md:text-xs">
-                                {page.name}
-                                {currentPage == page.pageNumber &&
+                            <button key={page.pageNumber} onClick={() => { setCurrentPage(page.pageNumber) }}
+                                className="p-4 relative w-fit h-10 font-bold cursor-pointer flex items-center justify-center text-xl max-md:text-xs text-black">
+                                <div className="text-black">
+                                    {page.name}
+                                </div>
+                                {currentPage == index &&
                                     <motion.div
                                         transition={{ duration: 0.2 }}
-                                        className="absolute inset-0 rounded-md bg-white border border-solid border-black z-0" layoutId="pill" />
+                                        className="absolute inset-0 rounded-md bg-primary border border-solid border-black z-0" layoutId="pill">
+                                        <span className="w-full h-full flex items-center justify-center absolute z-10 text-white">{page.name}</span>
+                                    </motion.div>
                                 }
-                                <span className="w-full h-full flex items-center justify-center absolute z-10">{page.name}</span>
-                            </motion.button>
+                            </button>
                         )
                     })}
                 </div>
@@ -79,11 +82,11 @@ function SchoolManagement({ }: SchoolManagementProps) {
 
     return (
         <Container>
-            <div className="w-full h-full p-4 flex flex-col bg-gray-200">
+            <div className="w-full h-full p-4 flex flex-col bg-white">
                 <div className="w-full h-full flex flex-col gap-2">
                     <Header />
 
-                    <div className="w-full h-full border border-solid border-black rounded-xl bg-white overflow-hidden shadow-md shadow-gray-default">
+                    <div className="w-full h-full border border-solid border-black rounded-md bg-white overflow-hidden shadow-md shadow-gray-default">
                         <Body />
                     </div>
                 </div>

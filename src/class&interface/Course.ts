@@ -263,7 +263,7 @@ export class CourseFactory {
     }
 }
 
-export class CourseDetailFatory {
+export class CourseDetailFactory {
     constructor () {}
     public CreateCourseDetailWithDocumentData = (data : DocumentData | undefined) => {
         return new CourseDetail (

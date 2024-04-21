@@ -29,7 +29,6 @@ const SubjectManagement: React.FC = () => {
 
     useEffect(() => {
         const fetchSubjectList = async () => {
-            setLoading(true);
             setCount((await getCountFromServer(subjectColRef)).data().count);
             let subjectQuerry = query(subjectColRef);
 
@@ -68,7 +67,7 @@ const SubjectManagement: React.FC = () => {
         return (
             <div className="w-full h-fit flex flex-row max-md:flex-col p-2 gap-4 items-center max-md:items-end ml-auto">
 
-                <div className="w-full h-fit flex flex-row items-center gap-20 max-md:gap-8">
+                <div className="w-full h-fit flex flex-row items-center gap-16 max-md:gap-8">
 
                     <div className="h-fit w-fit flex flex-col">
                         <h1 className="text-4xl max-md:text-3xl w-40 font-bold">Môn học</h1>
@@ -87,12 +86,16 @@ const SubjectManagement: React.FC = () => {
                 </div>
 
                 <motion.button
-                    className="min-w-fit h-10 bg-gray-200 hover:bg-gray-300 rounded flex flex-row justify-center items-center p-2 gap-2 font-bold max-md:text-xs"
+                    className="min-w-fit h-10 bg-primary rounded flex justify-center items-center font-bold text-base"
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setOpenSubjectForm(true)}
                 >
-                    <PlusIcon width={5} height={5} color="black" />
-                    Thêm Môn học mới
+                    <div className="w-full h-full bg-blue-500 rounded-l hover:bg-primary flex items-center justify-center p-2 text-white">
+                        Thêm môn học mới
+                    </div>
+                    <div className=" flex justify-center items-center p-2">
+                        <PlusIcon width={7} height={7} color="white" />
+                    </div>
                 </motion.button>
             </div>
         )
@@ -177,8 +180,8 @@ const SubjectManagement: React.FC = () => {
                             <div className="w-fit h-fit p-8 gap-8 rounded-2xl bg-white border border-black border-solid flex flex-col justify-end items-end">
                                 <h1 className="text-xl font-bold">Bạn có chắc muốn lưu thay đổi không ?</h1>
                                 <div className="w-fit h-fit flex flex-row gap-8">
-                                    <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-700 text-white p-4">No</button>
-                                    <button type="submit" className="w-28 h-12 bg-green-400 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">Yes</button>
+                                    <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-700 text-white p-4">Cancel</button>
+                                    <button type="submit" className="w-28 h-12 bg-green-400 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">Confirm</button>
                                 </div>
                             </div>
                         </div>
@@ -205,9 +208,9 @@ const SubjectManagement: React.FC = () => {
                         <div className="w-full h-full flex justify-center items-center">
                             <div className="w-fit h-fit p-8 gap-8 rounded-2xl bg-white border border-black border-solid flex flex-col justify-end items-end">
                                 <h1 className="text-xl text-black font-bold">Bạn có chắc muốn xóa môn học này không ?</h1>
-                                <div className="w-fit h-fit flex flex-row gap-8">
-                                    <button type="button" onClick={() => delDoc()} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-700 text-white p-4">Yes</button>
-                                    <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-green-400 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">No</button>
+                                <div className="w-fit h-fit flex flex-row gap-8 text-xl">
+                                    <button type="button" onClick={() => delDoc()} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-700 text-white p-4">Confirm</button>
+                                    <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-green-400 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">Cancel</button>
                                 </div>
                             </div>
                         </div>
@@ -252,12 +255,12 @@ const SubjectManagement: React.FC = () => {
             <form className="w-full h-full max-md:hidden flex flex-col gap-2 p-2 overflow-scroll" onSubmit={submit}>
 
                 <div className="w-full h-fit bg-primary rounded-t-2xl flex items-center justify-start text-white font-bold p-4 text-4xl">
-                    Thông tin Môn học
+                    Thông tin môn học
                     {edit && <DeleteButton />}
                 </div>
                 {(currentSubject && currentSubjectDetail) ? <div className="w-full h-full flex flex-col p-4 gap-8 text-xl overflow-scroll">
                     <div className="w-full h-fit flex flex-row items-center justify-between text-black font-bold gap-4">
-                        <label htmlFor="name" className="min-w-52">Tên Môn học:</label>
+                        <label htmlFor="name" className="min-w-52">Tên môn học:</label>
                         <Input id="name" name="name" defaultValue={currentSubject?.name} type="text" className="w-full font-normal" disable={!edit} />
                     </div>
                     <div className="w-full h-fit flex flex-row items-center justify-start text-black font-bold gap-4">
@@ -277,7 +280,7 @@ const SubjectManagement: React.FC = () => {
                         <Select id="subject_type" name="subject_type" height={12} option={SubjectTypeOptionList} className="w-full font-normal" disable={!edit} />
                     </div>
                     <div className="w-full h-fit flex flex-row items-center justify-start text-black font-bold gap-4">
-                        <label htmlFor="class_duration" className="min-w-52">Thời lượng tiết:</label>
+                        <label htmlFor="class_duration" className="min-w-52">Thời lượng tiết học:</label>
                         <Input id="class_duration" name="class_duration" defaultValue={currentSubjectDetail.class_duration} type="number" className="w-full font-normal" disable={!edit} />
                     </div>
                     <div className="w-full h-fit flex flex-row items-center justify-start text-black font-bold gap-4">
@@ -316,7 +319,7 @@ const SubjectManagement: React.FC = () => {
                     </div>
                     <div className="w-full h-fit mt-auto flex items-center justify-start">
                         {edit ?
-                            <motion.button type="button" whileTap={{ scale: 0.9 }} onClick={() => setEdit(false)} className="w-fit h-fit bg-gray-400 hover:bg-gray-500 rounded-md text-white text-xl font-bold flex items-center justify-center px-4 py-2">Cancel</motion.button> :
+                            <motion.button type="button" whileTap={{ scale: 0.9 }} onClick={() => setEdit(false)} className="w-fit h-fit bg-gray-200 hover:bg-gray-300 rounded-md text-black text-xl font-bold flex items-center justify-center px-4 py-2">Cancel</motion.button> :
                             <motion.button type="button" whileTap={{ scale: 0.9 }} onClick={() => setEdit(true)} className="w-fit h-fit bg-primary hover:bg-blue-700 rounded-md text-white text-xl font-bold flex items-center justify-center px-4 py-2">Edit</motion.button>}
 
                         {edit && <ConfirmButton />}
@@ -331,16 +334,16 @@ const SubjectManagement: React.FC = () => {
         return (
             <div className="w-full h-full max-md:hidden flex flex-col gap-2 p-2 overflow-hidden">
                 <div className="w-full h-fit bg-primary rounded-t-2xl flex items-center justify-start text-white font-bold p-4 text-4xl">
-                    Thông tin Môn học
+                    Thông tin môn học
                 </div>
                 <div className="w-12/12 max-md:w-full h-fit flex text-xl flex-col gap-8 p-4 overflow-scroll">
                     <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                        <label htmlFor="name" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Tên Môn học:</label>
+                        <label htmlFor="name" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Tên môn học:</label>
                         <Input type="text" id="name" name="name" placeholder="" className="w-full col-span-5" disable />
                     </div>
 
                     <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                        <label htmlFor="code" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Mã Môn học:</label>
+                        <label htmlFor="code" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Mã môn học:</label>
                         <Input type="text" id="code" name="code" placeholder="" className="w-full col-span-5" disable />
                     </div>
 
@@ -360,7 +363,7 @@ const SubjectManagement: React.FC = () => {
                     </div>
 
                     <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                        <label htmlFor="class_duration" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Thời lượng buổi học:</label>
+                        <label htmlFor="class_duration" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Thời lượng tiết học:</label>
                         <Input type="number" id="class_duration" name="class_duration" placeholder="" className="w-full col-span-5" disable />
                     </div>
                     <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
@@ -393,7 +396,7 @@ const SubjectManagement: React.FC = () => {
                     </div>
 
                     <div className="w-full h-fit flex flex-col items-start justify-center">
-                        <label htmlFor="description" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Mô tả Môn học:</label>
+                        <label htmlFor="description" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Mô tả:</label>
                         <TextArea id="description" name="description" className="w-full min-h-32" disable />
                     </div>
 
@@ -406,7 +409,7 @@ const SubjectManagement: React.FC = () => {
     return (
         <>
             {openSubjectForm && <SubjectForm setOpenSubjectForm={setOpenSubjectForm} />}
-            <div className="w-full h-full flex items-center justify-center p-4">
+            <div className="w-full h-full flex items-center justify-center p-4 bg-snow">
 
                 <div className="w-full h-full flex flex-row items-center justify-center gap-2">
 
@@ -422,7 +425,7 @@ const SubjectManagement: React.FC = () => {
                                 <div className="w-full h-full col-span-4 text-xl font-bold text-gray-default flex items-center">Mã môn học</div>
 
                                 <div className="w-full h-full flex justify-center items-center">
-                                    <motion.button whileTap={{ scale: .9 }} onClick={() => { setSubjectList([]); setReset(reset => !reset) }} className="hover:bg-gray-300 p-2 rounded-md">
+                                    <motion.button whileTap={{ scale: .9 }} onClick={() => { setLoading(true); setReset(reset => !reset) }} className="hover:bg-gray-200 p-2 rounded-md">
                                         <RefreashIcon width={7} height={7} color="gray" />
                                     </motion.button>
                                 </div>
@@ -460,7 +463,7 @@ const SubjectManagement: React.FC = () => {
                                                             setOpenSubjectInfor(true)
                                                         }}
                                                         data-key={subject.id} whileTap={{ scale: .9 }} className="w-fit h-fit rounded-md flex justify-center items-center">
-                                                        <InformationIcon width={6} height={6} color="gray" />
+                                                        <InformationIcon width={6} height={6} color="#1071e5" />
                                                     </motion.button>
                                                 </div>
                                                 <hr className="solid bg-gray-200 border-gray-200 border rounded-full"></hr>

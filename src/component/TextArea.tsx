@@ -16,7 +16,6 @@ const TextArea: React.FC<TextAreaProps> = ({ className, id, name, placeholder, r
 
     const resizeTextArea = () => {
         if (textAreaRef.current) {
-
             textAreaRef.current.style.height = textAreaRef.current.scrollHeight + "px";
         }
     };

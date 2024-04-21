@@ -95,7 +95,7 @@ const Login: React.FC = () => {
 
     return (
         <Container>
-            <div className="w-full h-screen flex bg-Loginbg bg-no-repeat bg-cover max-lg:justify-center">
+            <div className="w-full h-full flex bg-Loginbg bg-no-repeat bg-cover max-lg:justify-center">
                 <div className="w-2/5 h-full p-8 max-md:w-full max-lg:w-4/5 flex flex-col justify-start gap-8 bg-zinc-100">
                     <LoginForm />
                     <Contact />

@@ -3,8 +3,11 @@
 @tailwind utilities;
 
 body {
-    font-family: 'Liberation Sans', sans-serif;
+    overflow-y: scroll;
+    margin: 0;
+    font-family: 'Times New Roman', sans-serif;
 }
+
 ::-webkit-scrollbar {
     width: 8px;
 }

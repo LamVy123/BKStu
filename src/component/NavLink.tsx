@@ -95,7 +95,7 @@ export const ClassManagementLink: React.FC = () => {
     return (
         <Link to={'/class_management'} className="p-2 hover:bg-blue-700">
             <div className="flex items-center justify-start gap-4 w-full h-12">
-                <button><BookIcon width={10} height={10} color="white" /></button>
+                <button><DashboardIcon width={10} height={10} color="white" /></button>
                 <div><h1 className="text-base text-white font-bold">Quản lý lớp học</h1></div>
             </div>
         </Link>

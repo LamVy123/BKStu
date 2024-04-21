@@ -2,6 +2,7 @@ import { Admin, AdminDetail } from "../../class&interface/User";
 import Container from "../../component/Container";
 import { useAuth } from "../../context/AuthContext";
 import Input from "../../component/Input";
+import Footer from "../../component/Footer";
 
 const AdminInformation: React.FC = () => {
 
@@ -110,7 +111,7 @@ const AdminInformation: React.FC = () => {
                         </div>
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                            <label htmlFor="city" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Thành Phố</label>
+                            <label htmlFor="city" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Thành phố</label>
                             <Input type="text" id="city" name="city" defaultValue={adminDetail?.city} placeholder="Vui lòng điền" className="w-full col-span-5" disable />
                         </div>
 
@@ -137,7 +138,7 @@ const AdminInformation: React.FC = () => {
 
 
             return (
-                <form className="w-full h-full flex flex-row p-2 overflow-scroll">
+                <form className="w-full h-full flex flex-row p-2 bg-snow">
                     <div className="w-full h-full flex flex-col p-8 max-md:p-2 gap-12 text-base max-md:text-sx">
 
                         <div className="w-full h-fit grid grid-cols-16 max-md:grid-cols-6 gap-x-8 gap-y-4">
@@ -157,7 +158,7 @@ const AdminInformation: React.FC = () => {
 
                             <div className="w-1/2 max-md:w-full h-fit flex flex-col gap-4">
 
-                                <h1 className="text-3xl max-md:text-xl font-bold">Thông tin Quản trị viên</h1>
+                                <h1 className="text-3xl max-md:text-xl font-bold">Thông tin quản trị viên</h1>
 
                                 <Section3 />
 
@@ -189,20 +190,19 @@ const AdminInformation: React.FC = () => {
         }
 
         return (
-            <div className="w-full h-full rounded-md overflow-hidden">
+            <div className="w-full h-full rounded-md">
                 <Form />
             </div>
         )
     }
 
     return (
-        <Container>
-            <div className="w-full h-full flex items-center justify-center p-4 bg-zinc-200">
-                <div className="w-full h-full border-solid border border-black rounded-md shadow-sm bg-white shadow-gray-700 flex items-center justify-center">
-                    <AdminInfor />
-                </div>
+        <>
+            <div className="min-w-full min-h-screen h-full pt-14 flex flex-col justify-start items-center">
+                <AdminInfor />
             </div>
-        </Container>
+            <Footer />
+        </>
     )
 }
 

@@ -23,15 +23,14 @@ const Navigation: React.FC = () => {
         return (
             <div className="min-w-full h-14 flex items-center justify-end z-40 bg-primary p-4 fixed top-0 left-0">
                 {(() => {
-                    if (auth.role == 'guest') {
-                        return null
+                    if (auth.userInfor.uid) {
+                        return (
+                            <div className="h-full w-fit flex justify-center items-center text-xl text-white font-bold mr-3">
+                                {auth.userInfor.last_name + " " + auth.userInfor.middle_name + " " + auth.userInfor.first_name}
+                            </div>
+                        )
                     }
-                    const user = auth.userInfor
-                    return (
-                        <div className="h-full w-fit flex justify-center items-center text-xl text-white font-bold mr-3">
-                            {user.last_name + " " + user.middle_name + " " + user.first_name}
-                        </div>
-                    )
+                    return null
                 })()}
                 <UserIcon width={10} height={10} color="white" />
             </div>
@@ -116,42 +115,44 @@ const Navigation: React.FC = () => {
         }
 
         const location = useLocation();
+        let locationPathName: string = location.pathname
+        locationPathName = locationPathName.split('/')[1]
         let displayPath: string
-        switch (location.pathname) {
-            case '/login':
+        switch (locationPathName) {
+            case 'login':
                 displayPath = 'Login'
                 break
-            case '/dashboard':
+            case 'dashboard':
                 displayPath = 'Dashboard'
                 break
-            case '/student_management':
+            case 'student_management':
                 displayPath = 'Student_Management'
                 break
-            case '/teacher_management':
+            case 'teacher_management':
                 displayPath = 'Teacher_Management'
                 break
-            case '/school_management':
+            case 'school_management':
                 displayPath = 'School_Management'
                 break
-            case '/information':
+            case 'information':
                 displayPath = 'Information'
                 break
-            case '/class_management':
+            case 'class_management':
                 displayPath = 'Class_Management'
                 break
-            case '/course_management':
+            case 'course_management':
                 displayPath = 'Course_Management'
                 break
-            case '/my_class':
+            case 'my_class':
                 displayPath = 'My_Class'
                 break
-            case '/my_course':
+            case 'my_course':
                 displayPath = 'My_Course'
                 break
-            case '/course_registration':
+            case 'course_registration':
                 displayPath = 'Course_Registration'
                 break
-            case '/schedule':
+            case 'schedule':
                 displayPath = 'Schedule'
                 break
             default:
@@ -192,7 +193,8 @@ const Navigation: React.FC = () => {
                     </div>
 
                 </div>
-                {openWidth != '0px' ? <div onClick={() => toggleSideBar()} className="w-full h-screen bg-opacity-15 bg-black absolute top-0 left-0 z-30"></div> : null}
+                {openWidth != '0px' ?
+                    <div onClick={() => toggleSideBar()} className="w-full h-screen bg-opacity-15 bg-black fixed top-0 left-0 z-30"></div> : null}
             </>
         );
     };

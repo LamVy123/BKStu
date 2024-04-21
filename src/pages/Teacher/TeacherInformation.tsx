@@ -1,5 +1,6 @@
 import { Teacher, TeacherDetail } from "../../class&interface/User";
 import Container from "../../component/Container";
+import Footer from "../../component/Footer";
 import Input from "../../component/Input";
 import { useAuth } from "../../context/AuthContext";
 
@@ -94,7 +95,7 @@ const TeacherInfor: React.FC = () => {
                     </div>
 
                     <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                        <label htmlFor="specialized" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Chuyên Ngành</label>
+                        <label htmlFor="specialized" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Chuyên ngành</label>
                         <Input type="text" id="specialized" name="specialized" defaultValue={teacher?.specialized} className="w-full col-span-5" disable />
                     </div>
 
@@ -126,7 +127,7 @@ const TeacherInfor: React.FC = () => {
                     </div>
 
                     <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                        <label htmlFor="city" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Thành Phố</label>
+                        <label htmlFor="city" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Thành phố</label>
                         <Input type="text" id="city" name="city" defaultValue={teacherDetail?.city} placeholder="Vui lòng điền" className="w-full col-span-5" disable />
                     </div>
 
@@ -174,7 +175,7 @@ const TeacherInfor: React.FC = () => {
 
                         <div className="w-1/2 max-md:w-full h-fit flex flex-col gap-4">
 
-                            <h1 className="text-3xl max-md:text-xl font-bold">Thông tin Giảng viên</h1>
+                            <h1 className="text-3xl max-md:text-xl font-bold">Thông tin giảng viên</h1>
 
                             <Section3 />
 
@@ -216,13 +217,12 @@ const TeacherInfor: React.FC = () => {
 
 const TeacherInformation: React.FC = () => {
     return (
-        <Container>
-            <div className="w-full h-full flex items-center justify-center p-4 bg-zinc-200">
-                <div className="w-full h-full border-solid border border-black rounded-md shadow-sm bg-white shadow-gray-700 flex items-center justify-center">
-                    <TeacherInfor />
-                </div>
+        <>
+            <div className="min-w-full min-h-screen h-full pt-14 flex flex-col justify-start items-center">
+                <TeacherInfor />
             </div>
-        </Container>
+            <Footer />
+        </>
     )
 }
 

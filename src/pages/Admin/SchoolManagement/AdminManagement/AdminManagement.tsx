@@ -94,7 +94,7 @@ const AdminManagement: React.FC = () => {
                     <p className="text-lg max-md:text-sm text-gray-default">{adminCount} Quản trị viên</p>
                 </div>
 
-                <div className="w-full h-12 flex flex-row max-md:flex-col ml-auto">
+                <div className="w-full h-12 flex flex-row max-md:flex-col ml-auto items-center">
 
                     <form onSubmit={search} className="w-full h-12 flex flex-row items-center justify-center gap-4">
                         <div className="h-10 flex justify-center items-center">
@@ -105,13 +105,18 @@ const AdminManagement: React.FC = () => {
                         <Input type="search" name="search" id="search" defaultValue={searchValue} className="w-112 max-md:w-full h-10" placeholder="Tìm kiếm bằng Họ, Tên, ID hoặc email" />
                     </form>
 
-                    <div className="w-fit h-12 flex flex-row justify-center items-center text-base max-md:text-xs">
+                    <div className="min-w-fit h-full flex flex-row justify-center items-center text-base">
                         <motion.button
-                            onClick={() => { delay(100).then(() => setOpenAdminForm(true)) }}
+                            className="min-w-fit h-10 bg-primary rounded flex justify-center items-center font-bold text-base"
                             whileTap={{ scale: 0.95 }}
-                            className="w-52 h-10 bg-gray-200 hover:bg-gray-300 rounded flex flex-row justify-center items-center p-2 gap-2 font-bold">
-                            <AddUserIcon width={7} height={7} color="black" />
-                            Thêm quản trị viên
+                            onClick={() => setOpenAdminForm(true)}
+                        >
+                            <div className="w-full h-full bg-blue-500 rounded-l hover:bg-primary flex items-center justify-center p-2 text-white">
+                                Thêm quản trị viên
+                            </div>
+                            <div className=" flex justify-center items-center p-2">
+                                <AddUserIcon width={7} height={7} color="white" />
+                            </div>
                         </motion.button>
                     </div>
                 </div>
@@ -124,7 +129,7 @@ const AdminManagement: React.FC = () => {
         const Header: React.FC = () => {
             return (
                 <div className="w-full h-20 flex flex-row justify-start items-center p-4 bg-primary rounded-t-2xl">
-                    <h1 className="text-4xl max-md:text-2xl font-bold">Thông tin Quản trị viên</h1>
+                    <h1 className="text-4xl max-md:text-2xl font-bold text-white">Thông tin quản trị viên</h1>
 
                     <button className="w-fit h-full ml-auto" onClick={() => setOpenAdminInfor(false)}>
                         <ExitIcon width={10} height={10} color="black" />
@@ -304,7 +309,7 @@ const AdminManagement: React.FC = () => {
                         </div>
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                            <label htmlFor="city" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Thành Phố</label>
+                            <label htmlFor="city" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Thành phố</label>
                             <Input type="text" id="city" name="city" defaultValue={adminDetail?.city} placeholder="Vui lòng điền" className="w-full col-span-5" disable={!edit} />
                         </div>
 
@@ -338,8 +343,8 @@ const AdminManagement: React.FC = () => {
                                 <div className="w-fit h-fit p-8 gap-8 rounded-2xl bg-white border border-black border-solid flex flex-col justify-end items-end">
                                     <h1 className="text-xl font-bold">Bạn có chắc muốn lưu thay đổi không ?</h1>
                                     <div className="w-fit h-fit flex flex-row gap-8">
-                                        <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-700 text-white p-4">No</button>
-                                        <button type="submit" className="w-28 h-12 bg-green-400 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">Yes</button>
+                                        <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-600 text-white p-4">Cancel</button>
+                                        <button type="submit" className="w-28 h-12 bg-green-500 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">Confirm</button>
                                     </div>
                                 </div>
                             </div>
@@ -353,7 +358,7 @@ const AdminManagement: React.FC = () => {
                 if (edit) {
                     return (
                         <div className="w-full h-fit col-span-full flex flex-row justify-between text-lg">
-                            <button type="button" onClick={() => setEdit(false)} className="w-28 h-12 bg-gray-200 flex justify-center items-center font-bold rounded-md hover:bg-gray-300 p-4">Cancel</button>
+                            <button type="button" onClick={() => setEdit(false)} className="w-28 h-12 bg-gray-200 flex justify-center items-center font-bold rounded-md hover:bg-gray-300 text-black p-4">Cancel</button>
 
                             <ConfirmButton />
                         </div>
@@ -362,7 +367,7 @@ const AdminManagement: React.FC = () => {
 
                 return (
                     <div className="w-full h-fit col-span-full flex flex-row justify-between text-lg">
-                        <button type="button" onClick={() => setEdit(true)} className="w-28 h-12 bg-gray-200 flex justify-center items-center font-bold rounded-md hover:bg-gray-300 p-4">Edit</button>
+                        <button type="button" onClick={() => setEdit(true)} className="w-28 h-12 bg-primary flex justify-center items-center font-bold rounded-md hover:bg-blue-700 text-white p-4">Edit</button>
                     </div>
                 )
             }
@@ -390,7 +395,7 @@ const AdminManagement: React.FC = () => {
 
                             <div className="w-1/2 max-md:w-full h-fit flex flex-col gap-4">
 
-                                <h1 className="text-3xl max-md:text-xl font-bold">Thông tin Quản trị viên</h1>
+                                <h1 className="text-3xl max-md:text-xl font-bold">Thông tin quản trị viên</h1>
 
                                 <Section3 />
 
@@ -430,7 +435,7 @@ const AdminManagement: React.FC = () => {
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ duration: 0.2 }}
                     className="w-full h-full flex items-center justify-center p-6">
-                    <div className="w-11/12 max-md:w-full max-md:h-5/6 max-h-full h-full bg-white rounded-2xl flex flex-col border border-black border-solid overflow-hidden">
+                    <div className="w-11/12 max-md:w-full max-md:h-5/6 max-h-full h-full bg-snow rounded-2xl flex flex-col border border-black border-solid overflow-hidden">
 
                         <Header />
 
@@ -449,7 +454,7 @@ const AdminManagement: React.FC = () => {
             {openAdminForm && <AdminForm setOpenAdminForm={setOpenAdminForm} />}
             {openAdminInfor && <AdminInfor />}
             <div className="w-full h-full flex items-center justify-center">
-                <div className="w-full h-full bg-white flex flex-col justify-start items-center p-4 gap-8">
+                <div className="w-full h-full flex flex-col justify-start items-center p-4 gap-8 bg-snow">
                     <Header />
 
                     <div className="w-full h-full flex-col p-4 gap-4">
@@ -466,7 +471,7 @@ const AdminManagement: React.FC = () => {
                             <div className="col-span-1 max-md:hidden flex items-center text-xl text-gray-default font-bold"></div>
 
                             <div className="w-full h-full flex items-center text-xl max-md:text-sm text-gray-default font-bold">
-                                <motion.div onClick={() => { setLoading(true); setAdminlist([]); setReset(reset => !reset) }} whileTap={{ scale: 0.9 }} className="p-2 w-fit h-fit hover:bg-gray-300 rounded-md">
+                                <motion.div onClick={() => { setLoading(true); setReset(reset => !reset) }} whileTap={{ scale: 0.9 }} className="p-2 w-fit h-fit hover:bg-gray-200 rounded-md">
                                     <RefreashIcon width={7} height={7} color="gray" />
                                 </motion.div>
                             </div>
@@ -512,7 +517,7 @@ const AdminManagement: React.FC = () => {
                                                     }}
                                                     data-key={admin.uid}
                                                     whileTap={{ scale: 0.9 }} className="">
-                                                    <InformationIcon width={8} height={8} color="gray" />
+                                                    <InformationIcon width={8} height={8} color="#1071e5" />
                                                 </motion.button>
                                             </div>
                                         </div>

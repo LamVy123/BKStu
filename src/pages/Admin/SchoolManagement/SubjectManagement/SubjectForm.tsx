@@ -9,8 +9,7 @@ import { addDoc, setDoc, doc, getDocs, query, where } from "firebase/firestore"
 import { subjectColRef, subjectDetailColRef } from "../../../../config/firebase"
 import Select, { OptionInterface } from "../../../../component/Select"
 import { Faculty, FacultyFactory, FacultyInterface } from "../../../../class&interface/Faculty"
-import { Majors, MajorsFactory } from "../../../../class&interface/Majors"
-import { UserFactory } from "../../../../class&interface/User"
+import { Majors, MajorsFactory, MajorsInterface } from "../../../../class&interface/Majors"
 import { facultyColRef, majorsColRef } from "../../../../config/firebase"
 
 interface SubjectFormProps {
@@ -24,7 +23,7 @@ const SubjectForm: React.FC<SubjectFormProps> = ({ setOpenSubjectForm }: Subject
     const Header: React.FC = () => {
         return (
             <div className="w-full h-20 flex flex-row justify-start items-center p-4 bg-primary rounded-t-2xl">
-                <h1 className="text-4xl max-md:text-2xl font-bold">Thêm Môn học mới</h1>
+                <h1 className="text-4xl max-md:text-2xl font-bold text-white">Thêm môn học mới</h1>
 
                 <button className="w-fit h-full ml-auto" onClick={() => setOpenSubjectForm(false)}>
                     <ExitIcon width={10} height={10} color="black" />
@@ -52,6 +51,12 @@ const SubjectForm: React.FC<SubjectFormProps> = ({ setOpenSubjectForm }: Subject
             const midterm_exam_percent = isNaN(parseInt(data.get('midterm_exam_percent')?.toString() as string)) ? 0 : parseInt(data.get('midterm_exam_percent')?.toString() as string)
             const final_exam_percent = isNaN(parseInt(data.get('final_exam_percent')?.toString() as string)) ? 0 : parseInt(data.get('final_exam_percent')?.toString() as string)
 
+            const faculty = JSON.parse(data.get('faculty')?.toString() as string) as FacultyInterface
+            let majors: MajorsInterface = { name: 'Không', code: '', id: '', faculty_code: '' }
+            if (data.get('majors')?.toString() as string != 'Không') {
+                majors = JSON.parse(data.get('majors')?.toString() as string) as MajorsInterface
+            }
+
             if (home_work_percent < 0 || assignment_percent < 0 || laboratory_percent < 0 || midterm_exam_percent < 0 || final_exam_percent < 0) {
                 alert("Phần trăm thành phần các điểm phải lớn hơn hoặc bằng không! Xin hãy nhập lại");
                 setIsSubmit(false)
@@ -71,8 +76,8 @@ const SubjectForm: React.FC<SubjectFormProps> = ({ setOpenSubjectForm }: Subject
                             data.get('name')?.toString() as string,
                             data.get('code')?.toString() as string,
                             id,
-                            data.get('majors')?.toString() as string,
-                            (data.get('faculty')?.toString() as string).split('-')[0],
+                            majors.name,
+                            faculty.name,
                             data.get('subject_type')?.toString() as string,
                         )
 
@@ -145,17 +150,6 @@ const SubjectForm: React.FC<SubjectFormProps> = ({ setOpenSubjectForm }: Subject
             }, [currnetFacultyCode])
 
 
-            const onChangeFaculty = (e: React.ChangeEvent<HTMLSelectElement>) => {
-                e.preventDefault();
-                if (e.target.value) {
-                    const faculty = JSON.parse(e.target.value) as FacultyInterface
-                    console.log(faculty.code)
-                    setCurrentFacultyCode(faculty.code);
-                } else {
-                    setCurrentFacultyCode('');
-                }
-            }
-
             const SubjectTypeOptionList: OptionInterface[] = [
                 { lable: 'Vui lòng chọn', value: '' },
                 { lable: 'Đại cương', value: 'Đại cương' },
@@ -163,8 +157,18 @@ const SubjectForm: React.FC<SubjectFormProps> = ({ setOpenSubjectForm }: Subject
                 { lable: 'Chuyên ngành', value: 'Chuyên ngành' }
             ]
 
+            const onChangeFaculty = (e: React.ChangeEvent<HTMLSelectElement>) => {
+                e.preventDefault();
+                if (e.target.value) {
+                    const faculty = JSON.parse(e.target.value) as FacultyInterface
+                    setCurrentFacultyCode(faculty.code);
+                } else {
+                    setCurrentFacultyCode('');
+                }
+            }
+
             let facultyOptionList: OptionInterface[] = [{ lable: 'Vui lòng chọn', value: '' }]
-            let majorsOptionList: OptionInterface[] = [{ lable: 'Vui lòng chọn', value: '' }]
+            let majorsOptionList: OptionInterface[] = [{ lable: 'Vui lòng chọn', value: '' }, { lable: 'Không', value: 'Không' }]
 
             facultyList.forEach((faculty) => {
                 facultyOptionList = [...facultyOptionList, { lable: faculty.name, value: JSON.stringify(faculty.getInterface()) }]
@@ -179,12 +183,12 @@ const SubjectForm: React.FC<SubjectFormProps> = ({ setOpenSubjectForm }: Subject
 
                     <div className="w-12/12 max-md:w-full h-fit flex flex-col gap-8">
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                            <label htmlFor="name" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Tên Môn học<h1 className="text-red-500">*</h1></label>
+                            <label htmlFor="name" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Tên môn học<h1 className="text-red-500">*</h1></label>
                             <Input type="text" id="name" name="name" placeholder="Vui lòng điền" className="w-full col-span-5" required />
                         </div>
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                            <label htmlFor="code" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Mã Môn học<h1 className="text-red-500">*</h1></label>
+                            <label htmlFor="code" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Mã môn học<h1 className="text-red-500">*</h1></label>
                             <Input type="text" id="code" name="code" placeholder="Vui lòng điền" className="w-full col-span-5" required />
                         </div>
 
@@ -208,7 +212,7 @@ const SubjectForm: React.FC<SubjectFormProps> = ({ setOpenSubjectForm }: Subject
                             <Input type="number" id="number_of_credit" name="number_of_credit" placeholder="Vui lòng điền" className="w-full col-span-5" required />
                         </div>
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                            <label htmlFor="class_duration" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Thời lượng học<h1 className="text-red-500">*</h1></label>
+                            <label htmlFor="class_duration" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Thời lượng tiết học<h1 className="text-red-500">*</h1></label>
                             <Input type="number" id="class_duration" name="class_duration" placeholder="Vui lòng điền" className="w-full col-span-5" required />
                         </div>
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
@@ -239,7 +243,7 @@ const SubjectForm: React.FC<SubjectFormProps> = ({ setOpenSubjectForm }: Subject
                     </div>
 
                     <div className="ư-full h-fit flex flex-col items-start justify-center">
-                        <label htmlFor="description" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Mô tả Môn học<h1 className="text-red-500">*</h1></label>
+                        <label htmlFor="description" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Mô tả<h1 className="text-red-500">*</h1></label>
                         <TextArea id="description" name="description" className="w-full min-h-32" required />
                     </div>
 
@@ -254,10 +258,10 @@ const SubjectForm: React.FC<SubjectFormProps> = ({ setOpenSubjectForm }: Subject
                     {open && <Model>
                         <div className="w-full h-full flex justify-center items-center">
                             <div className="w-fit h-fit p-8 gap-8 rounded-2xl bg-white border border-black border-solid flex flex-col justify-end items-end">
-                                <h1 className="text-xl font-bold">Bạn có chắc muốn thêm Môn học mới không ?</h1>
+                                <h1 className="text-xl font-bold">Bạn có chắc muốn thêm môn học mới không ?</h1>
                                 <div className="w-fit h-fit flex flex-row gap-8">
-                                    <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-700 text-white p-4">Cancel</button>
-                                    <button type="submit" disabled={isSubmit} className="w-28 h-12 bg-green-400 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">Confirm</button>
+                                    <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-600 text-white p-4">Cancel</button>
+                                    <button type="submit" disabled={isSubmit} className="w-28 h-12 bg-green-500 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">Confirm</button>
                                 </div>
                             </div>
                         </div>
@@ -270,7 +274,7 @@ const SubjectForm: React.FC<SubjectFormProps> = ({ setOpenSubjectForm }: Subject
         const ButtonSection: React.FC = () => {
             return (
                 <div className="w-full h-fit col-span-full flex flex-row justify-between text-lg">
-                    <button type="button" onClick={() => setReset(reset => !reset)} className="w-28 h-12 bg-gray-default flex justify-center items-center font-bold rounded-md hover:bg-gray-500 text-white p-4">Clear</button>
+                    <button type="button" onClick={() => setReset(reset => !reset)} className="w-28 h-12 bg-gray-200 flex justify-center items-center font-bold rounded-md hover:bg-gray-300 text-black p-4">Clear</button>
                     <ConfirmButton />
                 </div>
             )
@@ -298,7 +302,7 @@ const SubjectForm: React.FC<SubjectFormProps> = ({ setOpenSubjectForm }: Subject
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.2 }}
                 className="w-full h-full flex items-center justify-center p-6">
-                <div className="w-6/12 max-md:w-full max-md:h-5/6 max-h-full h-fit bg-white rounded-2xl flex flex-col border border-black border-solid overflow-hidden">
+                <div className="w-6/12 max-md:w-full max-md:h-5/6 max-h-full h-fit bg-snow rounded-2xl flex flex-col border border-black border-solid overflow-hidden">
                     <Header />
                     <Form />
                 </div>

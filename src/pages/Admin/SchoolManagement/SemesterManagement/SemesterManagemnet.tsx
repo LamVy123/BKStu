@@ -28,7 +28,6 @@ const SemesterManagement: React.FC = () => {
 
     useEffect(() => {
         const fetchSemesterList = async () => {
-            setLoading(true);
             setCount((await getCountFromServer(semesterColRef)).data().count);
             let semesterQuerry = query(semesterColRef);
 
@@ -88,12 +87,16 @@ const SemesterManagement: React.FC = () => {
                 </div>
 
                 <motion.button
-                    className="min-w-fit h-10 bg-gray-200 hover:bg-gray-300 rounded flex flex-row justify-center items-center p-2 gap-2 font-bold max-md:text-xs"
+                    className="min-w-fit h-10 bg-primary rounded flex justify-center items-center font-bold text-base"
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setOpenSemesterForm(true)}
                 >
-                    <PlusIcon width={5} height={5} color="black" />
-                    Thêm Học kì mới
+                    <div className="w-full h-full bg-blue-500 rounded-l hover:bg-primary flex items-center justify-center p-2 text-white">
+                        Thêm học kì mới
+                    </div>
+                    <div className=" flex justify-center items-center p-2">
+                        <PlusIcon width={7} height={7} color="white" />
+                    </div>
                 </motion.button>
             </div>
         )
@@ -160,8 +163,8 @@ const SemesterManagement: React.FC = () => {
                             <div className="w-fit h-fit p-8 gap-8 rounded-2xl bg-white border border-black border-solid flex flex-col justify-end items-end">
                                 <h1 className="text-xl font-bold">Bạn có chắc muốn lưu thay đổi không ?</h1>
                                 <div className="w-fit h-fit flex flex-row gap-8">
-                                    <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-700 text-white p-4">No</button>
-                                    <button type="submit" className="w-28 h-12 bg-green-400 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">Yes</button>
+                                    <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-600 text-white p-4">Cancel</button>
+                                    <button type="submit" className="w-28 h-12 bg-green-500 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">Confirm</button>
                                 </div>
                             </div>
                         </div>
@@ -188,9 +191,9 @@ const SemesterManagement: React.FC = () => {
                         <div className="w-full h-full flex justify-center items-center">
                             <div className="w-fit h-fit p-8 gap-8 rounded-2xl bg-white border border-black border-solid flex flex-col justify-end items-end">
                                 <h1 className="text-xl text-black font-bold">Bạn có chắc muốn xóa học kì này không ?</h1>
-                                <div className="w-fit h-fit flex flex-row gap-8">
-                                    <button type="button" onClick={() => delDoc()} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-700 text-white p-4">Yes</button>
-                                    <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-green-400 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">No</button>
+                                <div className="w-fit h-fit flex flex-row gap-8 text-xl">
+                                    <button type="button" onClick={() => delDoc()} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-600 text-white p-4">Confirm</button>
+                                    <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-green-500 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">Cancel</button>
                                 </div>
                             </div>
                         </div>
@@ -223,7 +226,7 @@ const SemesterManagement: React.FC = () => {
             <form className="w-full h-full max-md:hidden flex flex-col gap-2 p-2 overflow-scroll" onSubmit={submit}>
 
                 <div className="w-full h-fit bg-primary rounded-t-2xl flex items-center justify-start text-white font-bold p-4 text-4xl">
-                    Thông tin Học kì
+                    Thông tin học kì
                     {edit && <DeleteButton />}
                 </div>
                 {(currentSemester && currentSemesterDetail) ? <div className="w-full h-full flex flex-col p-4 gap-8 text-xl overflow-scroll">
@@ -249,7 +252,7 @@ const SemesterManagement: React.FC = () => {
                     </div>
                     <div className="w-full h-fit mt-auto flex items-center justify-start">
                         {edit ?
-                            <motion.button type="button" whileTap={{ scale: 0.9 }} onClick={() => setEdit(false)} className="w-fit h-fit bg-gray-400 hover:bg-gray-500 rounded-md text-white text-xl font-bold flex items-center justify-center px-4 py-2">Cancel</motion.button> :
+                            <motion.button type="button" whileTap={{ scale: 0.9 }} onClick={() => setEdit(false)} className="w-fit h-fit bg-gray-200 hover:bg-gray-300 rounded-md text-black text-xl font-bold flex items-center justify-center px-4 py-2">Cancel</motion.button> :
                             <motion.button type="button" whileTap={{ scale: 0.9 }} onClick={() => setEdit(true)} className="w-fit h-fit bg-primary hover:bg-blue-700 rounded-md text-white text-xl font-bold flex items-center justify-center px-4 py-2">Edit</motion.button>}
 
                         {edit && <ConfirmButton />}
@@ -264,7 +267,7 @@ const SemesterManagement: React.FC = () => {
         return (
             <div className="w-full h-full max-md:hidden flex flex-col gap-2 p-2 overflow-scroll">
                 <div className="w-full h-fit bg-primary rounded-t-2xl flex items-center justify-start text-white font-bold p-4 text-4xl">
-                    Thông tin Học kì
+                    Thông tin học kì
                 </div>
                 <div className="w-full h-full flex flex-col p-4 gap-8 text-xl overflow-scroll">
                     <div className="w-full h-fit flex flex-row items-center justify-start text-black font-bold gap-4">
@@ -295,7 +298,7 @@ const SemesterManagement: React.FC = () => {
     return (
         <>
             {openSemesterForm && <SemesterForm setOpenSemesterForm={setOpenSemesterForm} />}
-            <div className="w-full h-full flex items-center justify-center p-4">
+            <div className="w-full h-full flex items-center justify-center p-4 bg-snow">
 
                 <div className="w-full h-full flex flex-row items-center justify-center gap-2">
 
@@ -313,7 +316,7 @@ const SemesterManagement: React.FC = () => {
                                 <div className="w-full h-full col-span-3 text-xl font-bold text-gray-default flex items-center">Trạng thái</div>
 
                                 <div className="w-full h-full flex justify-center items-center">
-                                    <motion.button whileTap={{ scale: .9 }} onClick={() => { setSemesterList([]); setReset(reset => !reset) }} className="hover:bg-gray-300 p-2 rounded-md">
+                                    <motion.button whileTap={{ scale: .9 }} onClick={() => { setLoading(true); setReset(reset => !reset) }} className="hover:bg-gray-200 p-2 rounded-md">
                                         <RefreashIcon width={7} height={7} color="gray" />
                                     </motion.button>
                                 </div>
@@ -372,7 +375,7 @@ const SemesterManagement: React.FC = () => {
                                                             setOpenSemesterInfor(true)
                                                         }}
                                                         data-key={semester.id} whileTap={{ scale: .9 }} className="w-fit h-fit rounded-md flex justify-center items-center">
-                                                        <InformationIcon width={6} height={6} color="gray" />
+                                                        <InformationIcon width={6} height={6} color="#1071e5" />
                                                     </motion.button>
                                                 </div>
                                                 <hr className="solid bg-gray-200 border-gray-200 border rounded-full"></hr>

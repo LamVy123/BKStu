@@ -35,9 +35,6 @@ const StudentManagement: React.FC = () => {
     const [studentCount, setStudentCount] = useState<number>(0)
 
 
-    function delay(time: number) {
-        return new Promise(resolve => setTimeout(resolve, time));
-    }
 
     useEffect(() => {
         const fetchCount = async () => {
@@ -52,7 +49,9 @@ const StudentManagement: React.FC = () => {
         const fetchStudentList = async () => {
             let studentQuerryRef = query(userColRef, where('role', '==', 'student'))
 
-            if (searchValue != '') {
+            if (searchValue.toUpperCase() == '@ALL') {
+                //studentQuerryRef = query(studentQuerryRef)
+            } else if (searchValue != '') {
                 studentQuerryRef = query(studentQuerryRef, or(
                     where('last_name', '==', searchValue),
                     where('first_name', '==', searchValue),
@@ -80,12 +79,8 @@ const StudentManagement: React.FC = () => {
 
         const search = (e: FormEvent) => {
             e.preventDefault();
-
             const data = new FormData(e.currentTarget as HTMLFormElement)
-
             setSearchValue(data.get("search")?.toString() as string)
-
-            console.log(data.get("search")?.toString() as string)
         }
 
         return (
@@ -106,13 +101,18 @@ const StudentManagement: React.FC = () => {
                         <Input type="search" name="search" id="search" defaultValue={searchValue} className="w-112 max-md:w-full h-10" placeholder="Tìm kiếm bằng Họ, Tên, MSSV, email hoặc ngành" />
                     </form>
 
-                    <div className="w-fit h-12 flex flex-row justify-center items-center text-base max-md:text-xs">
+                    <div className="min-w-fit h-full flex flex-row justify-center items-center text-base max-md:text-xs">
                         <motion.button
-                            onClick={() => { delay(100).then(() => setOpenStudentForm(true)) }}
+                            className="min-w-fit h-10 bg-primary rounded flex justify-center items-center font-bold text-base"
                             whileTap={{ scale: 0.95 }}
-                            className="w-48 h-10 bg-gray-200 hover:bg-gray-300 rounded flex flex-row justify-center items-center p-2 gap-2 font-bold">
-                            <AddUserIcon width={7} height={7} color="black" />
-                            Thêm sinh viên
+                            onClick={() => setOpenStudentForm(true)}
+                        >
+                            <div className="w-full h-full bg-blue-500 rounded-l hover:bg-primary flex items-center justify-center p-2 text-white">
+                                Thêm sinh viên
+                            </div>
+                            <div className=" flex justify-center items-center p-2">
+                                <AddUserIcon width={7} height={7} color="white" />
+                            </div>
                         </motion.button>
                     </div>
                 </div>
@@ -125,7 +125,7 @@ const StudentManagement: React.FC = () => {
         const Header: React.FC = () => {
             return (
                 <div className="w-full h-20 flex flex-row justify-start items-center p-4 bg-primary rounded-t-2xl">
-                    <h1 className="text-4xl max-md:text-2xl font-bold">Thông tin Sinh viên</h1>
+                    <h1 className="text-4xl max-md:text-2xl font-bold text-white">Thông tin sinh viên</h1>
 
                     <button className="w-fit h-full ml-auto" onClick={() => setOpenStudentInfor(false)}>
                         <ExitIcon width={10} height={10} color="black" />
@@ -206,7 +206,7 @@ const StudentManagement: React.FC = () => {
 
                 //clear()
                 setEdit(false);
-                alert('Add student success!')
+                alert('Sửa thông tin sinh viên thành công!')
             }
 
 
@@ -323,7 +323,7 @@ const StudentManagement: React.FC = () => {
                         </div>
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                            <label htmlFor="city" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Thành Phố</label>
+                            <label htmlFor="city" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Thành phố</label>
                             <Input type="text" id="city" name="city" defaultValue={studentDetail?.city} placeholder="Vui lòng điền" className="w-full col-span-5" disable={!edit} />
                         </div>
 
@@ -357,8 +357,8 @@ const StudentManagement: React.FC = () => {
                                 <div className="w-fit h-fit p-8 gap-8 rounded-2xl bg-white border border-black border-solid flex flex-col justify-end items-end">
                                     <h1 className="text-xl font-bold">Bạn có chắc muốn lưu thay đổi không ?</h1>
                                     <div className="w-fit h-fit flex flex-row gap-8">
-                                        <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-700 text-white p-4">No</button>
-                                        <button type="submit" className="w-28 h-12 bg-green-400 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">Yes</button>
+                                        <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-700 text-white p-4">Cancel</button>
+                                        <button type="submit" className="w-28 h-12 bg-green-400 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">Confirm</button>
                                     </div>
                                 </div>
                             </div>
@@ -381,7 +381,7 @@ const StudentManagement: React.FC = () => {
 
                 return (
                     <div className="w-full h-fit col-span-full flex flex-row justify-between text-lg">
-                        <button type="button" onClick={() => setEdit(true)} className="w-28 h-12 bg-gray-200 flex justify-center items-center font-bold rounded-md hover:bg-gray-300 p-4">Edit</button>
+                        <button type="button" onClick={() => setEdit(true)} className="w-28 h-12 bg-primary flex justify-center items-center font-bold rounded-md hover:bg-blue-700 text-white p-4">Edit</button>
                     </div>
                 )
             }
@@ -449,7 +449,7 @@ const StudentManagement: React.FC = () => {
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ duration: 0.2 }}
                     className="w-full h-full flex items-center justify-center p-6">
-                    <div className="w-11/12 max-md:w-full max-md:h-5/6 max-h-full h-full bg-white rounded-2xl flex flex-col border border-black border-solid overflow-hidden">
+                    <div className="w-11/12 max-md:w-full max-md:h-5/6 max-h-full h-full bg-snow rounded-2xl flex flex-col border border-black border-solid overflow-hidden">
 
                         <Header />
 
@@ -466,8 +466,8 @@ const StudentManagement: React.FC = () => {
         <Container>
             {openStudentForm && <StudentForm setOpenStudentForm={setOpenStudentForm} />}
             {openStudentInfor && <StudentInfor />}
-            <div className="w-full h-full flex justify-center items-center p-4 bg-slate-200 overflow-hidden">
-                <div className="w-full h-full bg-white border border-solid border-black rounded-md shadow-md shadow-gray-default flex flex-col justify-start items-center p-4 gap-8">
+            <div className="w-full h-full flex justify-center items-center p-4       bg-white overflow-hidden">
+                <div className="w-full h-full bg-snow border border-solid border-black rounded-md shadow-md shadow-gray-default flex flex-col justify-start items-center p-4 gap-8">
                     <Header />
 
                     <div className="w-full h-full flex-col p-4 gap-4">
@@ -486,10 +486,9 @@ const StudentManagement: React.FC = () => {
                             <div className="w-full h-full flex items-center text-xl max-md:text-sm text-gray-default font-bold">
                                 <motion.div onClick={() => {
                                     setLoading(true);
-                                    setStudentlist([]);
                                     setReset(reset => !reset)
                                 }}
-                                    whileTap={{ scale: 0.9 }} className="p-2 w-fit h-fit hover:bg-gray-300 rounded-md">
+                                    whileTap={{ scale: 0.9 }} className="p-2 w-fit h-fit hover:bg-gray-200 rounded-md">
                                     <RefreashIcon width={7} height={7} color="gray" />
                                 </motion.div>
                             </div>
@@ -535,7 +534,7 @@ const StudentManagement: React.FC = () => {
                                                     }}
                                                     data-key={student.uid}
                                                     whileTap={{ scale: 0.9 }} className="">
-                                                    <InformationIcon width={8} height={8} color="gray" />
+                                                    <InformationIcon width={8} height={8} color="#1071e5" />
                                                 </motion.button>
                                             </div>
                                         </div>

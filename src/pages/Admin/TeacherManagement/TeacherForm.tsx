@@ -5,8 +5,8 @@ import Input from "../../../component/Input"
 import Select, { OptionInterface } from "../../../component/Select"
 import { FormEvent } from "react"
 import { useState, useEffect } from "react"
-import { FacultyFactory } from "../../../class&interface/Faculty"
-import { MajorsFactory } from "../../../class&interface/Majors"
+import { Faculty, FacultyFactory, FacultyInterface } from "../../../class&interface/Faculty"
+import { Majors, MajorsFactory, MajorsInterface } from "../../../class&interface/Majors"
 import { query, getDocs, where } from "firebase/firestore"
 import { facultyColRef, majorsColRef, userColRef, userDetaiColRef } from "../../../config/firebase"
 import { useAuth } from "../../../context/AuthContext"
@@ -31,7 +31,9 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ setOpenTeacherForm }: Teacher
         const fetchCount = async () => {
             const teacherCountRef = doc(userColRef, 'teacher_count');
             const teacherCountDoc = await getDoc(teacherCountRef);
-            setTeacherCount(teacherCountDoc.data()?.count)
+            if (teacherCountDoc.data()?.count) {
+                setTeacherCount(teacherCountDoc.data()?.count)
+            }
             setLoading(false);
         }
 
@@ -48,12 +50,10 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ setOpenTeacherForm }: Teacher
         setReset(reset => !reset);
     }
 
-
-
     const Header: React.FC = () => {
         return (
             <div className="w-full h-20 flex flex-row justify-start items-center p-4 bg-primary rounded-t-2xl">
-                <h1 className="text-4xl max-md:text-2xl font-bold">Thêm Giảng viên mới</h1>
+                <h1 className="text-4xl max-md:text-2xl font-bold text-white">Thêm giảng viên mới</h1>
 
                 <button className="w-fit h-full ml-auto" onClick={() => setOpenTeacherForm(false)}>
                     <ExitIcon width={10} height={10} color="black" />
@@ -76,6 +76,8 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ setOpenTeacherForm }: Teacher
                 auth.CreateUser(email, password)
                     .then((userCredential) => {
                         const uid = userCredential.user.uid;
+                        const faculty = JSON.parse(data.get('faculty')?.toString() as string) as FacultyInterface
+                        const majors = JSON.parse(data.get('majors')?.toString() as string) as MajorsInterface
 
                         const user = new Teacher(
                             data.get('last_name')?.toString() as string,
@@ -85,7 +87,7 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ setOpenTeacherForm }: Teacher
                             generateID(),
                             data.get('email')?.toString() as string,
                             'teacher',
-                            data.get('specialized')?.toString() as string,
+                            majors.name,
                         )
 
                         const userDetail = new TeacherDetail(
@@ -95,7 +97,7 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ setOpenTeacherForm }: Teacher
                             data.get('ethnic_group')?.toString() as string,
                             data.get('religion')?.toString() as string,
                             data.get('academic_year')?.toString() as string,
-                            (data.get('faculty')?.toString() as string).split('-')[0],
+                            faculty.name,
                             data.get('nationality')?.toString() as string,
                             data.get('province')?.toString() as string,
                             data.get('city')?.toString() as string,
@@ -188,24 +190,24 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ setOpenTeacherForm }: Teacher
         const Section3: React.FC = () => {
 
             const FacultySelect: React.FC = () => {
-                const [facultyOptionList, setFacultyOptionList] = useState<OptionInterface[]>([])
+                const [facultyList, setFacultyList] = useState<Faculty[]>([])
 
-                const [currnetFaculty, setCurrentFaculty] = useState<string>('');
+                const [currnetFacultyCode, setCurrentFacultyCode] = useState<string>('');
 
-                const [majorsOptionList, setMajorsOptionList] = useState<OptionInterface[]>([])
+                const [majorsList, setMajorsList] = useState<Majors[]>([])
 
                 useEffect(() => {
                     const fetchFacultyList = async () => {
                         let facultyQuerry = query(facultyColRef);
 
-                        let list: OptionInterface[] = [{ lable: 'Vui lòng chọn', value: '' }];
+                        let list: Faculty[] = [];
                         const facultyQuerrySnapshot = await getDocs(facultyQuerry)
                         const facultyFactory = new FacultyFactory();
                         facultyQuerrySnapshot.forEach((doc) => {
                             const faculty = facultyFactory.CreateFacultyWithDocumentData(doc.data())
-                            list = [...list, { lable: faculty.name, value: faculty.name + '-' + faculty.code }]
+                            list = [...list, faculty]
                         })
-                        setFacultyOptionList(list);
+                        setFacultyList(list);
                     }
 
                     fetchFacultyList();
@@ -213,26 +215,43 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ setOpenTeacherForm }: Teacher
 
                 useEffect(() => {
                     const fetchMajorsList = async () => {
-                        let majorsQuerry = query(majorsColRef, where('faculty_code', '==', currnetFaculty.split('-')[1]));
-                        let list: OptionInterface[] = [{ lable: 'Vui lòng chọn', value: '' }];
+                        let majorsQuerry = query(majorsColRef, where('faculty_code', '==', currnetFacultyCode));
+
+                        let list: Majors[] = [];
                         const majorsQuerrySnapshot = await getDocs(majorsQuerry)
                         const majorsFactory = new MajorsFactory();
                         majorsQuerrySnapshot.forEach((doc) => {
                             const majors = majorsFactory.CreateMajorsWithDocumentData(doc.data())
-                            list = [...list, { lable: majors.name, value: majors.name }]
+                            list = [...list, majors]
                         })
-                        setMajorsOptionList(list);
+                        setMajorsList(list);
                     }
-                    if (currnetFaculty != '') {
+                    if (currnetFacultyCode != '') {
                         fetchMajorsList();
                     }
-                }, [currnetFaculty])
+                }, [currnetFacultyCode])
 
 
                 const onChangeFaculty = (e: React.ChangeEvent<HTMLSelectElement>) => {
                     e.preventDefault();
-                    setCurrentFaculty(e.target.value);
+                    if (e.target.value) {
+                        const faculty = JSON.parse(e.target.value) as FacultyInterface
+                        setCurrentFacultyCode(faculty.code);
+                    } else {
+                        setCurrentFacultyCode('');
+                    }
                 }
+
+                let facultyOptionList: OptionInterface[] = [{ lable: 'Vui lòng chọn', value: '' }]
+                let majorsOptionList: OptionInterface[] = [{ lable: 'Vui lòng chọn', value: '' }]
+
+                facultyList.forEach((faculty) => {
+                    facultyOptionList = [...facultyOptionList, { lable: faculty.name, value: JSON.stringify(faculty.getInterface()) }]
+                })
+
+                majorsList.forEach((majors) => {
+                    majorsOptionList = [...majorsOptionList, { lable: majors.name, value: JSON.stringify(majors.getInterface()) }]
+                })
 
                 return (
                     <>
@@ -242,8 +261,8 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ setOpenTeacherForm }: Teacher
                         </div>
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                            <label htmlFor="specialized" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Chuyên Ngành<h1 className="text-red-500">*</h1></label>
-                            <Select id="specialized" name="specialized" option={majorsOptionList} className="w-full col-span-5" height={10} disable={(currnetFaculty == '')} required />
+                            <label htmlFor="specialized" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Chuyên ngành<h1 className="text-red-500">*</h1></label>
+                            <Select id="specialized" name="specialized" option={majorsOptionList} className="w-full col-span-5" height={10} disable={(currnetFacultyCode == '')} required />
                         </div>
                     </>
                 )
@@ -298,7 +317,7 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ setOpenTeacherForm }: Teacher
                     </div>
 
                     <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                        <label htmlFor="city" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Thành Phố</label>
+                        <label htmlFor="city" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Thành phố</label>
                         <Input type="text" id="city" name="city" placeholder="Vui lòng điền" className="w-full col-span-5" />
                     </div>
 
@@ -338,8 +357,8 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ setOpenTeacherForm }: Teacher
                             <div className="w-fit h-fit p-8 gap-8 rounded-2xl bg-white border border-black border-solid flex flex-col justify-end items-end">
                                 <h1 className="text-xl font-bold">Bạn có chắc muốn thêm giảng viên mới hay không ?</h1>
                                 <div className="w-fit h-fit flex flex-row gap-8">
-                                    <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-700 text-white p-4">No</button>
-                                    <button type="submit" disabled={isSubmit} className="w-28 h-12 bg-green-400 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">Yes</button>
+                                    <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-600 text-white p-4">Cancel</button>
+                                    <button type="submit" disabled={isSubmit} className="w-28 h-12 bg-green-500 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">Confirm</button>
                                 </div>
                             </div>
                         </div>
@@ -420,7 +439,7 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ setOpenTeacherForm }: Teacher
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.2 }}
                 className="w-full h-full flex items-center justify-center p-6">
-                <div className="w-11/12 max-md:w-full max-md:h-5/6 max-h-full h-full bg-white rounded-2xl flex flex-col border border-black border-solid overflow-hidden">
+                <div className="w-11/12 max-md:w-full max-md:h-5/6 max-h-full h-full bg-snow rounded-2xl flex flex-col border border-black border-solid overflow-hidden">
 
                     <Header />
 

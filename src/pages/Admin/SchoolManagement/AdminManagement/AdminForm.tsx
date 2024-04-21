@@ -28,7 +28,9 @@ const AdminForm: React.FC<AdminFormProps> = ({ setOpenAdminForm }: AdminFormProp
         const fetchCount = async () => {
             const adminCountRef = doc(userColRef, 'admin_count');
             const adminCountDoc = await getDoc(adminCountRef);
-            setAdminCount(adminCountDoc.data()?.count)
+            if (adminCountDoc.data()?.count) {
+                setAdminCount(adminCountDoc.data()?.count)
+            }
             setLoading(false);
         }
 
@@ -48,7 +50,7 @@ const AdminForm: React.FC<AdminFormProps> = ({ setOpenAdminForm }: AdminFormProp
     const Header: React.FC = () => {
         return (
             <div className="w-full h-20 flex flex-row justify-start items-center p-4 bg-primary rounded-t-2xl">
-                <h1 className="text-4xl max-md:text-2xl font-bold">Thêm Quản trị viên mới</h1>
+                <h1 className="text-4xl max-md:text-2xl font-bold text-white">Thêm quản trị viên mới</h1>
 
                 <button className="w-fit h-full ml-auto" onClick={() => setOpenAdminForm(false)}>
                     <ExitIcon width={10} height={10} color="black" />
@@ -213,7 +215,7 @@ const AdminForm: React.FC<AdminFormProps> = ({ setOpenAdminForm }: AdminFormProp
                     </div>
 
                     <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                        <label htmlFor="city" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Thành Phố</label>
+                        <label htmlFor="city" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Thành phố</label>
                         <Input type="text" id="city" name="city" placeholder="Vui lòng điền" className="w-full col-span-5" />
                     </div>
 
@@ -253,8 +255,8 @@ const AdminForm: React.FC<AdminFormProps> = ({ setOpenAdminForm }: AdminFormProp
                             <div className="w-fit h-fit p-8 gap-8 rounded-2xl bg-white border border-black border-solid flex flex-col justify-end items-end">
                                 <h1 className="text-xl font-bold">Bạn có chắc muốn thêm quản trị viên mới hay không ?</h1>
                                 <div className="w-fit h-fit flex flex-row gap-8">
-                                    <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-700 text-white p-4">No</button>
-                                    <button type="submit" disabled={isSubmit} className="w-28 h-12 bg-green-400 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">Yes</button>
+                                    <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-600 text-white p-4">Cancel</button>
+                                    <button type="submit" disabled={isSubmit} className="w-28 h-12 bg-green-500 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">Confirm</button>
                                 </div>
                             </div>
                         </div>
@@ -267,7 +269,7 @@ const AdminForm: React.FC<AdminFormProps> = ({ setOpenAdminForm }: AdminFormProp
         const ButtonSection: React.FC = () => {
             return (
                 <div className="w-full h-fit col-span-full flex flex-row justify-between text-lg">
-                    <button type="button" onClick={clear} className="w-28 h-12 bg-gray-200 flex justify-center items-center font-bold rounded-md hover:bg-gray-300 p-4">Clear</button>
+                    <button type="button" onClick={clear} className="w-28 h-12 bg-gray-200 flex justify-center items-center font-bold rounded-md hover:bg-gray-300 text-black p-4">Clear</button>
 
                     <ConfirmButton />
                 </div>
@@ -295,7 +297,7 @@ const AdminForm: React.FC<AdminFormProps> = ({ setOpenAdminForm }: AdminFormProp
 
                         <div className="w-1/2 max-md:w-full h-fit flex flex-col gap-4">
 
-                            <h1 className="text-3xl max-md:text-xl font-bold">Thông tin Quản trị viên</h1>
+                            <h1 className="text-3xl max-md:text-xl font-bold">Thông tin quản trị viên</h1>
 
                             <Section3 />
 
@@ -335,7 +337,7 @@ const AdminForm: React.FC<AdminFormProps> = ({ setOpenAdminForm }: AdminFormProp
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.2 }}
                 className="w-full h-full flex items-center justify-center p-6">
-                <div className="w-11/12 max-md:w-full max-md:h-5/6 max-h-full h-full bg-white rounded-2xl flex flex-col border border-black border-solid overflow-hidden">
+                <div className="w-11/12 max-md:w-full max-md:h-5/6 max-h-full h-full bg-snow rounded-2xl flex flex-col border border-black border-solid overflow-hidden">
 
                     <Header />
 

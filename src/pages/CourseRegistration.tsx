@@ -2,7 +2,7 @@ import { lazy } from "react"
 import { useAuth } from "../context/AuthContext"
 import { Navigate } from "react-router-dom"
 
-const StudentCourseRegistration = lazy(() => import('./Student/StudentCourseRegistration'));
+const StudentCourseRegistration = lazy(() => import('./Student/StudentCourseRegistration/StudentCourseRegistration'));
 
 const ClassManagement: React.FC = () => {
     const auth = useAuth()

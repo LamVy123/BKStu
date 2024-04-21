@@ -3,7 +3,7 @@ import { SearchIcon, PlusIcon, RefreashIcon, InformationIcon, TrashIcon, Loading
 import { motion } from "framer-motion"
 import CourseForm from "./CourseForm"
 import React, { useEffect, useState, FormEvent } from "react"
-import { Course, CourseDetail, CourseDetailFatory, CourseFactory } from "../../../../class&interface/Course"
+import { Course, CourseDetail, CourseDetailFactory, CourseFactory } from "../../../../class&interface/Course"
 import { getDocs, query, getDoc, doc, setDoc, deleteDoc, where, getCountFromServer, collection } from "firebase/firestore"
 import { courseColRef, courseDetailColRef, userDetaiColRef } from "../../../../config/firebase"
 import Model from "../../../../component/Model"
@@ -29,7 +29,6 @@ const CourseManagement: React.FC = () => {
 
     useEffect(() => {
         const fetchCourseList = async () => {
-            setLoading(true);
             setCount((await getCountFromServer(courseColRef)).data().count);
             let courseQuerry = query(courseColRef);
 
@@ -70,7 +69,7 @@ const CourseManagement: React.FC = () => {
         return (
             <div className="w-full h-fit flex flex-row max-md:flex-col p-2 gap-4 items-center max-md:items-end ml-auto">
 
-                <div className="w-full h-fit flex flex-row items-center gap-4 max-md:gap-8">
+                <div className="w-full h-fit flex flex-row items-center gap-8 max-md:gap-8">
 
                     <div className="h-fit w-fit flex flex-col">
                         <h1 className="text-4xl max-md:text-3xl w-44 font-bold">Khóa học</h1>
@@ -89,12 +88,16 @@ const CourseManagement: React.FC = () => {
                 </div>
 
                 <motion.button
-                    className="min-w-fit h-10 bg-gray-200 hover:bg-gray-300 rounded flex flex-row justify-center items-center p-2 gap-2 font-bold max-md:text-xs"
+                    className="min-w-fit h-10 bg-primary rounded flex justify-center items-center font-bold text-base"
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setOpenCourseForm(true)}
                 >
-                    <PlusIcon width={5} height={5} color="black" />
-                    Thêm Khóa học mới
+                    <div className="w-full h-full bg-blue-500 rounded-l hover:bg-primary flex items-center justify-center p-2 text-white">
+                        Thêm khóa học mới
+                    </div>
+                    <div className=" flex justify-center items-center p-2">
+                        <PlusIcon width={7} height={7} color="white" />
+                    </div>
                 </motion.button>
             </div>
         )
@@ -115,7 +118,7 @@ const CourseManagement: React.FC = () => {
                 })
 
                 const courseDetailDoc = doc(courseDetailColRef, currentCourseID)
-                const courseDetailFactory = new CourseDetailFatory()
+                const courseDetailFactory = new CourseDetailFactory()
                 await getDoc(courseDetailDoc).then((doc) => {
                     setcurrentCourseDetail(courseDetailFactory.CreateCourseDetailWithDocumentData(doc.data()))
                 })
@@ -197,8 +200,8 @@ const CourseManagement: React.FC = () => {
                             <div className="w-fit h-fit p-8 gap-8 rounded-2xl bg-white border border-black border-solid flex flex-col justify-end items-end">
                                 <h1 className="text-xl font-bold">Bạn có chắc muốn lưu thay đổi không ?</h1>
                                 <div className="w-fit h-fit flex flex-row gap-8">
-                                    <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-700 text-white p-4">No</button>
-                                    <button type="submit" className="w-28 h-12 bg-green-400 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">Yes</button>
+                                    <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-600 text-white p-4">Cancel</button>
+                                    <button type="submit" className="w-28 h-12 bg-green-500 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">Confirm</button>
                                 </div>
                             </div>
                         </div>
@@ -246,9 +249,9 @@ const CourseManagement: React.FC = () => {
                         <div className="w-full h-full flex justify-center items-center">
                             <div className="w-fit h-fit p-8 gap-8 rounded-2xl bg-white border border-black border-solid flex flex-col justify-end items-end">
                                 <h1 className="text-xl text-black font-bold">Bạn có chắc muốn xóa khóa học này không ?</h1>
-                                <div className="w-fit h-fit flex flex-row gap-8">
-                                    <button type="button" onClick={() => delDoc()} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-700 text-white p-4">Yes</button>
-                                    <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-green-400 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">No</button>
+                                <div className="w-fit h-fit flex flex-row gap-8 text-xl">
+                                    <button type="button" onClick={() => delDoc()} className="w-28 h-12 bg-red-500 flex justify-center items-center font-bold rounded-md hover:bg-red-600 text-white p-4">Confirm</button>
+                                    <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-green-500 flex justify-center items-center font-bold rounded-md hover:bg-green-600 text-white p-4">Cancel</button>
                                 </div>
                             </div>
                         </div>
@@ -279,27 +282,27 @@ const CourseManagement: React.FC = () => {
             <form className="w-full h-full max-md:hidden flex flex-col gap-2 p-2 overflow-scroll" onSubmit={submit}>
 
                 <div className="w-full h-fit bg-primary rounded-t-2xl flex items-center justify-start text-white font-bold p-4 text-4xl">
-                    Thông tin Khóa học
+                    Thông tin khóa học
                     {edit && <DeleteButton />}
                 </div>
                 {(currentCourse && currentCourseDetail) ? <div className="w-full h-full flex flex-col p-4 gap-8 text-xl overflow-scroll">
                     <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                        <label htmlFor="subject_name" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Tên Môn học:</label>
+                        <label htmlFor="subject_name" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Tên môn học:</label>
                         <Input type="text" id="subject_name" name="subject_name" defaultValue={currentCourse.subject_name} placeholder="" className="w-full col-span-5" disable />
                     </div>
 
                     <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                        <label htmlFor="subject_code" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Mã Môn học:</label>
+                        <label htmlFor="subject_code" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Mã môn học:</label>
                         <Input type="text" id="subject_code" name="subject_code" defaultValue={currentCourse.subject_code} placeholder="" className="w-full col-span-5" disable />
                     </div>
 
                     <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                        <label htmlFor="subject_type" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Loại Môn học:</label>
+                        <label htmlFor="subject_type" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Loại môn học:</label>
                         <Input type="text" id="subject_type" name="subject_type" defaultValue={currentCourse.subject_type} placeholder="" className="w-full col-span-5" disable />
                     </div>
 
                     <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                        <label htmlFor="course_code" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Mã Khóa học:</label>
+                        <label htmlFor="course_code" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Mã khóa học:</label>
                         <Input type="text" id="course_code" name="course_code" defaultValue={currentCourse.code} placeholder="" className="w-full col-span-5" disable />
                     </div>
 
@@ -329,12 +332,12 @@ const CourseManagement: React.FC = () => {
                     </div>
 
                     <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                        <label htmlFor="teacher" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Tên Giảng viên:</label>
+                        <label htmlFor="teacher" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Giảng viên:</label>
                         <Input type="text" id="teacher" name="teacher" defaultValue={currentCourseDetail.teacher} className="w-full col-span-5" disable />
                     </div>
 
                     <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                        <label htmlFor="teacher_email" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Email Giảng viên:</label>
+                        <label htmlFor="teacher_email" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Email giảng viên:</label>
                         <Input type="text" id="teacher_email" name="teacher_email" defaultValue={currentCourseDetail.teacher_email} className="w-full col-span-5" disable />
                     </div>
 
@@ -411,7 +414,7 @@ const CourseManagement: React.FC = () => {
 
                     <div className="w-full h-fit mt-auto flex items-center justify-start">
                         {edit ?
-                            <motion.button type="button" whileTap={{ scale: 0.9 }} onClick={() => setEdit(false)} className="w-fit h-fit bg-gray-400 hover:bg-gray-500 rounded-md text-white text-xl font-bold flex items-center justify-center px-4 py-2">Cancel</motion.button> :
+                            <motion.button type="button" whileTap={{ scale: 0.9 }} onClick={() => setEdit(false)} className="w-fit h-fit bg-gray-200 hover:bg-gray-300 rounded-md text-black text-xl font-bold flex items-center justify-center px-4 py-2">Cancel</motion.button> :
                             <motion.button type="button" whileTap={{ scale: 0.9 }} onClick={() => setEdit(true)} className="w-fit h-fit bg-primary hover:bg-blue-700 rounded-md text-white text-xl font-bold flex items-center justify-center px-4 py-2">Edit</motion.button>}
 
                         {edit && <ConfirmButton />}
@@ -426,26 +429,26 @@ const CourseManagement: React.FC = () => {
         return (
             <div className="w-full h-full max-md:hidden flex flex-col gap-2 p-2 overflow-hidden">
                 <div className="w-full h-fit bg-primary rounded-t-2xl flex items-center justify-start text-white font-bold p-4 text-4xl">
-                    Thông tin Khóa học
+                    Thông tin khóa học
                 </div>
                 <div className="w-12/12 max-md:w-full h-fit flex text-xl flex-col gap-8 p-4 overflow-scroll">
                     <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                        <label htmlFor="subject_name" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Tên Môn học:</label>
+                        <label htmlFor="subject_name" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Tên môn học:</label>
                         <Input type="text" id="subject_name" name="subject_name" placeholder="" className="w-full col-span-5" disable />
                     </div>
 
                     <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                        <label htmlFor="subject_code" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Mã Môn học:</label>
+                        <label htmlFor="subject_code" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Mã môn học:</label>
                         <Input type="text" id="subject_code" name="subject_code" placeholder="" className="w-full col-span-5" disable />
                     </div>
 
                     <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                        <label htmlFor="subject_type" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Loại Môn học:</label>
+                        <label htmlFor="subject_type" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Loại môn học:</label>
                         <Input type="text" id="subject_type" name="subject_type" placeholder="" className="w-full col-span-5" disable />
                     </div>
 
                     <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                        <label htmlFor="course_code" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Mã Khóa học:</label>
+                        <label htmlFor="course_code" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Mã khóa học:</label>
                         <Input type="text" id="course_code" name="course_code" placeholder="" className="w-full col-span-5" disable />
                     </div>
 
@@ -475,12 +478,12 @@ const CourseManagement: React.FC = () => {
                     </div>
 
                     <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                        <label htmlFor="teacher_name" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Tên Giảng viên:</label>
+                        <label htmlFor="teacher_name" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Giảng viên:</label>
                         <Input type="text" id="teacher_name" name="teacher_name" className="w-full col-span-5" disable />
                     </div>
 
                     <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                        <label htmlFor="teacher_email" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Email Giảng viên:</label>
+                        <label htmlFor="teacher_email" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Email giảng viên:</label>
                         <Input type="text" id="teacher_email" name="teacher_email" className="w-full col-span-5" disable />
                     </div>
 
@@ -537,7 +540,7 @@ const CourseManagement: React.FC = () => {
     return (
         <>
             {openCourseForm && <CourseForm setOpenCourseForm={setOpenCourseForm} />}
-            <div className="w-full h-full flex items-center justify-center p-4">
+            <div className="w-full h-full flex items-center justify-center p-4 bg-snow">
 
                 <div className="w-full h-full flex flex-row items-center justify-center gap-2">
 
@@ -555,7 +558,7 @@ const CourseManagement: React.FC = () => {
                                 <div className="w-full h-full col-span-3 text-xl font-bold text-gray-default flex items-center">Mã môn học</div>
 
                                 <div className="w-full h-full flex justify-center items-center">
-                                    <motion.button whileTap={{ scale: .9 }} onClick={() => { setCourseList([]); setReset(reset => !reset) }} className="hover:bg-gray-300 p-2 rounded-md">
+                                    <motion.button whileTap={{ scale: .9 }} onClick={() => { setLoading(true); setReset(reset => !reset) }} className="hover:bg-gray-200 p-2 rounded-md">
                                         <RefreashIcon width={7} height={7} color="gray" />
                                     </motion.button>
                                 </div>
@@ -606,7 +609,7 @@ const CourseManagement: React.FC = () => {
                                                             setOpenCourseInfor(true)
                                                         }}
                                                         data-key={course.id} whileTap={{ scale: .9 }} className="w-fit h-fit rounded-md flex justify-center items-center">
-                                                        <InformationIcon width={6} height={6} color="gray" />
+                                                        <InformationIcon width={6} height={6} color="#1071e5" />
                                                     </motion.button>
                                                 </div>
                                                 <hr className="solid bg-gray-200 border-gray-200 border rounded-full"></hr>

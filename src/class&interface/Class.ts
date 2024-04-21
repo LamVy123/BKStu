@@ -1,6 +1,6 @@
 import { DocumentData } from "firebase/firestore" 
 
-interface ClassInterface {
+export interface ClassInterface {
     id: string;
     code: string;
     majors: string;
@@ -63,7 +63,7 @@ export class Class implements ClassInterface {
     }
 }
 
-interface ClassDetailInterface {
+export interface ClassDetailInterface {
     faculty: string,
     teacher_name: string;
     teacher_id: string

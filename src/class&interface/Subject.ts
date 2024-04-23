@@ -1,4 +1,4 @@
-import { DocumentData, doc } from "firebase/firestore" 
+import { DocumentData } from "firebase/firestore" 
 
 export interface SubjectInterface {
     name: string;

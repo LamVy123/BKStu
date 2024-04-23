@@ -1,6 +1,6 @@
-import React, { FormEvent, useEffect, useState } from "react";
+import React, { FormEvent, useEffect, useReducer, useState } from "react";
 import { Course, CourseDetail, CourseDetailFactory, CourseFactory } from "../../../class&interface/Course";
-import { collection, doc, getDoc, getDocs, or, query, where } from "firebase/firestore";
+import { collection, doc, getCountFromServer, getDoc, getDocs, or, query, setDoc, where } from "firebase/firestore";
 import { courseColRef, courseDetailColRef, userColRef, userDetaiColRef } from "../../../config/firebase";
 import { v4 } from "uuid";
 import { Section, SectionFactory } from "../../../class&interface/Section";
@@ -11,6 +11,7 @@ import Input from "../../../component/Input";
 import Model from "../../../component/Model";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { Grade, GradeFactory } from "../../../class&interface/Grade";
 
 interface CourseProp {
     currentCourseID: string
@@ -24,7 +25,6 @@ const CourseInfor: React.FC<CourseProp> = ({ currentCourseID }) => {
     const [currentCourseDetail, setCurrentCourseDetail] = useState<CourseDetail>()
 
     const [currentPage, setCurrentPage] = useState<number>(0);
-
     const [isLoading, setLoading] = useState<boolean>(true)
 
     interface PageInterface {
@@ -34,7 +34,8 @@ const CourseInfor: React.FC<CourseProp> = ({ currentCourseID }) => {
 
     const pageList: PageInterface[] = [
         { pageNumber: 0, name: 'Khóa học' },
-        { pageNumber: 1, name: 'Danh sách sinh viên' },
+        { pageNumber: 1, name: 'Danh sách' },
+        { pageNumber: 2, name: 'Điểm số' },
     ]
 
     useEffect(() => {
@@ -64,395 +65,482 @@ const CourseInfor: React.FC<CourseProp> = ({ currentCourseID }) => {
     }, [])
 
 
-    const getDateTime = () => {
-        const date = new Date()
-        return (date.getFullYear() + "/" + date.getMonth() + "/" + date.getDay() + "-" + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds())
-    }
-
-    const CourseSection: React.FC = () => {
-        const [currentSectionList, setCurrentSectionList] = useState<Section[]>([])
-
-        useEffect(() => {
-            const fetchSection = async () => {
-                const courseDetailDocRef = doc(courseDetailColRef, `${currentCourseID}`);
-                const courseSectionCol = collection(courseDetailDocRef, 'section');
-                const courseSectionQuery = query(courseSectionCol)
-
-                let sectionList: Section[] = []
-                const sectionFacoty = new SectionFactory()
-                const courseSectionSnapShot = await getDocs(courseSectionQuery)
-
-                courseSectionSnapShot.forEach((sectionData) => {
-                    const sectionDocRef = doc(courseSectionCol, sectionData.data()?.id)
-                    sectionFacoty.CreateSectionWithDocumentData(sectionData.data(), sectionDocRef).then((n_section) => {
-                        sectionList = [...sectionList, n_section]
-                        sectionList.sort((a, b) => {
-                            const dateA = new Date(a.time_created);
-                            const dateB = new Date(b.time_created);
-
-                            if (dateA < dateB) {
-                                return -1;
-                            } else if (dateA > dateB) {
-                                return 1;
-                            } else {
-                                return 0;
-                            }
-                        })
-                        setCurrentSectionList(sectionList)
-                    })
-                })
-
-            }
-
-            fetchSection()
-        }, [])
-
-
-        const addSection = () => {
-            const n_section: Section = new Section('', v4(), getDateTime(), [], true)
-            setCurrentSectionList([...currentSectionList, n_section])
-        }
-
+    const Header: React.FC = () => {
         return (
-            <div className="w-full h-full flex items-start justify-center mt-16">
-                <div className="w-full h-full flex flex-col justify-start items-center">
-                    {currentSectionList.map((section, index) => {
-                        const courseDocRef = doc(courseDetailColRef, currentCourseID)
-                        const courseSectionCol = collection(courseDocRef, 'section')
-                        const sectionDocRef = doc(courseSectionCol, section.id)
+            <div className="w-full min-h-fit flex flex-col justify-center items-center gap-4">
+                <div className="w-full min-h-10 flex justify-between items-start text-3xl font-bold">
+                    <div className="w-fit h-full flex justify-start items-start">
+                        <button className="w-fit h-fit" onClick={() => { navigate('/course_management') }}>
+                            <ArrowLeftIcon width={10} height={10} color="black" />
+                        </button>
+                    </div>
+                    <div className="w-full h-fit flex flex-col justify-center items-center gap-2">
+                        <div>
+                            {`${currentCourse?.subject_name} - (${currentCourse?.subject_code}) - ${currentCourseDetail?.teacher}`}
+                        </div>
+                        <div>
+                            {`${currentCourse?.semester} - ${currentCourse?.code}`}
+                        </div>
+                    </div>
+                    <div></div>
+                </div>
+                <div className="w-full min-h-fit flex justify-center items-center">
+                    {pageList.map((page, index) => {
                         return (
-                            <CSection key={section.id} section={section} index={index} setCurrentSectionList={setCurrentSectionList} sectionDocRef={sectionDocRef} />
+                            <button key={page.pageNumber} onClick={() => { setCurrentPage(page.pageNumber) }}
+                                className="p-4 relative w-fit h-10 font-bold cursor-pointer flex items-center justify-center text-xl max-md:text-xs text-black">
+                                <div className="text-black">
+                                    {page.name}
+                                </div>
+                                {currentPage == index &&
+                                    <motion.div
+                                        transition={{ duration: 0.1 }}
+                                        className="absolute inset-0 rounded-md bg-primary border border-solid border-black z-0" layoutId="pill">
+                                        <span className="w-full h-full flex items-center justify-center absolute z-10 text-white">{page.name}</span>
+                                    </motion.div>
+                                }
+                            </button>
                         )
                     })}
-                    <button onClick={addSection} className="p-2 bg-primary mt-4 text-white rounded-md font-bold"> Add section</button>
                 </div>
             </div>
         )
     }
 
-    const CourseStudentList: React.FC = () => {
-        const [openStudentInfor, setOpenStudentInfor] = useState<boolean>(false)
+    const Body: React.FC = () => {
+        switch (currentPage) {
+            case 0:
+                return <CourseSection currentCourseID={currentCourseID} />
+            case 1:
+                return <CourseStudentList currentCourseID={currentCourseID} />
+            case 2:
+                return <CourseGrading currentCourseID={currentCourseID} curentCourseDetail={currentCourseDetail} />
+            default:
+                return null
+        }
+    }
 
-        const [studentList, setStudentlist] = useState<Student[]>([])
+    if (isLoading) {
+        return (
+            <div className="w-full h-screen border-solid  bg-white  flex flex-col items-center justify-center">
+                <LoadingIcon width={10} height={10} />
+            </div>
+        )
+    }
 
-        const [currentStudentID, setCurrentStudentID] = useState<string>('')
+    return (
+        <div className="w-full h-full border-solid  bg-white  flex flex-col items-center justify-start">
+            <Header />
+            <Body />
+        </div>
+    )
+}
 
-        const [reset, setReset] = useState<boolean>(false)
+export default CourseInfor
 
-        const [isLoading, setLoading] = useState<boolean>(true)
 
-        const [searchValue, setSearchValue] = useState<string>('')
+interface CourseSectionProp {
+    currentCourseID: string
+}
+const CourseSection: React.FC<CourseSectionProp> = ({ currentCourseID }) => {
 
-        const toggleComponentVisibility = () => {
-            setOpenStudentInfor((prevState) => !prevState);
-            document.body.style.position = openStudentInfor ? "static" : "fixed";
-        };
+    const getDateTime = () => {
+        const date = new Date()
+        return date.toString()
+    }
 
-        useEffect(() => {
-            const fetchStudentList = async () => {
+    const [currentSectionList, setCurrentSectionList] = useState<Section[]>([])
 
-                const courseRef = doc(courseDetailColRef, currentCourseID);
-                const courseStudentCol = collection(courseRef, 'student_list')
+    useEffect(() => {
+        const fetchSection = async () => {
+            const courseDetailDocRef = doc(courseDetailColRef, `${currentCourseID}`);
+            const courseSectionCol = collection(courseDetailDocRef, 'section');
+            const courseSectionQuery = query(courseSectionCol)
 
-                let studentQuerryRef = query(courseStudentCol, where('role', '==', 'student'))
+            let sectionList: Section[] = []
+            const sectionFacoty = new SectionFactory()
+            const courseSectionSnapShot = await getDocs(courseSectionQuery)
 
-                if (searchValue.toUpperCase() == '@ALL') {
-                    //studentQuerryRef = query(studentQuerryRef)
-                } else if (searchValue != '') {
-                    studentQuerryRef = query(studentQuerryRef, or(
-                        where('last_name', '==', searchValue),
-                        where('first_name', '==', searchValue),
-                        where('display_id', '==', searchValue),
-                        where('email', '==', searchValue),
-                        where('majors', '==', searchValue)
-                    ))
-                }
+            courseSectionSnapShot.forEach((sectionData) => {
+                const sectionDocRef = doc(courseSectionCol, sectionData.data()?.id)
+                sectionFacoty.CreateSectionWithDocumentData(sectionData.data(), sectionDocRef).then((n_section) => {
+                    sectionList = [...sectionList, n_section]
+                    sectionList.sort((a, b) => {
+                        const dateA = new Date(a.time_created);
+                        const dateB = new Date(b.time_created);
 
-                const studentQuerry = await getDocs(studentQuerryRef)
-                const userFactory = new UserFactory()
-                let list: Student[] = []
-                studentQuerry.forEach((doc) => {
-                    list = [...list, userFactory.CreateUserWithDocumentData('student', doc.data()) as Student]
+                        if (dateA < dateB) {
+                            return -1;
+                        } else if (dateA > dateB) {
+                            return 1;
+                        } else {
+                            return 0;
+                        }
+                    })
+                    setCurrentSectionList(sectionList)
                 })
-                setStudentlist(list);
-                setLoading(false);
-            }
+            })
 
-            fetchStudentList()
-        }, [reset, searchValue])
-
-        const search = (e: FormEvent) => {
-            e.preventDefault();
-
-            const data = new FormData(e.currentTarget as HTMLFormElement)
-
-            const value = data.get("search")?.toString() as string
-
-            setSearchValue(value)
         }
 
-        const StudentInfor: React.FC = () => {
+        fetchSection()
+    }, [])
 
-            const Header: React.FC = () => {
-                return (
-                    <div className="w-full h-20 flex flex-row justify-start items-center p-4 bg-primary rounded-t-2xl">
-                        <h1 className="text-4xl max-md:text-2xl font-bold text-white">Thông tin sinh viên</h1>
 
-                        <button className="w-fit h-full ml-auto" onClick={() => toggleComponentVisibility()}>
-                            <ExitIcon width={10} height={10} color="black" />
-                        </button>
-                    </div>
-                )
+    const addSection = () => {
+        const n_section: Section = new Section('', v4(), getDateTime(), [], true)
+        setCurrentSectionList([...currentSectionList, n_section])
+    }
+
+    return (
+        <div className="w-full h-full flex items-start justify-center mt-16">
+            <div className="w-full h-full flex flex-col justify-start items-center">
+                {currentSectionList.map((section, index) => {
+                    const courseDocRef = doc(courseDetailColRef, currentCourseID)
+                    const courseSectionCol = collection(courseDocRef, 'section')
+                    const sectionDocRef = doc(courseSectionCol, section.id)
+                    return (
+                        <CSection key={section.id} section={section} index={index} setCurrentSectionList={setCurrentSectionList} sectionDocRef={sectionDocRef} />
+                    )
+                })}
+                <button onClick={addSection} className="p-2 bg-primary mt-4 text-white rounded-md font-bold"> Add section</button>
+            </div>
+        </div>
+    )
+}
+
+
+interface CourseStudentListProp {
+    currentCourseID: string
+}
+const CourseStudentList: React.FC<CourseStudentListProp> = ({ currentCourseID }) => {
+    const [openStudentInfor, setOpenStudentInfor] = useState<boolean>(false)
+
+    const [studentList, setStudentlist] = useState<Student[]>([])
+
+    const [currentStudentID, setCurrentStudentID] = useState<string>('')
+
+    const [reset, setReset] = useState<boolean>(false)
+
+    const [isLoading, setLoading] = useState<boolean>(true)
+
+    const [searchValue, setSearchValue] = useState<string>('')
+
+    const [count, setCount] = useState<number>(0)
+
+    const toggleComponentVisibility = () => {
+        setOpenStudentInfor((prevState) => !prevState);
+        document.body.style.position = openStudentInfor ? "static" : "fixed";
+    };
+
+    useEffect(() => {
+        const fetchStudentList = async () => {
+
+            const courseRef = doc(courseDetailColRef, currentCourseID);
+            const courseStudentCol = collection(courseRef, 'student_list')
+
+            let studentQuerryRef = query(courseStudentCol)
+
+            setCount((await getCountFromServer(studentQuerryRef)).data().count)
+
+            if (searchValue.toUpperCase() == '@ALL') {
+                //studentQuerryRef = query(studentQuerryRef)
+            } else if (searchValue != '') {
+                studentQuerryRef = query(studentQuerryRef, or(
+                    where('last_name', '==', searchValue),
+                    where('first_name', '==', searchValue),
+                    where('display_id', '==', searchValue),
+                    where('email', '==', searchValue),
+                    where('majors', '==', searchValue)
+                ))
             }
 
-            const Form: React.FC = () => {
-                const [loading, setLoading] = useState<boolean>(true);
-                const [student, setStudent] = useState<Student>()
-                const [studentDetail, setStudentDetail] = useState<StudentDetail>()
+            const studentQuerry = await getDocs(studentQuerryRef)
+            const userFactory = new UserFactory()
+            let list: Student[] = []
+            studentQuerry.forEach((doc) => {
+                list = [...list, userFactory.CreateUserWithDocumentData('student', doc.data()) as Student]
+            })
+            setStudentlist(list);
+            setLoading(false);
+        }
 
-                useEffect(() => {
-                    const fetchStudent = async () => {
-                        const studentRef = doc(userColRef, currentStudentID)
+        fetchStudentList()
+    }, [reset, searchValue])
 
-                        const studentDetailRef = doc(userDetaiColRef, currentStudentID)
+    const search = (e: FormEvent) => {
+        e.preventDefault();
 
-                        const studentDoc = await getDoc(studentRef)
-                        const userFactory = new UserFactory()
-                        setStudent(userFactory.CreateUserWithDocumentData('student', studentDoc.data()) as Student)
+        const data = new FormData(e.currentTarget as HTMLFormElement)
 
-                        const studentDetailDoc = await getDoc(studentDetailRef)
-                        const userDetailFactory = new UserDetailFactory()
-                        setStudentDetail(userDetailFactory.CreateUserDetailWithDocumentData('student', studentDetailDoc.data()) as StudentDetail)
+        const value = data.get("search")?.toString() as string
 
-                        setLoading(false);
-                    }
+        setSearchValue(value)
+    }
 
-                    fetchStudent()
-                }, [])
+    const StudentInfor: React.FC = () => {
 
-
-                const Avatar: React.FC = () => {
-                    return (
-                        <div className="w-full h-full col-span-3 max-md:col-span-6 flex justify-center items-center">
-                            <div className="w-full h-full min-h-60 col-span-3 border border-black border-solid rounded-lg bg-user bg-no-repeat bg-contain bg-center">
-                            </div>
-                        </div>
-                    )
-                }
-
-                const Section1: React.FC = () => {
-
-                    return (
-
-                        <div className="w-full h-fit col-span-6 flex justify-center items-center flex-col gap-8">
-
-                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                                <label htmlFor="last_name" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Họ <h1 className="text-red-500">*</h1></label>
-                                <Input type="text" id="last_name" name="last_name" defaultValue={student?.last_name} placeholder="Vui lòng điền" className="w-full col-span-5" required disable />
-                            </div>
-
-                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                                <label htmlFor="middle_name" className="py-2 font-bold flex flex-row gap-2 w-fit col-span-2 max-md:col-span-full">Tên lót <h1 className="text-red-500">*</h1></label>
-                                <Input type="text" id="middle_name" name="middle_name" defaultValue={student?.middle_name} placeholder="Vui lòng điền" className="w-full col-span-5" required disable />
-                            </div>
-
-                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                                <label htmlFor="first_name" className="py-2 font-bold flex flex-row gap-2 w-fit col-span-2 max-md:col-span-full">Tên <h1 className="text-red-500">*</h1></label>
-                                <Input type="text" id="first_name" name="first_name" defaultValue={student?.first_name} placeholder="Vui lòng điền" className="w-full col-span-5" required disable />
-                            </div>
-
-                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                                <label htmlFor="gender" className="py-2 font-bold flex flex-row gap-2 w-fit col-span-2 max-md:col-span-full">Giới tính<h1 className="text-red-500">*</h1></label>
-                                <Input type="text" id="gender" name="gender" defaultValue={studentDetail?.gender} placeholder="Vui lòng điền" className="w-full col-span-5" required disable />                                </div>
-
-                        </div>
-                    )
-                }
-
-                const Section2: React.FC = () => {
-                    return (
-                        <div className="w-full h-fit col-span-6 flex justify-center items-center flex-col gap-8">
-
-                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                                <label htmlFor="date_of_birth" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Ngày sinh<h1 className="text-red-500">*</h1></label>
-                                <Input type="date" id="date_of_birth" name="date_of_birth" defaultValue={studentDetail?.date_of_birth} placeholder="Vui lòng điền" className="w-full col-span-5" required disable />
-                            </div>
-                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                                <label htmlFor="identification_number" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Số CCCD <h1 className="text-red-500">*</h1></label>
-                                <Input type="text" id="identification_number" name="identification_number" defaultValue={studentDetail?.identification_number} placeholder="Vui lòng điền" className="w-full col-span-5" required disable />
-                            </div>
-                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                                <label htmlFor="ethnic_group" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Dân tộc <h1 className="text-red-500">*</h1></label>
-                                <Input type="text" id="ethnic_group" name="ethnic_group" defaultValue={studentDetail?.ethnic_group} placeholder="Vui lòng điền" className="w-full col-span-5" required disable />
-                            </div>
-
-                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                                <label htmlFor="religion" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Tôn giáo</label>
-                                <Input type="text" id="religion" name="religion" defaultValue={studentDetail?.religion} placeholder="Bỏ trống nếu không có" className="w-full col-span-5" required disable />
-                            </div>
-
-                        </div>
-                    )
-                }
-
-                const Section3: React.FC = () => {
-                    return (
-                        <div className="w-full h-fit col-span-6 flex justify-center items-center flex-col gap-8">
-                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                                <label htmlFor="academic_year" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Niên khóa<h1 className="text-red-500">*</h1></label>
-                                <Input type="text" id="academic_year" name="academic_year" defaultValue={studentDetail?.academic_year} placeholder="VD: 2024" className="w-full col-span-5" required disable />
-                            </div>
-
-                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                                <label htmlFor="faculty" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Khoa<h1 className="text-red-500">*</h1></label>
-                                <Input type="text" id="faculty" name="faculty" defaultValue={studentDetail?.faculty} className="w-full col-span-5" disable />
-                            </div>
-
-                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                                <label htmlFor="specialized" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Ngành<h1 className="text-red-500">*</h1></label>
-                                <Input type="text" id="specialized" name="specialized" defaultValue={student?.majors} className="w-full col-span-5" disable />
-                            </div>
-
-                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                                <label htmlFor="class_name" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Lớp<h1 className="text-red-500">*</h1></label>
-                                <Input type="text" id="class_name" name="class_name" defaultValue={studentDetail?.classes_name} className="w-full col-span-5" disable />
-                            </div>
-
-                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                                <label htmlFor="display_id" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">MSSV<h1 className="text-red-500">*</h1></label>
-                                <Input type="text" id="display_id" name="display_id" defaultValue={student?.display_id} placeholder={''} className="w-full col-span-5" disable />
-                            </div>
-                        </div>
-                    )
-                }
-
-                const Section4: React.FC = () => {
-
-                    return (
-                        <div className="w-full h-fit col-span-6 flex justify-center items-center flex-col gap-8">
-                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                                <label htmlFor="nationality" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Quốc tịch</label>
-                                <Input type="text" id="nationality" name="nationality" defaultValue={studentDetail?.nationality} placeholder="Vui lòng điền" className="w-full col-span-5" disable />
-                            </div>
-
-                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                                <label htmlFor="province" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Tỉnh</label>
-                                <Input type="text" id="province" name="province" defaultValue={studentDetail?.province} placeholder="Vui lòng điền" className="w-full col-span-5" disable />
-                            </div>
-
-                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                                <label htmlFor="city" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Thành phố</label>
-                                <Input type="text" id="city" name="city" defaultValue={studentDetail?.city} placeholder="Vui lòng điền" className="w-full col-span-5" disable />
-                            </div>
-
-                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                                <label htmlFor="address" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Địa chỉ cụ thể</label>
-                                <Input type="text" id="address" name="address" defaultValue={studentDetail?.address} placeholder="Vui lòng điền" className="w-full col-span-5" disable />
-                            </div>
-
-                        </div>
-                    )
-                }
-
-                const Section5: React.FC = () => {
-                    return (
-                        <div className="w-full h-fit col-span-6 flex justify-center items-center flex-col gap-8">
-
-                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                                <label htmlFor="email" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Email trường<h1 className="text-red-500">*</h1></label>
-                                <Input type="email" id="email" name="email" defaultValue={student?.email} placeholder="abc@bkstu.edu.vn" className="w-full col-span-5" required disable />
-                            </div>
-                        </div>
-                    )
-                }
-
-
-
-                if (loading) return (
-                    <div className="w-full h-full flex items-center justify-center">
-                        <LoadingIcon width={15} height={15} color="gray" />
-                    </div>
-                )
-
-                return (
-                    <form className="w-full h-full flex flex-row p-2 overflow-scroll">
-                        <div className="w-full h-full flex flex-col p-8 max-md:p-2 gap-12 text-base max-md:text-sx">
-
-                            <div className="w-full h-fit grid grid-cols-16 max-md:grid-cols-6 gap-x-8 gap-y-4">
-                                <h1 className="text-3xl max-md:text-xl font-bold col-span-full">Thông tin cơ bản</h1>
-
-                                <Avatar />
-
-                                <Section1 />
-
-                                <div></div>
-
-                                <Section2 />
-
-                            </div>
-
-                            <div className="w-full h-fit col-span-full flex flex-row max-md:flex-col gap-20">
-
-                                <div className="w-1/2 max-md:w-full h-fit flex flex-col gap-4">
-
-                                    <h1 className="text-3xl max-md:text-xl font-bold">Thông tin Sinh viên</h1>
-
-                                    <Section3 />
-
-                                </div>
-
-                                <div className="w-1/2 max-md:w-full h-fit flex flex-col gap-4">
-                                    <h1 className="text-3xl max-md:text-xl font-bold col-span-full">Thông tin cư trú</h1>
-
-                                    <Section4 />
-
-                                </div>
-                            </div>
-
-                            <div className="w-full h-fit col-span-full flex flex-row max-md:flex-col gap-20">
-
-                                <div className="w-1/2 max-md:w-full h-fit flex flex-col gap-4">
-
-                                    <h1 className="text-3xl max-md:text-xl font-bold">Thông tin tài khoản</h1>
-
-                                    <Section5 />
-
-                                </div>
-                                <div className="w-1/2 max-md:w-full h-fit flex flex-col gap-4"></div>
-                            </div>
-
-                        </div>
-                    </form>
-                )
-            }
-
+        const Header: React.FC = () => {
             return (
-                <Model>
-                    <motion.div
-                        initial={{ scale: 0.9, opacity: 0.1 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ duration: 0.2 }}
-                        className="w-full h-full flex items-center justify-center p-6">
-                        <div className="w-11/12 max-md:w-full max-md:h-5/6 max-h-full h-full bg-snow rounded-2xl flex flex-col border border-black border-solid overflow-hidden">
+                <div className="w-full h-20 flex flex-row justify-start items-center p-4 bg-primary rounded-t-2xl">
+                    <h1 className="text-4xl max-md:text-2xl font-bold text-white">Thông tin sinh viên</h1>
 
-                            <Header />
-
-                            <Form />
-
-                        </div>
-                    </motion.div>
-                </Model>
+                    <button className="w-fit h-full ml-auto" onClick={() => toggleComponentVisibility()}>
+                        <ExitIcon width={10} height={10} color="black" />
+                    </button>
+                </div>
             )
         }
+
+        const Form: React.FC = () => {
+            const [loading, setLoading] = useState<boolean>(true);
+            const [student, setStudent] = useState<Student>()
+            const [studentDetail, setStudentDetail] = useState<StudentDetail>()
+
+            useEffect(() => {
+                const fetchStudent = async () => {
+                    const studentRef = doc(userColRef, currentStudentID)
+
+                    const studentDetailRef = doc(userDetaiColRef, currentStudentID)
+
+                    const studentDoc = await getDoc(studentRef)
+                    const userFactory = new UserFactory()
+                    setStudent(userFactory.CreateUserWithDocumentData('student', studentDoc.data()) as Student)
+
+                    const studentDetailDoc = await getDoc(studentDetailRef)
+                    const userDetailFactory = new UserDetailFactory()
+                    setStudentDetail(userDetailFactory.CreateUserDetailWithDocumentData('student', studentDetailDoc.data()) as StudentDetail)
+
+                    setLoading(false);
+                }
+
+                fetchStudent()
+            }, [])
+
+
+            const Avatar: React.FC = () => {
+                return (
+                    <div className="w-full h-full col-span-3 max-md:col-span-6 flex justify-center items-center">
+                        <div className="w-full h-full min-h-60 col-span-3 border border-black border-solid rounded-lg bg-user bg-no-repeat bg-contain bg-center">
+                        </div>
+                    </div>
+                )
+            }
+
+            const Section1: React.FC = () => {
+
+                return (
+
+                    <div className="w-full h-fit col-span-6 flex justify-center items-center flex-col gap-8">
+
+                        <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                            <label htmlFor="last_name" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Họ <h1 className="text-red-500">*</h1></label>
+                            <Input type="text" id="last_name" name="last_name" defaultValue={student?.last_name} placeholder="Vui lòng điền" className="w-full col-span-5" required disable />
+                        </div>
+
+                        <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                            <label htmlFor="middle_name" className="py-2 font-bold flex flex-row gap-2 w-fit col-span-2 max-md:col-span-full">Tên lót <h1 className="text-red-500">*</h1></label>
+                            <Input type="text" id="middle_name" name="middle_name" defaultValue={student?.middle_name} placeholder="Vui lòng điền" className="w-full col-span-5" required disable />
+                        </div>
+
+                        <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                            <label htmlFor="first_name" className="py-2 font-bold flex flex-row gap-2 w-fit col-span-2 max-md:col-span-full">Tên <h1 className="text-red-500">*</h1></label>
+                            <Input type="text" id="first_name" name="first_name" defaultValue={student?.first_name} placeholder="Vui lòng điền" className="w-full col-span-5" required disable />
+                        </div>
+
+                        <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                            <label htmlFor="gender" className="py-2 font-bold flex flex-row gap-2 w-fit col-span-2 max-md:col-span-full">Giới tính<h1 className="text-red-500">*</h1></label>
+                            <Input type="text" id="gender" name="gender" defaultValue={studentDetail?.gender} placeholder="Vui lòng điền" className="w-full col-span-5" required disable />                                </div>
+
+                    </div>
+                )
+            }
+
+            const Section2: React.FC = () => {
+                return (
+                    <div className="w-full h-fit col-span-6 flex justify-center items-center flex-col gap-8">
+
+                        <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                            <label htmlFor="date_of_birth" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Ngày sinh<h1 className="text-red-500">*</h1></label>
+                            <Input type="date" id="date_of_birth" name="date_of_birth" defaultValue={studentDetail?.date_of_birth} placeholder="Vui lòng điền" className="w-full col-span-5" required disable />
+                        </div>
+                        <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                            <label htmlFor="identification_number" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Số CCCD <h1 className="text-red-500">*</h1></label>
+                            <Input type="text" id="identification_number" name="identification_number" defaultValue={studentDetail?.identification_number} placeholder="Vui lòng điền" className="w-full col-span-5" required disable />
+                        </div>
+                        <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                            <label htmlFor="ethnic_group" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Dân tộc <h1 className="text-red-500">*</h1></label>
+                            <Input type="text" id="ethnic_group" name="ethnic_group" defaultValue={studentDetail?.ethnic_group} placeholder="Vui lòng điền" className="w-full col-span-5" required disable />
+                        </div>
+
+                        <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                            <label htmlFor="religion" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Tôn giáo</label>
+                            <Input type="text" id="religion" name="religion" defaultValue={studentDetail?.religion} placeholder="Bỏ trống nếu không có" className="w-full col-span-5" required disable />
+                        </div>
+
+                    </div>
+                )
+            }
+
+            const Section3: React.FC = () => {
+                return (
+                    <div className="w-full h-fit col-span-6 flex justify-center items-center flex-col gap-8">
+                        <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                            <label htmlFor="academic_year" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Niên khóa<h1 className="text-red-500">*</h1></label>
+                            <Input type="text" id="academic_year" name="academic_year" defaultValue={studentDetail?.academic_year} placeholder="VD: 2024" className="w-full col-span-5" required disable />
+                        </div>
+
+                        <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                            <label htmlFor="faculty" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Khoa<h1 className="text-red-500">*</h1></label>
+                            <Input type="text" id="faculty" name="faculty" defaultValue={studentDetail?.faculty} className="w-full col-span-5" disable />
+                        </div>
+
+                        <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                            <label htmlFor="specialized" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Ngành<h1 className="text-red-500">*</h1></label>
+                            <Input type="text" id="specialized" name="specialized" defaultValue={student?.majors} className="w-full col-span-5" disable />
+                        </div>
+
+                        <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                            <label htmlFor="class_name" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Lớp<h1 className="text-red-500">*</h1></label>
+                            <Input type="text" id="class_name" name="class_name" defaultValue={studentDetail?.classes_name} className="w-full col-span-5" disable />
+                        </div>
+
+                        <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                            <label htmlFor="display_id" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">MSSV<h1 className="text-red-500">*</h1></label>
+                            <Input type="text" id="display_id" name="display_id" defaultValue={student?.display_id} placeholder={''} className="w-full col-span-5" disable />
+                        </div>
+                    </div>
+                )
+            }
+
+            const Section4: React.FC = () => {
+
+                return (
+                    <div className="w-full h-fit col-span-6 flex justify-center items-center flex-col gap-8">
+                        <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                            <label htmlFor="nationality" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Quốc tịch</label>
+                            <Input type="text" id="nationality" name="nationality" defaultValue={studentDetail?.nationality} placeholder="Vui lòng điền" className="w-full col-span-5" disable />
+                        </div>
+
+                        <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                            <label htmlFor="province" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Tỉnh</label>
+                            <Input type="text" id="province" name="province" defaultValue={studentDetail?.province} placeholder="Vui lòng điền" className="w-full col-span-5" disable />
+                        </div>
+
+                        <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                            <label htmlFor="city" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Thành phố</label>
+                            <Input type="text" id="city" name="city" defaultValue={studentDetail?.city} placeholder="Vui lòng điền" className="w-full col-span-5" disable />
+                        </div>
+
+                        <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                            <label htmlFor="address" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Địa chỉ cụ thể</label>
+                            <Input type="text" id="address" name="address" defaultValue={studentDetail?.address} placeholder="Vui lòng điền" className="w-full col-span-5" disable />
+                        </div>
+
+                    </div>
+                )
+            }
+
+            const Section5: React.FC = () => {
+                return (
+                    <div className="w-full h-fit col-span-6 flex justify-center items-center flex-col gap-8">
+
+                        <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                            <label htmlFor="email" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Email trường<h1 className="text-red-500">*</h1></label>
+                            <Input type="email" id="email" name="email" defaultValue={student?.email} placeholder="abc@bkstu.edu.vn" className="w-full col-span-5" required disable />
+                        </div>
+                    </div>
+                )
+            }
+
+
+
+            if (loading) return (
+                <div className="w-full h-full flex items-center justify-center">
+                    <LoadingIcon width={15} height={15} color="gray" />
+                </div>
+            )
+
+            return (
+                <form className="w-full h-full flex flex-row p-2 overflow-scroll">
+                    <div className="w-full h-full flex flex-col p-8 max-md:p-2 gap-12 text-base max-md:text-sx">
+
+                        <div className="w-full h-fit grid grid-cols-16 max-md:grid-cols-6 gap-x-8 gap-y-4">
+                            <h1 className="text-3xl max-md:text-xl font-bold col-span-full">Thông tin cơ bản</h1>
+
+                            <Avatar />
+
+                            <Section1 />
+
+                            <div></div>
+
+                            <Section2 />
+
+                        </div>
+
+                        <div className="w-full h-fit col-span-full flex flex-row max-md:flex-col gap-20">
+
+                            <div className="w-1/2 max-md:w-full h-fit flex flex-col gap-4">
+
+                                <h1 className="text-3xl max-md:text-xl font-bold">Thông tin Sinh viên</h1>
+
+                                <Section3 />
+
+                            </div>
+
+                            <div className="w-1/2 max-md:w-full h-fit flex flex-col gap-4">
+                                <h1 className="text-3xl max-md:text-xl font-bold col-span-full">Thông tin cư trú</h1>
+
+                                <Section4 />
+
+                            </div>
+                        </div>
+
+                        <div className="w-full h-fit col-span-full flex flex-row max-md:flex-col gap-20">
+
+                            <div className="w-1/2 max-md:w-full h-fit flex flex-col gap-4">
+
+                                <h1 className="text-3xl max-md:text-xl font-bold">Thông tin tài khoản</h1>
+
+                                <Section5 />
+
+                            </div>
+                            <div className="w-1/2 max-md:w-full h-fit flex flex-col gap-4"></div>
+                        </div>
+
+                    </div>
+                </form>
+            )
+        }
+
         return (
-            <>
-                {openStudentInfor && <StudentInfor />}
-                <div className="w-10/12 min-h-screen h-full flex flex-col items-center justify-start p-4">
+            <Model>
+                <motion.div
+                    initial={{ scale: 0.9, opacity: 0.1 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 0.2 }}
+                    className="w-full h-full flex items-center justify-center p-6">
+                    <div className="w-11/12 max-md:w-full max-md:h-5/6 max-h-full h-full bg-snow rounded-2xl flex flex-col border border-black border-solid overflow-hidden">
+
+                        <Header />
+
+                        <Form />
+
+                    </div>
+                </motion.div>
+            </Model>
+        )
+    }
+    return (
+        <>
+            {openStudentInfor && <StudentInfor />}
+            <div className="w-full min-h-screen h-full flex items-start justify-center">
+                <div className="w-10/12 min-h-8/12 h-3/5 flex flex-col items-center justify-start p-4">
                     <div className="w-10/12 flex flex-row justify-between items-center gap-20 max-md:gap-8">
 
                         <div className="h-fit min-w-fit flex flex-col">
                             <h1 className="text-4xl font-bold">Sinh viên<nav></nav></h1>
-                            <h1 className="text-base max-md:text-xs text-gray-default">{ } Sinh viên</h1>
+                            <h1 className="text-base max-md:text-xs text-gray-default">{count} Sinh viên</h1>
                         </div>
 
                         <form onSubmit={search} className="w-6/12 h-fit flex flex-row justify-center items-center gap-2">
@@ -536,78 +624,247 @@ const CourseInfor: React.FC<CourseProp> = ({ currentCourseID }) => {
                         })
                     })()}
                 </div>
+            </div>
+        </>
+    )
+}
+
+interface CourseGradingProps {
+    currentCourseID: string,
+    curentCourseDetail?: CourseDetail,
+}
+const CourseGrading: React.FC<CourseGradingProps> = ({ currentCourseID, curentCourseDetail }) => {
+
+    const [studentList, setStudentlist] = useState<Student[]>([])
+
+    const [studentGradeList, setStudentGradeList] = useState<Grade[]>([])
+
+    const [edit, setEdit] = useState<boolean>(false)
+
+    const [loading, setLoading] = useState<boolean>(true)
+
+    const [, forceUpdate] = useReducer(x => x + 1, 0);
+
+    useEffect(() => {
+        const fetchStudentList = async () => {
+            const courseRef = doc(courseDetailColRef, currentCourseID);
+            const courseStudentCol = collection(courseRef, 'student_list')
+            const studentGradeCol = collection(courseRef, 'grade')
+
+            let studentQuerryRef = query(courseStudentCol)
+
+            const gradeFactory = new GradeFactory()
+            const studentQuerry = await getDocs(studentQuerryRef)
+            const userFactory = new UserFactory()
+            let studentList: Student[] = []
+            let gradeList: Grade[] = []
+            studentQuerry.forEach((studentData) => {
+                const n_student = userFactory.CreateUserWithDocumentData('student', studentData.data()) as Student
+                studentList = [...studentList, n_student]
+            })
+
+            for (let i = 0; i < studentList.length; i++) {
+                const studentGradeRef = doc(studentGradeCol, studentList[i].uid)
+                await getDoc(studentGradeRef).then((gradeData) => {
+                    gradeList = [...gradeList, gradeFactory.CreateGradeWithDocumnetData(studentList[i].uid, gradeData.data())]
+                })
+            }
+
+            setStudentGradeList(gradeList);
+            setStudentlist(studentList);
+        }
+
+        if (loading) {
+            fetchStudentList()
+            setLoading(false)
+        }
+    }, [])
+
+    const handleEdit = () => {
+        setEdit(true)
+        forceUpdate()
+    }
+
+    const handleCancel = () => {
+        setEdit(false)
+    }
+
+    const handleSave = (e: FormEvent) => {
+        e.preventDefault()
+
+        const data = new FormData(e.currentTarget as HTMLFormElement)
+
+        let n_gradeList: Grade[] = []
+
+        studentList.forEach((student) => {
+            const home_work_grade = data.get(`${student.uid}-home_work`)?.toString()
+            const assignment_grade = data.get(`${student.uid}-assignment`)?.toString()
+            const laboratory_grade = data.get(`${student.uid}-laboratory`)?.toString()
+            const midterm_exam_grade = data.get(`${student.uid}-midterm_exam`)?.toString()
+            const final_examgrade = data.get(`${student.uid}-final_exam`)?.toString()
+
+            let n_grade = new Grade(
+                student.uid,
+                home_work_grade ? parseInt(home_work_grade) : 15,
+                assignment_grade ? parseInt(assignment_grade) : 15,
+                laboratory_grade ? parseInt(laboratory_grade) : 15,
+                midterm_exam_grade ? parseInt(midterm_exam_grade) : 15,
+                final_examgrade ? parseInt(final_examgrade) : 15,
+                15,
+            )
+
+            n_grade.calculateTotal(curentCourseDetail)
+
+            const courseRef = doc(courseDetailColRef, currentCourseID);
+            const studentGradeCol = collection(courseRef, 'grade')
+            const studentGradeDocRef = doc(studentGradeCol, student.uid)
+
+            setDoc(studentGradeDocRef, n_grade.getInterface())
+
+            n_gradeList = [...n_gradeList, n_grade]
+        })
+        setEdit(false)
+        setStudentGradeList(n_gradeList)
+    }
+
+    const SaveButton: React.FC = () => {
+        const [open, setOpen] = useState<boolean>(false);
+        return (
+            <>
+                {open && <Model>
+                    <div className="w-full h-full flex justify-center items-center">
+                        <div className="w-fit h-fit p-8 gap-8 rounded-2xl bg-white border border-black border-solid flex flex-col justify-end items-end">
+                            <h1 className="text-xl font-bold">Bạn có chắc muốn lưu thay đổi không ?</h1>
+                            <div className="w-fit h-fit flex flex-row gap-8 text-xl">
+                                <button type="button" onClick={() => setOpen(false)} className="w-28 h-12 bg-red-500 hover:bg-red-600 flex justify-center items-center font-bold rounded-md text-white p-4">Cancel</button>
+                                <button type="submit" className="w-28 h-12 bg-green-500 hover:bg-green-600 flex justify-center items-center font-bold rounded-md text-white p-4">Confirm</button>
+                            </div>
+                        </div>
+                    </div>
+                </Model>}
+                <motion.button
+                    type="button"
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => setOpen(true)}
+                    className="w-fit h-fit px-2 py-1 bg-primary hover:bg-blue-600 text-white rounded-md">
+                    Lưu thay đổi
+                </motion.button>
             </>
         )
     }
 
-    const Header: React.FC = () => {
-        return (
-            <div className="w-full min-h-fit flex flex-col justify-center items-center gap-4">
-                <div className="w-full min-h-10 flex justify-between items-start text-3xl font-bold">
-                    <div className="w-fit h-full flex justify-start items-start">
-                        <button className="w-fit h-fit" onClick={() => { navigate('/course_management') }}>
-                            <ArrowLeftIcon width={10} height={10} color="black" />
-                        </button>
-                    </div>
-                    <div className="w-full h-fit flex flex-col justify-center items-center gap-2">
-                        <div>
-                            {`${currentCourse?.subject_name} - (${currentCourse?.subject_code}) - ${currentCourseDetail?.teacher}`}
-                        </div>
-                        <div>
-                            {`${currentCourse?.semester} - ${currentCourse?.code}`}
-                        </div>
-                    </div>
-                    <div></div>
-                </div>
-                <div className="w-full min-h-fit flex justify-center items-center">
-                    {pageList.map((page, index) => {
-                        return (
-                            <button key={page.pageNumber} onClick={() => { setCurrentPage(page.pageNumber) }}
-                                className="p-4 relative w-fit h-10 font-bold cursor-pointer flex items-center justify-center text-xl max-md:text-xs text-black">
-                                <div className="text-black">
-                                    {page.name}
-                                </div>
-                                {currentPage == index &&
-                                    <motion.div
-                                        transition={{ duration: 0.1 }}
-                                        className="absolute inset-0 rounded-md bg-primary border border-solid border-black z-0" layoutId="pill">
-                                        <span className="w-full h-full flex items-center justify-center absolute z-10 text-white">{page.name}</span>
-                                    </motion.div>
-                                }
-                            </button>
-                        )
-                    })}
-                </div>
-            </div>
-        )
-    }
-
-    const Body: React.FC = () => {
-        switch (currentPage) {
-            case 0:
-                return <CourseSection />
-            case 1:
-                return <CourseStudentList />
-            default:
-                return null
-        }
-    }
-
-
-    if (isLoading) {
-        return (
-            <div className="w-full h-screen border-solid  bg-white  flex flex-col items-center justify-center">
-                <LoadingIcon width={10} height={10} />
-            </div>
-        )
-    }
-
     return (
-        <div className="w-full h-full border-solid  bg-white  flex flex-col items-center justify-start">
-            <Header />
-            <Body />
-        </div>
+        <form onSubmit={(e) => handleSave(e)} className="w-11/12 h-fit flex flex-col items-center justify-start p-2 bg-snow mt-10">
+            <div className="w-full h-fit flex flex-row items-center justify-end p-2">
+                {
+                    !edit ?
+                        <motion.button
+                            type="button"
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => { handleEdit() }}
+                            className="w-fit h-fit px-2 py-1 bg-primary hover:bg-blue-600 text-white rounded-md">
+                            Chỉnh sửa
+                        </motion.button> :
+                        <div className="flex flex-row gap-4">
+                            <motion.button
+                                type="button"
+                                whileTap={{ scale: 0.9 }}
+                                onClick={() => { handleCancel() }}
+                                className="w-fit h-fit px-2 py-1 bg-gray-300 hover:bg-gray-400 text-black rounded-md">
+                                Hủy
+                            </motion.button>
+                            <SaveButton />
+                        </div>
+                }
+            </div>
+            <div className="w-full min-h-3/5 bg-gray-300 flex flex-col gap-0">
+                <div style={{ backgroundColor: edit ? 'black' : 'lightgray' }} className="w-full text-black text-lg pt-0.5 px-0.5 grid grid-cols-16 gap-0.5 font-bold">
+                    <div className="col-span-3 bg-snow p-1">Họ và tên</div>
+                    <div className="col-span-2 text-center bg-snow p-1">MSSV</div>
+                    <div className="col-span-2 text-center bg-snow p-1">Bài tập {`(${curentCourseDetail?.home_work_percent}%)`}</div>
+                    <div className="col-span-2 text-center bg-snow p-1">Bài tập lớn {`(${curentCourseDetail?.assignment_percent}%)`}</div>
+                    <div className="col-span-2 text-center bg-snow p-1">TN / TH {`(${curentCourseDetail?.laboratory_percent}%)`}</div>
+                    <div className="col-span-2 text-center bg-snow p-1">Giữa kì {`(${curentCourseDetail?.midterm_exam_percent}%)`}</div>
+                    <div className="col-span-2 text-center bg-snow p-1">Cuối kì {`(${curentCourseDetail?.final_exam_percent}%)`}</div>
+                    <div className="col-span-1 text-center bg-snow p-1">Tổng</div>
+                </div>
+
+                {(studentList.length == studentGradeList.length) && studentList.map((student, index) => {
+                    return (
+                        <div key={student.uid} style={{ backgroundColor: edit ? 'black' : 'lightgray' }} className="w-full text-black text-lg pt-0.5 px-0.5 grid grid-cols-16 gap-0.5">
+
+                            <div className="col-span-3 bg-snow p-1">{`${student.last_name} ${student.middle_name} ${student.first_name}`}</div>
+
+                            <div className="col-span-2 text-center bg-snow p-1">{student.display_id}</div>
+
+                            <div className="col-span-2 text-center bg-snow p-1">
+                                {
+                                    curentCourseDetail?.home_work_percent != 0 ?
+                                        <Input type="number" id={`${student.uid}-home_work`} name={`${student.uid}-home_work`}
+                                            defaultValue={studentGradeList[index].home_work}
+                                            className="border-transparent disabled:border-transparent w-full text-center h-fit py-0"
+                                            disable={!edit} /> :
+                                        null
+                                }
+
+                            </div>
+
+                            <div className="col-span-2 text-center bg-snow p-1">
+                                {
+                                    curentCourseDetail?.assignment_percent != 0 ?
+                                        <Input type="number" id={`${student.uid}-assignment`} name={`${student.uid}-assignment`}
+                                            defaultValue={studentGradeList[index].assignment}
+                                            className="border-transparent disabled:border-transparent w-full text-center h-fit py-0"
+                                            disable={!edit} required /> :
+                                        null
+                                }
+                            </div>
+
+                            <div className="col-span-2 text-center bg-snow p-1">
+                                {
+                                    curentCourseDetail?.laboratory_percent != 0 ?
+                                        <Input type="number" id={`${student.uid}-laboratory`} name={`${student.uid}-laboratory`}
+                                            defaultValue={studentGradeList[index].laboratory}
+                                            className="border-transparent disabled:border-transparent w-full text-center h-fit py-0"
+                                            disable={!edit} required /> :
+                                        null
+                                }
+                            </div>
+
+                            <div className="col-span-2 text-center bg-snow p-1">
+                                {
+                                    curentCourseDetail?.midterm_exam_percent != 0 ?
+                                        <Input type="number" id={`${student.uid}-midterm_exam`} name={`${student.uid}-midterm_exam`}
+                                            defaultValue={studentGradeList[index].midterm_exam}
+                                            className="border-transparent disabled:border-transparent w-full text-center h-fit py-0"
+                                            disable={!edit} required /> :
+                                        null
+                                }
+                            </div>
+
+                            <div className="col-span-2 text-center bg-snow p-1">
+                                {
+                                    curentCourseDetail?.final_exam_percent != 0 ?
+                                        <Input type="number" id={`${student.uid}-final_exam`} name={`${student.uid}-final_exam`}
+                                            defaultValue={studentGradeList[index].final_exam}
+                                            className="border-transparent disabled:border-transparent w-full text-center h-fit py-0"
+                                            disable={!edit} required /> :
+                                        null
+                                }
+                            </div>
+
+                            <div className="col-span-1 text-center bg-snow p-1">
+                                <Input type="number" id={`${student.uid}-total`} name={`${student.uid}-total`}
+                                    defaultValue={studentGradeList[index].total}
+                                    className="border-transparent disabled:border-transparent w-full text-center h-fit py-0" disable required />
+                            </div>
+
+
+                        </div>
+                    )
+                })}
+                <div style={{ backgroundColor: edit ? 'black' : 'lightgray' }} className="w-full pt-0.5"></div>
+            </div>
+        </form>
     )
 }
-
-export default CourseInfor

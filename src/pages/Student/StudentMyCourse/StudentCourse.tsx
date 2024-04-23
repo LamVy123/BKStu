@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Course, CourseDetail, CourseDetailFactory, CourseFactory } from "../../../class&interface/Course";
 import { collection, doc, getDoc, getDocs, query } from "firebase/firestore";
 import { courseColRef, courseDetailColRef } from "../../../config/firebase";
-import { v4 } from "uuid";
 import { Section, SectionFactory } from "../../../class&interface/Section";
 import CSection from "../../../component/CSection";
 import { ArrowLeftIcon, LoadingIcon } from "../../../assets/Icon";
@@ -60,75 +59,29 @@ const CourseInfor: React.FC<CourseProp> = ({ currentCourseID }) => {
     }, [])
 
 
-    const getDateTime = () => {
-        const date = new Date()
-        return (date.getFullYear() + "/" + date.getMonth() + "/" + date.getDay() + "-" + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds())
-    }
-
-    const CourseSection: React.FC = () => {
-        const [currentSectionList, setCurrentSectionList] = useState<Section[]>([])
-
-        useEffect(() => {
-            const fetchSection = async () => {
-                const courseDetailDocRef = doc(courseDetailColRef, `${currentCourseID}`);
-                const courseSectionCol = collection(courseDetailDocRef, 'section');
-                const courseSectionQuery = query(courseSectionCol)
-
-                let sectionList: Section[] = []
-                const sectionFacoty = new SectionFactory()
-                const courseSectionSnapShot = await getDocs(courseSectionQuery)
-
-                courseSectionSnapShot.forEach((sectionData) => {
-                    const sectionDocRef = doc(courseSectionCol, sectionData.data()?.id)
-                    sectionFacoty.CreateSectionWithDocumentData(sectionData.data(), sectionDocRef).then((n_section) => {
-                        sectionList = [...sectionList, n_section]
-                        sectionList.sort((a, b) => {
-                            const dateA = new Date(a.time_created);
-                            const dateB = new Date(b.time_created);
-
-                            if (dateA < dateB) {
-                                return -1;
-                            } else if (dateA > dateB) {
-                                return 1;
-                            } else {
-                                return 0;
-                            }
-                        })
-                        setCurrentSectionList(sectionList)
-                    })
-                })
-
-            }
-
-            fetchSection()
-        }, [])
-
-        return (
-            <div className="w-full h-full flex items-start justify-center mt-16">
-                <div className="w-full h-full flex flex-col justify-start items-center">
-                    {currentSectionList.map((section, index) => {
-                        const courseDocRef = doc(courseDetailColRef, currentCourseID)
-                        const courseSectionCol = collection(courseDocRef, 'section')
-                        const sectionDocRef = doc(courseSectionCol, section.id)
-                        return (
-                            <CSection key={section.id} section={section} index={index} setCurrentSectionList={setCurrentSectionList} sectionDocRef={sectionDocRef} disableEdit />
-                        )
-                    })}
-                </div>
-            </div>
-        )
-    }
-
     const Header: React.FC = () => {
         return (
             <div className="w-full min-h-fit flex flex-col justify-center items-center gap-4">
-                <div className="w-full h-fit flex flex-col justify-center items-center gap-2 text-3xl font-extrabold">
-                    <div>
-                        {`${currentCourse?.subject_name} - (${currentCourse?.subject_code}) - ${currentCourseDetail?.teacher}`}
+
+                <div className="w-full h-fit flex flex-row justify-between items-start gap-2 text-3xl font-extrabold">
+
+                    <div className="w-fit h-full flex justify-start items-start">
+                        <button className="w-fit h-fit" onClick={() => { navigate('/my_course') }}>
+                            <ArrowLeftIcon width={10} height={10} color="black" />
+                        </button>
                     </div>
-                    <div>
-                        {`${currentCourse?.semester} - ${currentCourse?.code}`}
+
+                    <div className="flex flex-col justify-center items-center gap-2">
+                        <div>
+                            {`${currentCourse?.subject_name} - (${currentCourse?.subject_code}) - ${currentCourseDetail?.teacher}`}
+                        </div>
+                        <div>
+                            {`${currentCourse?.semester} - ${currentCourse?.code}`}
+                        </div>
                     </div>
+
+                    <div></div>
+
                 </div>
                 <div className="w-full min-h-fit flex justify-center items-center">
                     {pageList.map((page, index) => {
@@ -156,7 +109,7 @@ const CourseInfor: React.FC<CourseProp> = ({ currentCourseID }) => {
     const Body: React.FC = () => {
         switch (currentPage) {
             case 0:
-                return <CourseSection />
+                return <CourseSection currentCourseID={currentCourseID} />
             default:
                 return null
         }
@@ -180,3 +133,62 @@ const CourseInfor: React.FC<CourseProp> = ({ currentCourseID }) => {
 }
 
 export default CourseInfor
+
+
+interface CourseSectionProps {
+    currentCourseID: string
+}
+
+const CourseSection: React.FC<CourseSectionProps> = ({ currentCourseID }) => {
+    const [currentSectionList, setCurrentSectionList] = useState<Section[]>([])
+
+    useEffect(() => {
+        const fetchSection = async () => {
+            const courseDetailDocRef = doc(courseDetailColRef, `${currentCourseID}`);
+            const courseSectionCol = collection(courseDetailDocRef, 'section');
+            const courseSectionQuery = query(courseSectionCol)
+
+            let sectionList: Section[] = []
+            const sectionFacoty = new SectionFactory()
+            const courseSectionSnapShot = await getDocs(courseSectionQuery)
+
+            courseSectionSnapShot.forEach((sectionData) => {
+                const sectionDocRef = doc(courseSectionCol, sectionData.data()?.id)
+                sectionFacoty.CreateSectionWithDocumentData(sectionData.data(), sectionDocRef).then((n_section) => {
+                    sectionList = [...sectionList, n_section]
+                    sectionList.sort((a, b) => {
+                        const dateA = new Date(a.time_created);
+                        const dateB = new Date(b.time_created);
+
+                        if (dateA < dateB) {
+                            return -1;
+                        } else if (dateA > dateB) {
+                            return 1;
+                        } else {
+                            return 0;
+                        }
+                    })
+                    setCurrentSectionList(sectionList)
+                })
+            })
+
+        }
+
+        fetchSection()
+    }, [])
+
+    return (
+        <div className="w-full h-full flex items-start justify-center mt-16">
+            <div className="w-full h-full flex flex-col justify-start items-center">
+                {currentSectionList.map((section, index) => {
+                    const courseDocRef = doc(courseDetailColRef, currentCourseID)
+                    const courseSectionCol = collection(courseDocRef, 'section')
+                    const sectionDocRef = doc(courseSectionCol, section.id)
+                    return (
+                        <CSection key={section.id} section={section} index={index} setCurrentSectionList={setCurrentSectionList} sectionDocRef={sectionDocRef} disableEdit />
+                    )
+                })}
+            </div>
+        </div>
+    )
+}

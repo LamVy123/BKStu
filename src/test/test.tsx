@@ -4,7 +4,7 @@ import { EmailIcon, ExitIcon, UserIcon, DashboardIcon, StudentsIcon, ScheduleIco
 
 import Select, { OptionInterface } from "../component/Select"
 import { useEffect } from "react"
-import { doc, getDoc, addDoc, setDoc, collection, query, getDocs } from "firebase/firestore"
+import { doc, getDoc, collection, query, getDocs } from "firebase/firestore"
 import { testRef } from "../config/firebase"
 import { motion } from "framer-motion"
 
@@ -28,13 +28,6 @@ const Test: React.FC = () => {
 
     }, [])
 
-
-    const handleClick = () => {
-        addDoc(testRef, { id: '' }).then((bla) => {
-            const docRef = doc(testRef, bla.id)
-            setDoc(docRef, { id: bla.id })
-        })
-    }
 
     const optionList: OptionInterface[] = [{ value: 'bla', lable: 'BLA' }, { value: 'blo', lable: 'BLO' }, { value: 'bli', lable: 'BLI' }]
 

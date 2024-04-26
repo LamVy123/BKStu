@@ -19,6 +19,7 @@ interface SubjectFormProps {
 const SubjectForm: React.FC<SubjectFormProps> = ({ setOpenSubjectForm }: SubjectFormProps) => {
 
     const [reset, setReset] = useState<boolean>(false);
+    reset
 
     const Header: React.FC = () => {
         return (

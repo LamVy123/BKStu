@@ -1,5 +1,4 @@
 import { Student, StudentDetail } from "../../class&interface/User";
-import Container from "../../component/Container";
 import Footer from "../../component/Footer";
 import Input from "../../component/Input";
 import { useAuth } from "../../context/AuthContext";

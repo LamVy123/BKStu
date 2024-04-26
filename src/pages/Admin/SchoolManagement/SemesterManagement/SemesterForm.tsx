@@ -2,7 +2,6 @@ import Model from "../../../../component/Model"
 import { ExitIcon } from "../../../../assets/Icon"
 import { motion } from "framer-motion"
 import Input from "../../../../component/Input"
-import TextArea from "../../../../component/TextArea"
 import { FormEvent, useState } from "react"
 import { Semester, SemesterDetail } from "../../../../class&interface/Semester"
 import { addDoc, setDoc, doc } from "firebase/firestore"
@@ -15,6 +14,7 @@ interface SemesterFormProps {
 const SemesterForm: React.FC<SemesterFormProps> = ({ setOpenSemesterForm }: SemesterFormProps) => {
 
     const [reset, setReset] = useState<boolean>(false);
+    reset
 
     const Header: React.FC = () => {
         return (

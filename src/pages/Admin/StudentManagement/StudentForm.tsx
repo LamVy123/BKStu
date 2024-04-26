@@ -23,6 +23,7 @@ const StudentForm: React.FC<StudentFormProps> = ({ setOpenStudentForm }: Student
     const auth = useAuth();
 
     const [reset, setReset] = useState<boolean>(false);
+    reset
 
     const [loading, setLoading] = useState<boolean>(true);
 

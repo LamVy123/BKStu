@@ -15,6 +15,7 @@ interface FacultyFormProps {
 const FacultyForm: React.FC<FacultyFormProps> = ({ setOpenFacultyForm }: FacultyFormProps) => {
 
     const [reset, setReset] = useState<boolean>(false);
+    reset
 
     const Header: React.FC = () => {
         return (

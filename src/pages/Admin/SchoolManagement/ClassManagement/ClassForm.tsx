@@ -19,7 +19,7 @@ interface ClassFormProps {
 const ClassForm: React.FC<ClassFormProps> = ({ setOpenClassForm }: ClassFormProps) => {
 
     const [reset, setReset] = useState<boolean>(false);
-
+    reset
 
     const Header: React.FC = () => {
         return (
@@ -36,7 +36,6 @@ const ClassForm: React.FC<ClassFormProps> = ({ setOpenClassForm }: ClassFormProp
 
     const Form: React.FC = () => {
         const [isSubmit, setIsSubmit] = useState<boolean>(false)
-
         const submit = async (e: FormEvent) => {
             e.preventDefault();
             setIsSubmit(true);

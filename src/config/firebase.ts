@@ -14,9 +14,6 @@ const testFirebaseConfig = {
 };
 
 //Firebase config for deploying
-const deployFirebaseConfig = {
-
-}
 
 
 const firebaseConfig = testFirebaseConfig;

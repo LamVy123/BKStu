@@ -7,7 +7,7 @@ import { FormEvent, useState } from "react"
 import { Majors, MajorsDetail } from "../../../../class&interface/Majors"
 import { addDoc, setDoc, doc } from "firebase/firestore"
 import { majorsColRef, majorsDetailColRef } from "../../../../config/firebase"
-import { Faculty, FacultyFactory, FacultyInterface } from "../../../../class&interface/Faculty"
+import { Faculty, FacultyFactory } from "../../../../class&interface/Faculty"
 import { query, getDocs } from "firebase/firestore"
 import { useEffect } from "react"
 import { facultyColRef } from "../../../../config/firebase"
@@ -20,6 +20,7 @@ interface MajorsFormProps {
 const MajorsForm: React.FC<MajorsFormProps> = ({ setOpenMajorsForm }: MajorsFormProps) => {
 
     const [reset, setReset] = useState<boolean>(false);
+    reset
 
     const [facultyList, setFacultyList] = useState<Faculty[]>([])
 

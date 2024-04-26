@@ -1,5 +1,4 @@
 import { Admin, AdminDetail } from "../../class&interface/User";
-import Container from "../../component/Container";
 import { useAuth } from "../../context/AuthContext";
 import Input from "../../component/Input";
 import Footer from "../../component/Footer";

@@ -33,11 +33,6 @@ const AdminManagement: React.FC = () => {
 
     const [adminCount, setAdminCount] = useState<number>(0);
 
-
-    function delay(time: number) {
-        return new Promise(resolve => setTimeout(resolve, time));
-    }
-
     useEffect(() => {
         const fetchCount = async () => {
             const adminCount = query(userColRef, where('role', '==', 'admin'));

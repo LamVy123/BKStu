@@ -22,6 +22,7 @@ interface CourseFormProps {
 const CourseForm: React.FC<CourseFormProps> = ({ setOpenCourseForm }: CourseFormProps) => {
 
     const [reset, setReset] = useState<boolean>(false);
+    reset
 
     const Header: React.FC = () => {
         return (

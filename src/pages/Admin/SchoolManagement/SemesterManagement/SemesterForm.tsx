@@ -6,6 +6,7 @@ import { FormEvent, useState } from "react"
 import { Semester, SemesterDetail } from "../../../../class&interface/Semester"
 import { addDoc, setDoc, doc } from "firebase/firestore"
 import { semesterColRef, semesterDetailColRef } from "../../../../config/firebase"
+import TextArea from "../../../../component/TextArea"
 
 interface SemesterFormProps {
     setOpenSemesterForm: React.Dispatch<React.SetStateAction<boolean>>
@@ -45,7 +46,8 @@ const SemesterForm: React.FC<SemesterFormProps> = ({ setOpenSemesterForm }: Seme
                             data.get('code')?.toString() as string,
                             id,
                             data.get('academic_year')?.toString() as string,
-                            'not_open'
+                            'not_open',
+                            data.get('description')?.toString() as string,
                         )
                         setDoc(semesterDocRef, semester.getInterface());
 
@@ -88,6 +90,11 @@ const SemesterForm: React.FC<SemesterFormProps> = ({ setOpenSemesterForm }: Seme
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
                             <label htmlFor="number_of_weeks" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Số tuần kéo dài<h1 className="text-red-500">*</h1></label>
                             <Input type="number" id="number_of_weeks" name="number_of_weeks" placeholder="Vui lòng điền" className="w-full col-span-5" />
+                        </div>
+
+                        <div className="w-full h-fit flex flex-col items-start justify-start text-black font-bold gap-4">
+                            <label htmlFor="description" className="min-w-52">Trạng thái học kì:</label>
+                            <TextArea id="description" name="description" className="w-full min-h-32"  />
                         </div>
 
                     </div>

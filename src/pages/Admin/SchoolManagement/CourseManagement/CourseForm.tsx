@@ -4,7 +4,7 @@ import { motion } from "framer-motion"
 import Input from "../../../../component/Input"
 import { FormEvent, useState, useEffect } from "react"
 import { Course, CourseDetail } from "../../../../class&interface/Course"
-import { addDoc, setDoc, doc, getDocs, query, where, getDoc, collection } from "firebase/firestore"
+import { addDoc, setDoc, doc, getDocs, query, where, getDoc, collection, or } from "firebase/firestore"
 import { courseColRef, courseDetailColRef, semesterColRef, semesterDetailColRef, subjectColRef, subjectDetailColRef, userDetaiColRef } from "../../../../config/firebase"
 import Select, { OptionInterface } from "../../../../component/Select"
 import { Faculty, FacultyFactory, FacultyInterface } from "../../../../class&interface/Faculty"
@@ -236,7 +236,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ setOpenCourseForm }: CourseForm
 
 
                 const fetchSemesterList = async () => {
-                    let semsterQuerry = query(semesterColRef);
+                    let semsterQuerry = query(semesterColRef, or(where('status', '==', 'open'), where('status', '==', 'not_open')));
 
                     let list: Semester[] = [];
                     const semesterQuerrySnapshot = await getDocs(semsterQuerry)

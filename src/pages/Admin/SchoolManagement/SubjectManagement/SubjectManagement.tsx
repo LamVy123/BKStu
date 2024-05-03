@@ -447,8 +447,8 @@ const SubjectManagement: React.FC = () => {
                                         </div>
                                     }
                                     return subjectList.map((subject, index) => {
-                                        const class1 = "w-full h-14 max-md:h-20 grid grid-cols-10 p-4 gap-4 hover:bg-gray-200 bg-white";
-                                        const class2 = "w-full h-14 max-md:h-20 grid grid-cols-10 p-4 gap-4 hover:bg-gray-200 bg-gray-100";
+                                        const class1 = "w-full h-14 max-md:h-20 grid grid-cols-10 p-4 gap-4 hover:bg-gray-50 bg-snow";
+                                        const class2 = "w-full h-14 max-md:h-20 grid grid-cols-10 p-4 gap-4 hover:bg-gray-50 bg-white";
                                         return (
                                             <React.Fragment key={subject.id}>
                                                 <div className={(index % 2 != 0) ? class1 : class2}>

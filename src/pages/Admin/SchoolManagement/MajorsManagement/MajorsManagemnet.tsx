@@ -230,7 +230,7 @@ const MajorsManagement: React.FC = () => {
                         <Input id="faculty_code" name="faculty_code" defaultValue={currentMajors?.faculty_code} type="text" className="w-full font-normal" disable />
                     </div>
                     <div className="w-full h-fit flex flex-row items-center justify-start text-black font-bold gap-4">
-                        <label htmlFor="degree_type" className="min-w-52">Học vị cao nhất:</label>
+                        <label htmlFor="degree_type" className="min-w-52">Văn bằng tốt nghiệp:</label>
                         <Input id="degree_type" name="degree_type" defaultValue={currentMajorsDetail?.degree_type} type="text" className="w-full font-normal" disable />
                     </div>
                     <div className="w-full h-fit flex flex-row items-center justify-start text-black font-bold gap-4">
@@ -278,7 +278,7 @@ const MajorsManagement: React.FC = () => {
                         <Input id="faculty" name="faculty" type="text" className="w-full font-normal" disable />
                     </div>
                     <div className="w-full h-fit flex flex-row items-center justify-start text-black font-bold gap-4">
-                        <label htmlFor="degree_type" className="min-w-52">Học vị cao nhất:</label>
+                        <label htmlFor="degree_type" className="min-w-52">Văn bằng tốt nghiệp:</label>
                         <Input id="degree_type" name="degree_type" type="text" className="w-full font-normal" disable />
                     </div>
                     <div className="w-full h-fit flex flex-row items-center justify-start text-black font-bold gap-4">
@@ -339,8 +339,8 @@ const MajorsManagement: React.FC = () => {
                                         </div>
                                     }
                                     return majorsList.map((faculty, index) => {
-                                        const class1 = "w-full h-14 max-md:h-20 grid grid-cols-10 p-4 gap-4 hover:bg-gray-200 bg-white";
-                                        const class2 = "w-full h-14 max-md:h-20 grid grid-cols-10 p-4 gap-4 hover:bg-gray-200 bg-gray-100";
+                                        const class1 = "w-full h-14 max-md:h-20 grid grid-cols-10 p-4 gap-4 hover:bg-gray-50 bg-snow";
+                                        const class2 = "w-full h-14 max-md:h-20 grid grid-cols-10 p-4 gap-4 hover:bg-gray-50 bg-white";
                                         return (
                                             <React.Fragment key={faculty.id}>
                                                 <div className={(index % 2 != 0) ? class1 : class2}>

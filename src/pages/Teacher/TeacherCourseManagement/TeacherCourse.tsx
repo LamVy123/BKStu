@@ -17,7 +17,7 @@ interface CourseProp {
     currentCourseID: string
 }
 
-const CourseInfor: React.FC<CourseProp> = ({ currentCourseID }) => {
+const CourseManagemnt: React.FC<CourseProp> = ({ currentCourseID }) => {
 
     const navigate = useNavigate();
 
@@ -36,6 +36,7 @@ const CourseInfor: React.FC<CourseProp> = ({ currentCourseID }) => {
         { pageNumber: 0, name: 'Khóa học' },
         { pageNumber: 1, name: 'Danh sách' },
         { pageNumber: 2, name: 'Điểm số' },
+        { pageNumber: 3, name: 'Thông tin khóa học' },
     ]
 
     useEffect(() => {
@@ -115,6 +116,8 @@ const CourseInfor: React.FC<CourseProp> = ({ currentCourseID }) => {
                 return <CourseStudentList currentCourseID={currentCourseID} />
             case 2:
                 return <CourseGrading currentCourseID={currentCourseID} curentCourseDetail={currentCourseDetail} />
+            case 3:
+                return <CourseInfor currentCourse={currentCourse} currentCourseDetail={currentCourseDetail} />
             default:
                 return null
         }
@@ -136,7 +139,7 @@ const CourseInfor: React.FC<CourseProp> = ({ currentCourseID }) => {
     )
 }
 
-export default CourseInfor
+export default CourseManagemnt
 
 
 interface CourseSectionProp {
@@ -576,7 +579,7 @@ const CourseStudentList: React.FC<CourseStudentListProp> = ({ currentCourseID })
 
                     </div>
 
-                    <hr className="solid bg-gray-200 border-gray-200 border rounded-full"></hr>
+                    <hr className="w-full solid bg-gray-200 border-gray-200 border rounded-full"></hr>
 
                     {(() => {
                         if (isLoading) {
@@ -591,8 +594,8 @@ const CourseStudentList: React.FC<CourseStudentListProp> = ({ currentCourseID })
                             </div>
                         }
                         return studentList.map((student, index) => {
-                            const class1 = "w-full h-fit grid grid-cols-12 grid-rows-1 p-1 bg-white hover:bg-gray-200 cursor-pointer"
-                            const class2 = "w-full h-fit grid grid-cols-12 grid-rows-1 p-1 bg-gray-100 hover:bg-gray-200 cursor-pointer"
+                            const class1 = "w-full h-fit grid grid-cols-12 grid-rows-1 p-1 bg-white hover:bg-gray-50 cursor-pointer"
+                            const class2 = "w-full h-fit grid grid-cols-12 grid-rows-1 p-1 bg-snow hover:bg-gray-50 cursor-pointer"
 
                             return (
                                 <React.Fragment key={student.uid}>
@@ -618,7 +621,7 @@ const CourseStudentList: React.FC<CourseStudentListProp> = ({ currentCourseID })
                                             </motion.button>
                                         </div>
                                     </div>
-                                    <hr className="solid bg-gray-200 border-gray-200 border rounded-full"></hr>
+                                    <hr className="w-full solid bg-gray-200 border-gray-200 border rounded-full"></hr>
                                 </React.Fragment>
                             )
                         })
@@ -866,5 +869,142 @@ const CourseGrading: React.FC<CourseGradingProps> = ({ currentCourseID, curentCo
                 <div style={{ backgroundColor: edit ? 'black' : 'lightgray' }} className="w-full pt-0.5"></div>
             </div>
         </form>
+    )
+}
+
+interface CourseInforProps {
+    currentCourse?: Course
+    currentCourseDetail?: CourseDetail
+}
+
+const CourseInfor: React.FC<CourseInforProps> = ({ currentCourse, currentCourseDetail }) => {
+
+    const study_schedule = currentCourse?.study_schedule.split('/');
+    const lab_schedule = currentCourse?.lab_schedule.split('/');
+
+    return (
+        <div className="w-full h-full flex items-start justify-center mt-16">
+            <div className="w-full h-full flex flex-col justify-start items-center">
+                <div className="w-8/12 h-fit flex flex-col gap-4">
+                    <form className="w-full h-full max-md:hidden flex flex-col gap-2 p-2 overflow-scroll">
+                        {(currentCourse && currentCourseDetail) ? <div className="w-full h-full flex flex-col p-4 gap-8 text-xl overflow-scroll">
+                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                                <label htmlFor="subject_name" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Tên môn học:</label>
+                                <Input type="text" id="subject_name" name="subject_name" defaultValue={currentCourse.subject_name} placeholder="" className="w-full col-span-5" disable />
+                            </div>
+
+                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                                <label htmlFor="subject_code" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Mã môn học:</label>
+                                <Input type="text" id="subject_code" name="subject_code" defaultValue={currentCourse.subject_code} placeholder="" className="w-full col-span-5" disable />
+                            </div>
+
+                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                                <label htmlFor="subject_type" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Loại môn học:</label>
+                                <Input type="text" id="subject_type" name="subject_type" defaultValue={currentCourse.subject_type} placeholder="" className="w-full col-span-5" disable />
+                            </div>
+
+                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                                <label htmlFor="course_code" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Mã khóa học:</label>
+                                <Input type="text" id="course_code" name="course_code" defaultValue={currentCourse.code} placeholder="" className="w-full col-span-5" disable />
+                            </div>
+
+                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                                <label htmlFor="academic_year" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Niên khóa:</label>
+                                <Input type="text" id="academic_year" name="academic_year" defaultValue={currentCourse.academic_year} placeholder="" className="w-full col-span-5" disable />
+                            </div>
+
+                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                                <label htmlFor="semester" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Học kì:</label>
+                                <Input type="text" id="semester" name="semester" defaultValue={currentCourse.semester} placeholder="" className="w-full col-span-5" disable />
+                            </div>
+
+                            <div className="w-full h-fit grid grid-cols-7 text-black gap-2">
+                                <label htmlFor="status" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Trạng thái khóa học:</label>
+                                <Input type="text" id="status" name="status" placeholder="" className="w-full col-span-5" disable defaultValue={currentCourse.status} />
+                            </div>
+
+                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                                <label htmlFor="faculty" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Khoa:</label>
+                                <Input type="text" id="faculty" name="faculty" defaultValue={currentCourse.faculty} className="w-full col-span-5" disable />
+                            </div>
+
+                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                                <label htmlFor="majors" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Ngành:</label>
+                                <Input type="text" id="majors" name="majors" defaultValue={currentCourse.majors} className="w-full col-span-5" disable />
+                            </div>
+
+                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                                <label htmlFor="teacher" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Giảng viên:</label>
+                                <Input type="text" id="teacher" name="teacher" defaultValue={currentCourseDetail.teacher} className="w-full col-span-5" disable />
+                            </div>
+
+                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                                <label htmlFor="teacher_email" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Email giảng viên:</label>
+                                <Input type="text" id="teacher_email" name="teacher_email" defaultValue={currentCourseDetail.teacher_email} className="w-full col-span-5" disable />
+                            </div>
+
+                            <div className="w-full h-fit flex flex-col max-md:grid-cols-5 gap-2">
+                                <label className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Lịch học lý thuyết:</label>
+                                <div className="w-full h-fit p-2 grid grid-cols-12 text-lg font-normal border-2 border-solid border-gray-300 rounded-md">
+                                    <div className="col-span-2">{study_schedule ? study_schedule[0] : null}</div>
+                                    <div className="col-span-2">{study_schedule ? study_schedule[1] : null}</div>
+                                    <div className="col-span-8 text-end">{study_schedule ? study_schedule[2] : null}</div>
+                                </div>
+                            </div>
+
+                            {currentCourseDetail.laboratory_percent == 0 ? null : <div className="w-full h-fit flex flex-col max-md:grid-cols-5 gap-2">
+                                <label htmlFor="lab_schedule" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Lịch học thí nghiệm:</label>
+                                <div className="w-full h-fit p-2 grid grid-cols-12 text-lg font-normal border-2 border-solid border-gray-300 rounded-md">
+                                    <div className="col-span-2">{lab_schedule ? lab_schedule[0] : null}</div>
+                                    <div className="col-span-2">{lab_schedule ? lab_schedule[1] : null}</div>
+                                    <div className="col-span-8 text-end">{lab_schedule ? lab_schedule[2] : null}</div>
+                                </div>
+                            </div>}
+
+                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                                <label htmlFor="class_duration" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Thời lượng tiết:</label>
+                                <Input type="number" id="class_duration" name="class_duration" defaultValue={currentCourseDetail.class_duration} placeholder="" className="w-full col-span-5" disable />
+                            </div>
+
+                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                                <label htmlFor="number_of_credit" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Số tín chỉ:</label>
+                                <Input type="number" id="number_of_credit" name="number_of_credit" defaultValue={currentCourse.number_of_credit} placeholder="" className="w-full col-span-5" disable />
+                            </div>
+
+                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                                <label htmlFor="hours_needed" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">% Số giờ học:</label>
+                                <Input type="number" id="hours_needed" name="hours_needed" defaultValue={currentCourseDetail.hours_needed} placeholder="" className="w-full col-span-5" disable />
+                            </div>
+
+                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                                <label htmlFor="home_work_percent" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">% Điểm bài tập:</label>
+                                <Input type="number" id="home_work_percent" name="home_work_percent" defaultValue={currentCourseDetail.home_work_percent} placeholder="" className="w-full col-span-5" disable />
+                            </div>
+
+                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                                <label htmlFor="assignment_percent" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">% Điểm BTL:</label>
+                                <Input type="number" id="assignment_percent" name="assignment_percent" defaultValue={currentCourseDetail.assignment_percent} placeholder="" className="w-full col-span-5" disable />
+                            </div>
+
+                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                                <label htmlFor="laboratory_percent" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">% Điểm thí nghiệm:</label>
+                                <Input type="number" id="laboratory_percent" name="laboratory_percent" defaultValue={currentCourseDetail.laboratory_percent} placeholder="" className="w-full col-span-5" disable />
+                            </div>
+
+                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                                <label htmlFor="midterm_exam_percent" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">% Điểm giữa kì:</label>
+                                <Input type="number" id="midterm_exam_percent" name="midterm_exam_percent" defaultValue={currentCourseDetail.midterm_exam_percent} placeholder="" className="w-full col-span-5" disable />
+                            </div>
+
+                            <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
+                                <label htmlFor="final_exam_percent" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">% Điểm cuối kì:</label>
+                                <Input type="number" id="final_exam_percent" name="final_exam_percent" defaultValue={currentCourseDetail.final_exam_percent} placeholder="" className="w-full col-span-5" disable />
+                            </div>
+                        </div> : <div className="w-full h-full flex items-center justify-center"><LoadingIcon width={10} height={10} /></div>}
+
+                    </form>
+                </div>
+            </div>
+        </div>
     )
 }

@@ -124,8 +124,8 @@ const SemesterSelect: React.FC<SemesterSelectProp> = ({ setcurrentSemester }) =>
                                 </div>
                             }
                             return semesterList.map((semester, index) => {
-                                const class1 = "w-full h-14 max-md:h-20 grid grid-cols-12 p-4 gap-4 hover:bg-gray-200 bg-white";
-                                const class2 = "w-full h-14 max-md:h-20 grid grid-cols-12 p-4 gap-4 hover:bg-gray-200 bg-gray-100";
+                                const class1 = "w-full h-14 max-md:h-20 grid grid-cols-12 p-4 gap-4 hover:bg-gray-50 bg-snow";
+                                const class2 = "w-full h-14 max-md:h-20 grid grid-cols-12 p-4 gap-4 hover:bg-gray-50 bg-white";
                                 let color: string
                                 let label: string = ''
                                 switch (semester.status) {
@@ -158,7 +158,7 @@ const SemesterSelect: React.FC<SemesterSelectProp> = ({ setcurrentSemester }) =>
 
                                             <div className="w-full h-full col-span-2 text-base font-bold text-black text-center">{semester.academic_year}</div>
 
-                                            <div className="w-full h-full col-span-5 text-base font-bold text-black text-center">{ }</div>
+                                            <div className="w-full h-full col-span-5 text-base font-bold text-black text-center">{semester.description}</div>
 
                                             <div style={{ color: color }} className="w-full h-full col-span-2 text-base font-bold text-black text-center">{label}</div>
                                         </div>

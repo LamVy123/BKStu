@@ -8,6 +8,7 @@ import { getDocs, query, getDoc, doc, setDoc, deleteDoc, where, getCountFromServ
 import { semesterColRef, semesterDetailColRef } from "../../../../config/firebase"
 import Model from "../../../../component/Model"
 import Select, { OptionInterface } from "../../../../component/Select"
+import TextArea from "../../../../component/TextArea"
 
 const SemesterManagement: React.FC = () => {
     const [openSemesterForm, setOpenSemesterForm] = useState<boolean>(false);
@@ -136,6 +137,7 @@ const SemesterManagement: React.FC = () => {
                 id,
                 data.get('academic_year')?.toString() as string,
                 data.get('status')?.toString() as string,
+                data.get('description')?.toString() as string,
             )
             setDoc(semesterDocRef, semester.getInterface());
             setcurrentSemester(semester);
@@ -250,6 +252,10 @@ const SemesterManagement: React.FC = () => {
                         <label htmlFor="status" className="min-w-52">Trạng thái học kì:</label>
                         <Select id="status" name="status" className="w-full font-normal" disable={!edit} height={12} option={statusOption} />
                     </div>
+                    <div className="w-full h-fit flex flex-col items-start justify-start text-black font-bold gap-4">
+                        <label htmlFor="description" className="min-w-52">Trạng thái học kì:</label>
+                        <TextArea id="description" name="description" defaultValue={currentSemester.description} className="w-full min-h-32 font-normal" disable={!edit} />
+                    </div>
                     <div className="w-full h-fit mt-auto flex items-center justify-start">
                         {edit ?
                             <motion.button type="button" whileTap={{ scale: 0.9 }} onClick={() => setEdit(false)} className="w-fit h-fit bg-gray-200 hover:bg-gray-300 rounded-md text-black text-xl font-bold flex items-center justify-center px-4 py-2">Cancel</motion.button> :
@@ -289,6 +295,10 @@ const SemesterManagement: React.FC = () => {
                     <div className="w-full h-fit flex flex-row items-center justify-start text-black font-bold gap-4">
                         <label htmlFor="status" className="min-w-52">Trạng thái học kì:</label>
                         <Input id="status" name="status" type="number" className="w-full font-normal" disable />
+                    </div>
+                    <div className="w-full h-fit flex flex-col items-start justify-start text-black font-bold gap-4">
+                        <label htmlFor="description" className="min-w-52">Trạng thái học kì:</label>
+                        <TextArea id="description" name="description" className="w-full min-h-32" disable />
                     </div>
                 </div>
             </div>
@@ -338,8 +348,8 @@ const SemesterManagement: React.FC = () => {
                                         </div>
                                     }
                                     return semesterList.map((semester, index) => {
-                                        const class1 = "w-full h-14 max-md:h-20 grid grid-cols-10 p-4 gap-4 hover:bg-gray-200 bg-white";
-                                        const class2 = "w-full h-14 max-md:h-20 grid grid-cols-10 p-4 gap-4 hover:bg-gray-200 bg-gray-100";
+                                        const class1 = "w-full h-14 max-md:h-20 grid grid-cols-10 p-4 gap-4 hover:bg-gray-50 bg-snow";
+                                        const class2 = "w-full h-14 max-md:h-20 grid grid-cols-10 p-4 gap-4 hover:bg-gray-50 bg-white";
                                         let color: string
                                         let label: string = ''
                                         switch (semester.status) {

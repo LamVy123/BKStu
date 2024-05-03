@@ -488,8 +488,8 @@ const AdminManagement: React.FC = () => {
                                 </div>
                             }
                             return adminList.map((admin, index) => {
-                                const class1 = "w-full h-fit grid grid-cols-12 grid-rows-1 p-2 bg-white hover:bg-gray-200 cursor-pointer"
-                                const class2 = "w-full h-fit grid grid-cols-12 grid-rows-1 p-2 bg-gray-100 hover:bg-gray-200 cursor-pointer"
+                                const class1 = "w-full h-fit grid grid-cols-12 grid-rows-1 p-2 bg-snow hover:bg-gray-50"
+                                const class2 = "w-full h-fit grid grid-cols-12 grid-rows-1 p-2 bg-white hover:bg-gray-50"
 
                                 return (
                                     <React.Fragment key={admin.uid}>

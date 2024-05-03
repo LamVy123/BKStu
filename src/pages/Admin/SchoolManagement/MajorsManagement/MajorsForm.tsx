@@ -132,7 +132,7 @@ const MajorsForm: React.FC<MajorsFormProps> = ({ setOpenMajorsForm }: MajorsForm
                         </div>
 
                         <div className="w-full h-fit grid grid-cols-7 max-md:grid-cols-5 gap-2">
-                            <label htmlFor="degree_type" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Học vị cao nhất<h1 className="text-red-500">*</h1></label>
+                            <label htmlFor="degree_type" className="py-2 font-bold flex flex-row gap-2 col-span-2 max-md:col-span-full">Văn bằng tốt nghiệp<h1 className="text-red-500">*</h1></label>
                             <Select id="degree_type" name="degree_type" height={10} option={degreeTypeOption} className="w-full col-span-5" />
                         </div>
 

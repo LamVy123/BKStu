@@ -1,6 +1,6 @@
 import React, { FormEvent, useEffect, useState } from "react";
 import { Class, ClassDetail, ClassDetailFactory, ClassFactory } from "../../../class&interface/Class";
-import { collection, doc, getDoc, getDocs, or, query, where } from "firebase/firestore";
+import { collection, doc, getCountFromServer, getDoc, getDocs, or, query, where } from "firebase/firestore";
 import { classColRef, classDetailColRef, userColRef, userDetaiColRef } from "../../../config/firebase";
 import { v4 } from "uuid";
 import { Section, SectionFactory } from "../../../class&interface/Section";
@@ -230,6 +230,8 @@ const ClassStudentList: React.FC<ClassStudentListProps> = ({ currentClassID }) =
 
     const [searchValue, setSearchValue] = useState<string>('')
 
+    const [count, setCount] = useState<number>(0)
+
     const toggleComponentVisibility = () => {
         setOpenStudentInfor((prevState) => !prevState);
         document.body.style.position = openStudentInfor ? "static" : "fixed";
@@ -240,6 +242,8 @@ const ClassStudentList: React.FC<ClassStudentListProps> = ({ currentClassID }) =
 
             const classRef = doc(classDetailColRef, currentClassID);
             const classStudentCol = collection(classRef, 'student_list')
+
+            setCount((await getCountFromServer(classStudentCol)).data().count)
 
             let studentQuerryRef = query(classStudentCol, where('role', '==', 'student'))
 
@@ -539,7 +543,7 @@ const ClassStudentList: React.FC<ClassStudentListProps> = ({ currentClassID }) =
 
                     <div className="h-fit min-w-fit flex flex-col">
                         <h1 className="text-4xl font-bold">Sinh viên<nav></nav></h1>
-                        <h1 className="text-base max-md:text-xs text-gray-default">{ } Sinh viên</h1>
+                        <h1 className="text-base max-md:text-xs text-gray-default">{count} Sinh viên</h1>
                     </div>
 
                     <form onSubmit={search} className="w-6/12 h-fit flex flex-row justify-center items-center gap-2">
@@ -575,7 +579,7 @@ const ClassStudentList: React.FC<ClassStudentListProps> = ({ currentClassID }) =
 
                 </div>
 
-                <hr className="solid bg-gray-200 border-gray-200 border rounded-full"></hr>
+                <hr className="w-full solid bg-gray-200 border-gray-200 border rounded-full"></hr>
 
                 {(() => {
                     if (isLoading) {
@@ -590,8 +594,8 @@ const ClassStudentList: React.FC<ClassStudentListProps> = ({ currentClassID }) =
                         </div>
                     }
                     return studentList.map((student, index) => {
-                        const class1 = "w-full h-fit grid grid-cols-12 grid-rows-1 p-1 bg-white hover:bg-gray-200 cursor-pointer"
-                        const class2 = "w-full h-fit grid grid-cols-12 grid-rows-1 p-1 bg-gray-100 hover:bg-gray-200 cursor-pointer"
+                        const class1 = "w-full h-fit grid grid-cols-12 grid-rows-1 p-1 bg-white hover:bg-gray-50"
+                        const class2 = "w-full h-fit grid grid-cols-12 grid-rows-1 p-1 bg-snow hover:bg-gray-50"
 
                         return (
                             <React.Fragment key={student.uid}>
@@ -617,7 +621,7 @@ const ClassStudentList: React.FC<ClassStudentListProps> = ({ currentClassID }) =
                                         </motion.button>
                                     </div>
                                 </div>
-                                <hr className="solid bg-gray-200 border-gray-200 border rounded-full"></hr>
+                                <hr className="w-full solid bg-gray-200 border-gray-200 border rounded-full"></hr>
                             </React.Fragment>
                         )
                     })

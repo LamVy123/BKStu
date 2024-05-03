@@ -72,6 +72,7 @@ const Login: React.FC = () => {
                 </div>
                 <div className="">
                     <button
+                        type="submit"
                         className="text-2xl text-white rounded py-2 w-full bg-primary font-bold hover:bg-blue-700 border-solid border-black border mt-4 shadow-md shadow-gray-700"
                     >
                         {auth.isLoading ? <LoadingIcon width={8} height={8} /> : 'Log in'}

@@ -4,7 +4,7 @@ import { Navigate } from "react-router-dom"
 
 const StudentCourseRegistration = lazy(() => import('./Student/StudentCourseRegistration/StudentCourseRegistration'));
 
-const ClassManagement: React.FC = () => {
+const CouseRegistration: React.FC = () => {
     const auth = useAuth()
     switch (auth.role) {
         case 'student':
@@ -14,4 +14,4 @@ const ClassManagement: React.FC = () => {
     }
 }
 
-export default ClassManagement
+export default CouseRegistration

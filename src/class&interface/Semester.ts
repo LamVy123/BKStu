@@ -5,6 +5,7 @@ export interface SemesterInterface {
     id: string;
     academic_year: string;
     status: string;
+    description: string,
 }
 
 export class Semester implements SemesterInterface {
@@ -12,17 +13,20 @@ export class Semester implements SemesterInterface {
     private _id: string;
     private _academic_year: string;
     private _status: string;
+    private _description: string;
 
     constructor(
         code: string,
         id: string,
         academic_year: string,
-        status: string
+        status: string,
+        description: string,
     ) {
         this._code = code;
         this._id = id;
         this._academic_year = academic_year;
         this._status = status;
+        this._description = description
     }
 
     // Getters
@@ -38,6 +42,9 @@ export class Semester implements SemesterInterface {
     public get status(): string {
         return this._status;
     }
+    public get description(): string {
+        return this._description;
+    }
 
     // Setters (if needed)
 
@@ -48,6 +55,7 @@ export class Semester implements SemesterInterface {
             id: this._id,
             academic_year: this._academic_year,
             status: this._status,
+            description: this._description,
         };
     }
 }
@@ -95,7 +103,8 @@ export class SemesterFactory {
             data?.code,
             data?.id,
             data?.academic_year,
-            data?.status ,
+            data?.status,
+            data?.description,
         )
     }
 }

@@ -1,7 +1,7 @@
 import React from "react";
 import Footer from "../../../component/Footer";
 import CourseSelect from "./StudentCourseSelect";
-import CourseInfor from "./StudentCourse";
+import MyCourse from "./StudentCourse";
 import { useLocation } from "react-router-dom";
 
 
@@ -22,7 +22,7 @@ const StudentMyCourse: React.FC = () => {
             <>
                 <div className="min-w-full min-h-screen h-full pt-14 flex flex-col justify-start items-center">
                     <div className="w-full h-full flex items-start justify-start p-4 ">
-                        <CourseInfor currentCourseID={ID} /> :
+                        <MyCourse currentCourseID={ID} /> :
                     </div>
                 </div>
                 <Footer />

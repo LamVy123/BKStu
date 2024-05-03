@@ -288,8 +288,8 @@ const CourseSelect: React.FC<CourseSelectProp> = ({ currentSemester }) => {
                                             </div>
                                         }
                                         return courseList.map((course, index) => {
-                                            const class1 = "w-full h-fit flex flex-col p-4 gap-2 hover:bg-gray-200 bg-white";
-                                            const class2 = "w-full h-fit flex flex-col p-4 gap-2 hover:bg-gray-200 bg-gray-100";
+                                            const class1 = "w-full h-fit flex flex-col p-4 gap-2 hover:bg-gray-50 bg-snow";
+                                            const class2 = "w-full h-fit flex flex-col p-4 gap-2 hover:bg-gray-50 bg-white";
 
                                             const study_schedule = getSchedule(course.study_schedule)
                                             const lab_schedule = getSchedule(course.lab_schedule)
@@ -395,8 +395,8 @@ const CourseSelect: React.FC<CourseSelectProp> = ({ currentSemester }) => {
                                             </div>
                                         }
                                         return myCourseList.map((course, index) => {
-                                            const class1 = "w-full h-fit flex flex-col p-4 gap-2 hover:bg-gray-200 bg-white";
-                                            const class2 = "w-full h-fit flex flex-col p-4 gap-2 hover:bg-gray-200 bg-gray-100";
+                                            const class1 = "w-full h-fit flex flex-col p-4 gap-2 hover:bg-gray-50 bg-snow";
+                                            const class2 = "w-full h-fit flex flex-col p-4 gap-2 hover:bg-gray-50 bg-white";
 
                                             const study_schedule = getSchedule(course.study_schedule)
                                             const lab_schedule = getSchedule(course.lab_schedule)

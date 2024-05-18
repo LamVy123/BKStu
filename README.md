@@ -1,4 +1,4 @@
-BKStu - Hệ thống quản lý học thuật
+# BKStu - Hệ thống quản lý học thuật
 
 How to install and run:
 

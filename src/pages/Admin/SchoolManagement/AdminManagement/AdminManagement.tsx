@@ -452,7 +452,7 @@ const AdminManagement: React.FC = () => {
                 <div className="w-full h-full flex flex-col justify-start items-center p-4 gap-8 bg-snow">
                     <Header />
 
-                    <div className="w-full h-full flex-col p-4 gap-4">
+                    <div className="w-full h-full flex-col p-4 gap-4 overflow-scroll">
 
                         <div className="w-full h-fit grid grid-cols-12 max-md:grid-cols-6 p-4">
                             <div className="flex items-center justify-center"></div>

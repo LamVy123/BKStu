@@ -40,7 +40,7 @@ const StudentForm: React.FC<StudentFormProps> = ({ setOpenStudentForm }: Student
         }
 
         fetchCount()
-    }, [])
+    }, [reset])
 
     const generateID = (): string => {
         const year = new Date().getFullYear().toString().slice(-2);
@@ -122,12 +122,14 @@ const StudentForm: React.FC<StudentFormProps> = ({ setOpenStudentForm }: Student
                         const classStudentListCol = collection(classRef, 'student_list');
                         const student = doc(classStudentListCol, uid);
                         setDoc(student, user.getInterface());
+
                     })
             } catch {
                 alert("Đã xảy ra lỗi xin thử lại")
                 return
             }
 
+            setStudentCount(studentCount + 1)
             alert('Thêm sinh viên thành công!')
             clear()
         }
@@ -249,7 +251,7 @@ const StudentForm: React.FC<StudentFormProps> = ({ setOpenStudentForm }: Student
                 //Fetch Class
                 useEffect(() => {
                     const fetchClassList = async () => {
-                        let classQuerry = query(classColRef, where('majors', '==', currentMajors));
+                        let classQuerry = query(classColRef, where('majors', '==', currentMajors), where('status', '==', 'on_going'));
                         let list: Class[] = [];
                         const classQuerrySnapshot = await getDocs(classQuerry)
                         const classFactory = new ClassFactory();

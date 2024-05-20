@@ -253,7 +253,7 @@ const SemesterManagement: React.FC = () => {
                         <Select id="status" name="status" className="w-full font-normal" disable={!edit} height={12} option={statusOption} />
                     </div>
                     <div className="w-full h-fit flex flex-col items-start justify-start text-black font-bold gap-4">
-                        <label htmlFor="description" className="min-w-52">Trạng thái học kì:</label>
+                        <label htmlFor="description" className="min-w-52">Mô tả:</label>
                         <TextArea id="description" name="description" defaultValue={currentSemester.description} className="w-full min-h-32 font-normal" disable={!edit} />
                     </div>
                     <div className="w-full h-fit mt-auto flex items-center justify-start">
@@ -297,7 +297,7 @@ const SemesterManagement: React.FC = () => {
                         <Input id="status" name="status" type="number" className="w-full font-normal" disable />
                     </div>
                     <div className="w-full h-fit flex flex-col items-start justify-start text-black font-bold gap-4">
-                        <label htmlFor="description" className="min-w-52">Trạng thái học kì:</label>
+                        <label htmlFor="description" className="min-w-52">Mô tả:</label>
                         <TextArea id="description" name="description" className="w-full min-h-32" disable />
                     </div>
                 </div>

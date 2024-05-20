@@ -546,7 +546,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ setOpenCourseForm }: CourseForm
             })
 
             teacherList.forEach((teacher) => {
-                teacherOptionList = [...teacherOptionList, { lable: teacher.last_name + " " + teacher.middle_name + " " + teacher.first_name, value: JSON.stringify(teacher.getInterface()) }]
+                teacherOptionList = [...teacherOptionList, { lable: teacher.last_name + " " + teacher.middle_name + " " + teacher.first_name + ' - ' + teacher.display_id, value: JSON.stringify(teacher.getInterface()) }]
             })
 
             subjectList.forEach((subject) => {

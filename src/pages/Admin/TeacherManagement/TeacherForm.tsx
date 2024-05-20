@@ -78,7 +78,7 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ setOpenTeacherForm }: Teacher
                     .then((userCredential) => {
                         const uid = userCredential.user.uid;
                         const faculty = JSON.parse(data.get('faculty')?.toString() as string) as FacultyInterface
-                        const majors = JSON.parse(data.get('majors')?.toString() as string) as MajorsInterface
+                        const majors = JSON.parse(data.get('specialized')?.toString() as string) as MajorsInterface
 
                         const user = new Teacher(
                             data.get('last_name')?.toString() as string,
@@ -109,6 +109,9 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ setOpenTeacherForm }: Teacher
                         const userRef = doc(userColRef, uid);
                         const userDetailRef = doc(userDetaiColRef, uid);
                         const teacherCountRef = doc(userColRef, 'teacher_count');
+
+                        console.log(user.getInterface())
+                        console.log(userDetail.getInterface())
 
                         setDoc(userRef, user.getInterface())
                         setDoc(userDetailRef, userDetail.getInterface())

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 import Container from "../component/Container";
 import { EmailIcon, EyeIcon, EyeOffIcon, LoadingIcon } from "../assets/Icon";
 import { useAuth } from "../context/AuthContext";
@@ -23,11 +23,10 @@ const Login: React.FC = () => {
             setShowPassword(showPassword => !showPassword);
         }
 
-        function login(e: React.ChangeEvent<any>) {
+        function login(e: FormEvent) {
             e.preventDefault();
-            setEmail(emailRef.current?.value ? emailRef.current.value : '');
-            setPassword(passwordRef.current?.value ? passwordRef.current.value : '');
-            auth.LogInUser(email, password);
+            const data = new FormData(e.currentTarget as HTMLFormElement)
+            auth.LogInUser(data.get('email')?.toString() as string, data.get('password')?.toString() as string);
         }
         return (
             <form className="min-w-full h-fit p-8 border-solid border-black border rounded-md flex flex-col bg-white shadow-sm shadow-gray-700"
@@ -38,6 +37,7 @@ const Login: React.FC = () => {
                     <div className="flex flex-row gap-4 w-full items-center mt-2">
                         <input
                             id="email"
+                            name="email"
                             type="email"
                             ref={emailRef}
                             className="w-full p-2 border-black border border-solid focus:outline-primary rounded shadow-sm shadow-gray-700"
@@ -55,6 +55,7 @@ const Login: React.FC = () => {
                     <div className="flex flex-row gap-4 w-full items-center mt-2">
                         <input
                             id="password"
+                            name="password"
                             type={showPassword ? 'text' : 'password'}
                             ref={passwordRef}
                             className="w-full p-2 border-black border border-solid focus:outline-primary rounded shadow-sm shadow-gray-700"

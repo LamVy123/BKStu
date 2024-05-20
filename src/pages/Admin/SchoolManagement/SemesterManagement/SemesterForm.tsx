@@ -93,8 +93,8 @@ const SemesterForm: React.FC<SemesterFormProps> = ({ setOpenSemesterForm }: Seme
                         </div>
 
                         <div className="w-full h-fit flex flex-col items-start justify-start text-black font-bold gap-4">
-                            <label htmlFor="description" className="min-w-52">Trạng thái học kì:</label>
-                            <TextArea id="description" name="description" className="w-full min-h-32"  />
+                            <label htmlFor="description" className="min-w-52">Mô tả:</label>
+                            <TextArea id="description" name="description" className="w-full min-h-32" />
                         </div>
 
                     </div>
